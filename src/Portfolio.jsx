@@ -1,5 +1,13 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useP, fileToImageRef } from "./persist.js";
+import { useState, useEffect, useRef, useMemo } from "react";
+import {
+  useP,
+  fileToImageRef,
+  getAdminToken,
+  setAdminToken,
+  clearAdminSession,
+  apiPath,
+} from "./persist.js";
+import { useI18n } from "./i18n.jsx";
 
 /* ═══════════════════════════════════════════════════════════════
    NECTAR ATELIER — Apple Minimalism × Editorial Magazine
@@ -8,7 +16,26 @@ import { useP, fileToImageRef } from "./persist.js";
 
 const SK = { w:"nectar-w3", v:"nectar-v3", wi:"nectar-wi3" };
 
-function useInView(th=0.15){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const el=r.current;if(!el)return;const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);o.unobserve(el)}},{threshold:th});o.observe(el);return()=>o.disconnect()},[]);return[r,v]}
+function useInView(th = 0.15) {
+  const r = useRef(null);
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const el = r.current;
+    if (!el) return;
+    const o = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setV(true);
+          o.unobserve(el);
+        }
+      },
+      { threshold: th }
+    );
+    o.observe(el);
+    return () => o.disconnect();
+  }, [th]);
+  return [r, v];
+}
 
 function usePx(sp=0.3){const r=useRef(null);const[o,setO]=useState(0);useEffect(()=>{const h=()=>{if(!r.current)return;const rc=r.current.getBoundingClientRect();const vh=window.innerHeight;const p=(vh-rc.top)/(vh+rc.height);setO((p-0.5)*sp*rc.height)};window.addEventListener("scroll",h,{passive:true});h();return()=>window.removeEventListener("scroll",h)},[sp]);return[r,o]}
 
@@ -32,12 +59,12 @@ const GR={
 };
 
 const DW=[
-  {id:"1",title:"永生花・粉霧玫瑰",en:"Preserved Rose — Blush Mist",price:1280,image:"",cat:"永生花",desc:"淡粉色永生玫瑰搭配滿天星，封存最美的瞬間",gallery:[]},
-  {id:"2",title:"乾燥花束・秋日暖陽",en:"Dried Bouquet — Autumn Glow",price:980,image:"",cat:"乾燥花",desc:"暖色系乾燥花束，秋冬限定的溫柔",gallery:[]},
-  {id:"3",title:"鮮花花藝・白綠森林",en:"Fresh Arrangement — White Forest",price:1680,image:"",cat:"鮮花",desc:"白綠色系歐式花藝，純淨的呼吸感",gallery:[]},
-  {id:"4",title:"多肉組盆・石蓮集",en:"Succulent Planter — Stone Lotus",price:780,image:"",cat:"多肉",desc:"多款石蓮花精緻組盆，小巧的療癒世界",gallery:[]},
-  {id:"5",title:"花圈・松果聖誕",en:"Wreath — Pinecone Noël",price:1480,image:"",cat:"花圈",desc:"松果與乾燥果實交織的冬日花圈",gallery:[]},
-  {id:"6",title:"新娘捧花・白紗",en:"Bridal Bouquet — White Veil",price:2580,image:"",cat:"捧花",desc:"經典白色系新娘捧花，為幸福加冕",gallery:[]},
+  {id:"1",title:"永生花・粉霧玫瑰",en:"Preserved Rose — Blush Mist",price:1280,image:"",cat:"永生花",desc:"淡粉色永生玫瑰搭配滿天星，封存最美的瞬間",descEn:"Blush preserved roses with baby's breath — a fleeting moment, held still.",gallery:[]},
+  {id:"2",title:"乾燥花束・秋日暖陽",en:"Dried Bouquet — Autumn Glow",price:980,image:"",cat:"乾燥花",desc:"暖色系乾燥花束，秋冬限定的溫柔",descEn:"Warm-toned dried blooms — autumn and winter softness, in one bundle.",gallery:[]},
+  {id:"3",title:"鮮花花藝・白綠森林",en:"Fresh Arrangement — White Forest",price:1680,image:"",cat:"鮮花",desc:"白綠色系歐式花藝，純淨的呼吸感",descEn:"European-style white and green fresh florals — quiet, airy clarity.",gallery:[]},
+  {id:"4",title:"多肉組盆・石蓮集",en:"Succulent Planter — Stone Lotus",price:780,image:"",cat:"多肉",desc:"多款石蓮花精緻組盆，小巧的療癒世界",descEn:"A miniature garden of echeveria — small pots, big calm.",gallery:[]},
+  {id:"5",title:"花圈・松果聖誕",en:"Wreath — Pinecone Noël",price:1480,image:"",cat:"花圈",desc:"松果與乾燥果實交織的冬日花圈",descEn:"Pinecones and dried botanicals woven into a winter wreath.",gallery:[]},
+  {id:"6",title:"新娘捧花・白紗",en:"Bridal Bouquet — White Veil",price:2580,image:"",cat:"捧花",desc:"經典白色系新娘捧花，為幸福加冕",descEn:"Classic white bridal bouquet — a quiet crown for the big day.",gallery:[]},
 ];
 const DV=[
   {id:"v1",name:"玫瑰",en:"Rose",emoji:"🌹",votes:0},{id:"v2",name:"向日葵",en:"Sunflower",emoji:"🌻",votes:0},
@@ -51,9 +78,14 @@ function Danmaku({wishes}){const[its,setIts]=useState([]);const c=useRef(0);useE
 
 // Detail Lightbox
 function Detail({work,onClose,admin,onUploadGallery}){
+  const { workTitle, workSubtitle, workDesc, workCat, t, formatPrice } = useI18n();
   const[idx,setIdx]=useState(0);
   const allImgs=useMemo(()=>{const a=[];if(work.image)a.push(work.image);if(work.gallery)a.push(...work.gallery);return a},[work]);
   const cur=allImgs[idx]||null;
+  const mainT=workTitle(work);
+  const subT=workSubtitle(work);
+  const dsc=workDesc(work);
+  const catL=workCat(work);
 
   return(
     <div style={{position:"fixed",inset:0,zIndex:200,animation:"fadeIn 0.3s"}} onClick={onClose}>
@@ -98,18 +130,18 @@ function Detail({work,onClose,admin,onUploadGallery}){
         )}
         {allImgs.length<=1&&admin&&(
           <label style={{marginTop:16,display:"flex",alignItems:"center",gap:6,color:"rgba(201,169,110,0.4)",fontSize:12,fontFamily:"'Instrument Serif',serif",fontStyle:"italic",cursor:"pointer",padding:"8px 16px",border:"1px dashed rgba(201,169,110,0.2)",borderRadius:20}}>
-            <Plus s={14}/> Add more angles
+            <Plus s={14}/> {t("detailAddAngles")}
             <input type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>{if(e.target.files)onUploadGallery(work.id,[...e.target.files])}}/>
           </label>
         )}
 
         {/* Info */}
         <div style={{textAlign:"center",marginTop:24,maxWidth:600}}>
-          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,letterSpacing:"0.35em",textTransform:"uppercase",color:"rgba(201,169,110,0.45)",marginBottom:8}}>{work.cat}</div>
-          <h2 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(24px,4vw,36px)",fontWeight:400,color:"#F5F0EB",letterSpacing:"0.04em",marginBottom:6}}>{work.title}</h2>
-          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:15,fontStyle:"italic",color:"rgba(201,169,110,0.5)",letterSpacing:"0.15em",marginBottom:12}}>{work.en}</div>
-          <p style={{fontFamily:"'Noto Serif TC',serif",fontSize:13,color:"rgba(245,240,235,0.4)",lineHeight:1.9,marginBottom:16}}>{work.desc}</p>
-          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:28,fontWeight:400,color:"#C9A96E",letterSpacing:"0.04em"}}>NT$ {work.price.toLocaleString()}</div>
+          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,letterSpacing:"0.35em",textTransform:"uppercase",color:"rgba(201,169,110,0.45)",marginBottom:8}}>{catL}</div>
+          <h2 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(24px,4vw,36px)",fontWeight:400,color:"#F5F0EB",letterSpacing:"0.04em",marginBottom:6}}>{mainT}</h2>
+          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:15,fontStyle:"italic",color:"rgba(201,169,110,0.5)",letterSpacing:"0.15em",marginBottom:12}}>{subT}</div>
+          <p style={{fontFamily:"'Noto Serif TC',serif",fontSize:13,color:"rgba(245,240,235,0.4)",lineHeight:1.9,marginBottom:16}}>{dsc}</p>
+          <div style={{fontFamily:"'Instrument Serif',serif",fontSize:28,fontWeight:400,color:"#C9A96E",letterSpacing:"0.04em"}}>{formatPrice(work.price)}</div>
         </div>
       </div>
     </div>
@@ -119,17 +151,29 @@ const navBtn={position:"absolute",top:"50%",transform:"translateY(-50%)",backgro
 
 // Work Section
 function WS({work,index,total,admin,onEdit,onDelete,onUpload,onOpen}){
+  const { t, workTitle, workSubtitle, workDesc, workCat, formatPrice } = useI18n();
   const[pr,po]=usePx(0.22);const[tr,tv]=useInView();const[h,setH]=useState(false);
   const gr=GR[work.cat]||GR["鮮花"];
+  const hasImg=!!work.image;
+  const imgFilter=hasImg
+    ? (h?"brightness(0.92) saturate(1.06)":"brightness(0.78) saturate(1.04)")
+    : (h?"blur(1px) brightness(0.5)":"blur(0px) brightness(0.35)");
+  const overlayBg=hasImg
+    ? "linear-gradient(0deg, rgba(8,7,6,0.52) 0%, rgba(8,7,6,0.12) 32%, rgba(8,7,6,0) 52%, rgba(8,7,6,0.28) 100%)"
+    : "linear-gradient(0deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.2) 28%, rgba(8,7,6,0) 50%, rgba(8,7,6,0.5) 100%)";
+  const mainT=workTitle(work);
+  const subT=workSubtitle(work);
+  const dsc=workDesc(work);
+  const catL=workCat(work);
   return(
     <div ref={pr} style={{position:"relative",height:"100vh",overflow:"hidden",cursor:"pointer"}} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} onClick={()=>onOpen(work)}>
       {/* BG parallax */}
-      <div style={{position:"absolute",inset:"-18% 0",transform:`translateY(${po}px) scale(${h?1.06:1})`,transition:"transform 1.4s cubic-bezier(0.16,1,0.3,1)",background:work.image?`url(${work.image}) center/cover no-repeat`:gr,filter:h?"blur(1px) brightness(0.5)":"blur(0px) brightness(0.35)",willChange:"transform"}}>
-        {!work.image&&<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:160,opacity:0.04,color:"#C9A96E"}}>✿</span></div>}
+      <div style={{position:"absolute",inset:"-18% 0",transform:`translateY(${po}px) scale(${h?1.04:1})`,transition:"transform 1.4s cubic-bezier(0.16,1,0.3,1)",background:hasImg?`url(${work.image}) center/cover no-repeat`:gr,filter:imgFilter,willChange:"transform"}}>
+        {!hasImg&&<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:160,opacity:0.04,color:"#C9A96E"}}>✿</span></div>}
       </div>
 
       {/* Gradient overlays — depth */}
-      <div style={{position:"absolute",inset:0,background:"linear-gradient(0deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.2) 28%, rgba(8,7,6,0) 50%, rgba(8,7,6,0.5) 100%)",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",inset:0,background:overlayBg,pointerEvents:"none"}}/>
       <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 70% 30%, rgba(201,169,110,0.03) 0%, transparent 60%)",pointerEvents:"none"}}/>
 
       {/* Bottom edge gradient line */}
@@ -144,31 +188,31 @@ function WS({work,index,total,admin,onEdit,onDelete,onUpload,onOpen}){
 
         {/* Category */}
         <div style={{display:"inline-block",border:"1px solid rgba(201,169,110,0.18)",padding:"5px 20px",fontSize:10,letterSpacing:"0.35em",color:"rgba(201,169,110,0.5)",fontFamily:"'Instrument Serif',serif",textTransform:"uppercase",marginBottom:24,backdropFilter:"blur(8px)",background:"rgba(0,0,0,0.15)",borderRadius:2}}>
-          {work.cat}
+          {catL}
         </div>
 
         {/* Title */}
         <h2 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(28px,4.2vw,58px)",fontWeight:400,letterSpacing:"0.04em",lineHeight:1.2,color:"#F5F0EB",marginBottom:10,textShadow:"0 4px 50px rgba(0,0,0,0.5)"}}>
-          {work.title}
+          {mainT}
         </h2>
 
         {/* English — Instrument Serif italic */}
         <div style={{fontFamily:"'Instrument Serif',serif",fontSize:"clamp(14px,1.8vw,20px)",fontStyle:"italic",fontWeight:400,letterSpacing:"0.12em",color:"rgba(201,169,110,0.45)",marginBottom:20}}>
-          {work.en}
+          {subT}
         </div>
 
         {/* Description */}
         <p style={{fontFamily:"'Noto Serif TC',serif",fontSize:14,color:"rgba(245,240,235,0.35)",lineHeight:1.9,maxWidth:520,marginBottom:28,letterSpacing:"0.03em"}}>
-          {work.desc}
+          {dsc}
         </p>
 
         {/* Price + CTA */}
         <div style={{display:"flex",alignItems:"baseline",gap:24}}>
           <span style={{fontFamily:"'Instrument Serif',serif",fontSize:"clamp(24px,3vw,34px)",fontWeight:400,color:"#C9A96E",letterSpacing:"0.03em"}}>
-            NT$ {work.price.toLocaleString()}
+            {formatPrice(work.price)}
           </span>
           <span style={{fontSize:10,color:"rgba(201,169,110,0.28)",letterSpacing:"0.28em",fontFamily:"'Instrument Serif',serif",textTransform:"uppercase",fontStyle:"italic",borderBottom:"1px solid rgba(201,169,110,0.12)",paddingBottom:2}}>
-            View Details →
+            {t("workViewDetails")}
           </span>
         </div>
       </div>
@@ -176,7 +220,7 @@ function WS({work,index,total,admin,onEdit,onDelete,onUpload,onOpen}){
       {/* Hover — vertical text right */}
       <div style={{position:"absolute",top:"50%",right:"clamp(32px,5vw,72px)",transform:`translateY(-50%) translateX(${h?0:14}px)`,opacity:h?1:0,transition:"all 0.8s cubic-bezier(0.16,1,0.3,1)",textAlign:"right",zIndex:2,pointerEvents:"none"}}>
         <div style={{width:1,height:44,background:"rgba(201,169,110,0.2)",marginLeft:"auto",marginBottom:14}}/>
-        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,letterSpacing:"0.3em",color:"rgba(201,169,110,0.25)",textTransform:"uppercase",writingMode:"vertical-rl",fontStyle:"italic"}}>Nectar Art</div>
+        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,letterSpacing:"0.3em",color:"rgba(201,169,110,0.25)",textTransform:"uppercase",writingMode:"vertical-rl",fontStyle:"italic"}}>{t("verticalArt")}</div>
       </div>
 
       {/* Admin */}
@@ -194,6 +238,7 @@ const ab={background:"rgba(0,0,0,0.5)",backdropFilter:"blur(12px)",border:"1px s
 
 // Main
 export default function App(){
+  const { t, locale, setLocale, flowerName } = useI18n();
   const[pg,setPg]=useState("portfolio");
   const[works,setW]=useP(SK.w,DW,{cloud:true});
   const[votes,setV]=useP(SK.v,DV);
@@ -202,11 +247,23 @@ export default function App(){
   const[modal,setMo]=useState(false);
   const[detail,setDt]=useState(null);
   const[wiIn,setWiIn]=useState("");
-  const[admin,setAd]=useState(false);
+  const[adminAuthed,setAdminAuthed]=useState(false);
+  const[adminLoginOpen,setAdminLoginOpen]=useState(false);
+  const[loginPwd,setLoginPwd]=useState("");
+  const[loginErr,setLoginErr]=useState(false);
   const[voted,setVd]=useState({});
   const[ho,setHo]=useState(false);
   const[co,setCo]=useState(false);
 
+  useEffect(()=>{setAdminAuthed(!!getAdminToken())},[]);
+  useEffect(()=>{
+    const onUnauth=()=>{
+      setAdminAuthed(false);
+      window.alert(t("adminSessionExpired"));
+    };
+    window.addEventListener("nectar-admin-unauthorized",onUnauth);
+    return()=>window.removeEventListener("nectar-admin-unauthorized",onUnauth);
+  },[t]);
   useEffect(()=>{setTimeout(()=>setHo(true),200);setTimeout(()=>setCo(true),600)},[]);
   useEffect(()=>{setCo(false);setTimeout(()=>setCo(true),250)},[pg]);
 
@@ -216,6 +273,23 @@ export default function App(){
   const doV=id=>{if(voted[id])return;setV(p=>p.map(f=>f.id===id?{...f,votes:f.votes+1}:f));setVd(p=>({...p,[id]:true}))};
   const doWi=()=>{if(!wiIn.trim())return;setWi(p=>[...p,{id:Date.now().toString(),text:wiIn.trim()}]);setWiIn("")};
   const doSv=w=>{if(w.id&&works.find(x=>x.id===w.id))setW(p=>p.map(x=>x.id===w.id?w:x));else setW(p=>[...p,{...w,id:Date.now().toString()}]);setMo(false);setEd(null)};
+  const tryAdminLogin=async()=>{
+    if(!loginPwd.trim())return;
+    try{
+      const r=await fetch(apiPath("/api/admin/verify"),{method:"POST",headers:{Authorization:`Bearer ${loginPwd.trim()}`}});
+      if(r.ok){
+        setAdminToken(loginPwd.trim());
+        setAdminAuthed(true);
+        setAdminLoginOpen(false);
+        setLoginPwd("");
+        setLoginErr(false);
+      }else{
+        setLoginErr(true);
+      }
+    }catch{
+      setLoginErr(true);
+    }
+  };
   const doDl=id=>setW(p=>p.filter(x=>x.id!==id));
   const doUp=async(wid,f)=>{try{const ref=await fileToImageRef(f);setW(p=>p.map(w=>w.id===wid?{...w,image:ref}:w))}catch(e){console.error(e);window.alert((e&&e.message)||"主圖上傳失敗")}};
   const doGal=async(wid,files)=>{for(const f of files){try{const ref=await fileToImageRef(f);setW(p=>p.map(w=>w.id===wid?{...w,gallery:[...(w.gallery||[]),ref]}:w))}catch(e){console.error(e);window.alert((e&&e.message)||"圖庫上傳失敗")}}};
@@ -239,6 +313,7 @@ export default function App(){
         .fi{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);color:#F5F0EB;padding:13px 18px;font-family:'Noto Serif TC',serif;font-size:14px;border-radius:4px;outline:none;transition:all 0.3s;backdrop-filter:blur(4px)}
         .fi:focus{border-color:rgba(201,169,110,0.35);background:rgba(255,255,255,0.05)}
         .fi::placeholder{color:rgba(245,240,235,0.2)}
+        textarea.fi{min-height:100px;resize:vertical;line-height:1.65;padding-top:14px;padding-bottom:14px}
         .vc{background:rgba(255,255,255,0.02);border:1px solid rgba(201,169,110,0.08);border-radius:6px;padding:20px 24px;display:flex;align-items:center;gap:18px;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);cursor:pointer;backdrop-filter:blur(4px)}
         .vc:hover{border-color:rgba(201,169,110,0.25);background:rgba(201,169,110,0.03);box-shadow:0 0 60px -15px rgba(201,169,110,0.06)}
         .vc.vd{border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.04)}
@@ -250,10 +325,14 @@ export default function App(){
         <div style={{maxWidth:1400,margin:"0 auto",padding:"0 48px",display:"flex",alignItems:"center",justifyContent:"space-between",height:54}}>
           <span style={{fontFamily:"'Instrument Serif',serif",fontSize:18,fontStyle:"italic",color:"#C9A96E",letterSpacing:"0.06em"}}>Nectar Atelier</span>
           <div style={{display:"flex",gap:32,alignItems:"center"}}>
-            <button className={`nb ${pg==="portfolio"?"on":""}`} onClick={()=>setPg("portfolio")}>Collection</button>
-            <button className={`nb ${pg==="vote"?"on":""}`} onClick={()=>setPg("vote")}>Vote</button>
-            <button onClick={()=>setAd(!admin)} style={{background:"none",border:"1px solid rgba(201,169,110,0.1)",color:admin?"#C9A96E":"rgba(245,240,235,0.25)",padding:"5px 14px",fontSize:11,letterSpacing:"0.08em",fontFamily:"'Instrument Serif',serif",fontStyle:"italic",cursor:"pointer",borderRadius:20,transition:"all 0.3s"}}>
-              {admin?"Exit Admin":"Admin"}
+            <button className={`nb ${pg==="portfolio"?"on":""}`} onClick={()=>setPg("portfolio")}>{t("navCollection")}</button>
+            <button className={`nb ${pg==="vote"?"on":""}`} onClick={()=>setPg("vote")}>{t("navVote")}</button>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <button type="button" onClick={()=>setLocale("en")} style={{background:locale==="en"?"rgba(201,169,110,0.15)":"none",border:"1px solid rgba(201,169,110,0.12)",color:locale==="en"?"#C9A96E":"rgba(245,240,235,0.35)",padding:"4px 10px",fontSize:11,fontFamily:"'Instrument Serif',serif",cursor:"pointer",borderRadius:6}}>{t("langEn")}</button>
+              <button type="button" onClick={()=>setLocale("zh-TW")} style={{background:locale==="zh-TW"?"rgba(201,169,110,0.15)":"none",border:"1px solid rgba(201,169,110,0.12)",color:locale==="zh-TW"?"#C9A96E":"rgba(245,240,235,0.35)",padding:"4px 10px",fontSize:11,fontFamily:"'Instrument Serif',serif",cursor:"pointer",borderRadius:6}}>{t("langZh")}</button>
+            </div>
+            <button type="button" onClick={()=>{if(adminAuthed){clearAdminSession();setAdminAuthed(false)}else{setLoginErr(false);setAdminLoginOpen(true)}}} style={{background:"none",border:"1px solid rgba(201,169,110,0.1)",color:adminAuthed?"#C9A96E":"rgba(245,240,235,0.25)",padding:"5px 14px",fontSize:11,letterSpacing:"0.08em",fontFamily:"'Instrument Serif',serif",fontStyle:"italic",cursor:"pointer",borderRadius:20,transition:"all 0.3s"}}>
+              {adminAuthed?t("navExitAdmin"):t("navAdmin")}
             </button>
           </div>
         </div>
@@ -274,33 +353,33 @@ export default function App(){
               <div style={{width:ho?80:0,height:1,background:"linear-gradient(90deg, transparent, rgba(201,169,110,0.35), transparent)",margin:"0 auto 36px",transition:"width 1.6s cubic-bezier(0.16,1,0.3,1) 0.3s"}}/>
 
               <div style={{fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.35)",marginBottom:28}}>
-                Nectar Art Collection
+                {t("heroTag")}
               </div>
 
               <h1 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(44px,8.5vw,100px)",fontWeight:300,letterSpacing:"0.03em",lineHeight:1.1,color:"#F5F0EB",marginBottom:14}}>
-                花藝作品集
+                {t("heroTitle")}
               </h1>
 
               <p style={{fontFamily:"'Instrument Serif',serif",fontSize:"clamp(16px,2.2vw,22px)",fontStyle:"italic",color:"rgba(201,169,110,0.3)",letterSpacing:"0.1em",fontWeight:400,marginBottom:48}}>
-                Where Flowers Become Art
+                {t("heroSub")}
               </p>
 
               <div style={{width:ho?80:0,height:1,background:"linear-gradient(90deg, transparent, rgba(201,169,110,0.35), transparent)",margin:"0 auto",transition:"width 1.6s cubic-bezier(0.16,1,0.3,1) 0.5s"}}/>
             </div>
 
             <div style={{position:"absolute",bottom:40,left:"50%",transform:"translateX(-50%)",zIndex:2,opacity:ho?1:0,transition:"opacity 1.2s 2s",textAlign:"center"}}>
-              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.2)",marginBottom:10}}>Scroll to explore</div>
+              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.2)",marginBottom:10}}>{t("heroScroll")}</div>
               <Arr s={14} d="down" style={{color:"rgba(201,169,110,0.2)",animation:"sc 2.5s infinite"}}/>
             </div>
           </div>
 
-          {admin&&<div style={{position:"fixed",bottom:32,right:32,zIndex:40}}><button onClick={()=>{setEd({title:"",en:"",price:0,image:"",cat:"",desc:"",gallery:[]});setMo(true)}} style={{background:"#C9A96E",color:"#080706",border:"none",width:50,height:50,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 8px 40px rgba(201,169,110,0.3)"}}><Plus s={22}/></button></div>}
+          {adminAuthed&&<div style={{position:"fixed",bottom:32,right:32,zIndex:40}}><button onClick={()=>{setEd({title:"",en:"",price:0,image:"",cat:"",desc:"",descEn:"",gallery:[]});setMo(true)}} style={{background:"#C9A96E",color:"#080706",border:"none",width:50,height:50,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 8px 40px rgba(201,169,110,0.3)"}}><Plus s={22}/></button></div>}
 
-          {works.map((w,i)=><WS key={w.id} work={w} index={i} total={works.length} admin={admin} onEdit={w=>{setEd(w);setMo(true)}} onDelete={doDl} onUpload={doUp} onOpen={setDt}/>)}
+          {works.map((w,i)=><WS key={w.id} work={w} index={i} total={works.length} admin={adminAuthed} onEdit={w=>{setEd(w);setMo(true)}} onDelete={doDl} onUpload={doUp} onOpen={setDt}/>)}
 
           <div style={{height:"30vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
             <div style={{width:1,height:40,background:"linear-gradient(180deg, rgba(201,169,110,0.15), transparent)"}}/>
-            <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.3em",color:"rgba(201,169,110,0.12)"}}>End of Collection</div>
+            <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.3em",color:"rgba(201,169,110,0.12)"}}>{t("portfolioEnd")}</div>
           </div>
         </div>
       )}
@@ -312,19 +391,19 @@ export default function App(){
 
           <div style={{textAlign:"center",marginBottom:56,opacity:ho?1:0,transform:ho?"translateY(0)":"translateY(24px)",transition:"all 1s cubic-bezier(0.16,1,0.3,1)"}}>
             <div style={{width:40,height:1,background:"linear-gradient(90deg, transparent, rgba(201,169,110,0.25), transparent)",margin:"0 auto 24px"}}/>
-            <div style={{fontFamily:"'Instrument Serif',serif",fontSize:12,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.3)",marginBottom:20}}>Classroom Vote</div>
-            <h2 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(32px,5.5vw,50px)",fontWeight:300,letterSpacing:"0.04em",marginBottom:12}}>花種投票</h2>
-            <p style={{fontFamily:"'Instrument Serif',serif",fontSize:16,fontStyle:"italic",color:"rgba(201,169,110,0.25)",letterSpacing:"0.1em"}}>Vote for the Flower You Wish to Learn</p>
+            <div style={{fontFamily:"'Instrument Serif',serif",fontSize:12,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.3)",marginBottom:20}}>{t("voteKicker")}</div>
+            <h2 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(32px,5.5vw,50px)",fontWeight:300,letterSpacing:"0.04em",marginBottom:12}}>{t("voteTitle")}</h2>
+            <p style={{fontFamily:"'Instrument Serif',serif",fontSize:16,fontStyle:"italic",color:"rgba(201,169,110,0.25)",letterSpacing:"0.1em"}}>{t("voteSub")}</p>
             <div style={{width:40,height:1,background:"linear-gradient(90deg, transparent, rgba(201,169,110,0.25), transparent)",margin:"24px auto 0"}}/>
           </div>
 
           {sorted[0]?.votes>0&&(
             <div style={{textAlign:"center",marginBottom:48,padding:"36px",background:"rgba(201,169,110,0.02)",border:"1px solid rgba(201,169,110,0.08)",borderRadius:8,animation:"breathe 4s infinite",backdropFilter:"blur(8px)"}}>
               <Crown s={24} style={{color:"#C9A96E",margin:"0 auto 12px",display:"block"}}/>
-              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.35)",marginBottom:10}}>Currently Leading</div>
+              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.35)",marginBottom:10}}>{t("voteLeading")}</div>
               <div style={{fontSize:44,marginBottom:6}}>{sorted[0].emoji}</div>
-              <div style={{fontFamily:"'Noto Serif TC',serif",fontSize:26,color:"#C9A96E",fontWeight:300}}>{sorted[0].name}</div>
-              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",color:"rgba(201,169,110,0.35)",marginTop:6}}>{sorted[0].en} — {sorted[0].votes} votes</div>
+              <div style={{fontFamily:"'Noto Serif TC',serif",fontSize:26,color:"#C9A96E",fontWeight:300}}>{flowerName(sorted[0])}</div>
+              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",color:"rgba(201,169,110,0.35)",marginTop:6}}>{locale==="en"?sorted[0].name:sorted[0].en} — {sorted[0].votes} {t("voteVotes")}</div>
             </div>
           )}
 
@@ -335,8 +414,8 @@ export default function App(){
                 <div style={{flex:1}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:8}}>
                     <div>
-                      <span style={{fontFamily:"'Noto Serif TC',serif",fontSize:15,fontWeight:400,color:voted[f.id]?"#C9A96E":"#F5F0EB"}}>{f.name}</span>
-                      <span style={{fontFamily:"'Instrument Serif',serif",fontSize:12,fontStyle:"italic",color:"rgba(201,169,110,0.25)",marginLeft:10}}>{f.en}</span>
+                      <span style={{fontFamily:"'Noto Serif TC',serif",fontSize:15,fontWeight:400,color:voted[f.id]?"#C9A96E":"#F5F0EB"}}>{flowerName(f)}</span>
+                      <span style={{fontFamily:"'Instrument Serif',serif",fontSize:12,fontStyle:"italic",color:"rgba(201,169,110,0.25)",marginLeft:10}}>{locale==="en"?f.name:f.en}</span>
                     </div>
                     <span style={{fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",color:"rgba(245,240,235,0.2)"}}>{f.votes}</span>
                   </div>
@@ -344,7 +423,7 @@ export default function App(){
                     <div style={{height:"100%",width:`${(f.votes/mx)*100}%`,background:"linear-gradient(90deg, rgba(201,169,110,0.6), #C9A96E)",borderRadius:2,transition:"width 0.8s cubic-bezier(0.16,1,0.3,1)"}}/>
                   </div>
                 </div>
-                {voted[f.id]?<span style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",color:"rgba(201,169,110,0.5)"}}>Voted</span>:<Arr s={14} d="down" style={{color:"rgba(245,240,235,0.15)",transform:"rotate(180deg)",flexShrink:0}}/>}
+                {voted[f.id]?<span style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",color:"rgba(201,169,110,0.5)"}}>{t("voteVoted")}</span>:<Arr s={14} d="down" style={{color:"rgba(245,240,235,0.15)",transform:"rotate(180deg)",flexShrink:0}}/>}
               </div>
             ))}
           </div>
@@ -354,68 +433,84 @@ export default function App(){
           {/* Wish Pool */}
           <div style={{position:"relative",zIndex:10}}>
             <div style={{textAlign:"center",marginBottom:36}}>
-              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.3)",marginBottom:16}}>✦ Wishing Pool ✦</div>
-              <h3 style={{fontFamily:"'Noto Serif TC',serif",fontSize:28,fontWeight:300,letterSpacing:"0.04em",marginBottom:8}}>許願池</h3>
-              <p style={{fontFamily:"'Instrument Serif',serif",fontSize:14,fontStyle:"italic",color:"rgba(201,169,110,0.2)"}}>Whisper Your Wish Into the Stream</p>
+              <div style={{fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.3)",marginBottom:16}}>{t("wishKicker")}</div>
+              <h3 style={{fontFamily:"'Noto Serif TC',serif",fontSize:28,fontWeight:300,letterSpacing:"0.04em",marginBottom:8}}>{t("wishTitle")}</h3>
+              <p style={{fontFamily:"'Instrument Serif',serif",fontSize:14,fontStyle:"italic",color:"rgba(201,169,110,0.2)"}}>{t("wishSub")}</p>
             </div>
             <div style={{display:"flex",gap:10,marginBottom:32}}>
-              <input className="fi" placeholder="輸入你想學的花種名稱..." value={wiIn} onChange={e=>setWiIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doWi()} style={{flex:1}}/>
-              <button onClick={doWi} style={{background:"rgba(201,169,110,0.12)",color:"#C9A96E",border:"1px solid rgba(201,169,110,0.15)",padding:"12px 22px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4,display:"flex",alignItems:"center",gap:8,whiteSpace:"nowrap",backdropFilter:"blur(8px)",transition:"all 0.3s"}}><Send/> 許願</button>
+              <input className="fi" placeholder={t("wishPlaceholder")} value={wiIn} onChange={e=>setWiIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doWi()} style={{flex:1}}/>
+              <button onClick={doWi} style={{background:"rgba(201,169,110,0.12)",color:"#C9A96E",border:"1px solid rgba(201,169,110,0.15)",padding:"12px 22px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4,display:"flex",alignItems:"center",gap:8,whiteSpace:"nowrap",backdropFilter:"blur(8px)",transition:"all 0.3s"}}><Send/> {t("wishSend")}</button>
             </div>
             {wishes.length>0?(
               <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>
                 {wishes.slice(-30).map(w=><span key={w.id} style={{display:"inline-block",background:"rgba(201,169,110,0.03)",border:"1px solid rgba(201,169,110,0.08)",color:"rgba(245,240,235,0.5)",padding:"7px 16px",borderRadius:20,fontSize:12,fontFamily:"'Instrument Serif',serif",fontStyle:"italic",animation:"fu 0.4s",backdropFilter:"blur(4px)"}}>✿ {w.text}</span>)}
               </div>
             ):(
-              <div style={{textAlign:"center",padding:48,color:"rgba(201,169,110,0.15)",fontSize:13,fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}}>Be the First to Make a Wish ✦</div>
+              <div style={{textAlign:"center",padding:48,color:"rgba(201,169,110,0.15)",fontSize:13,fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}}>{t("wishEmpty")}</div>
             )}
-            {admin&&<div style={{marginTop:48,textAlign:"center"}}><button onClick={()=>{setV(DV);setVd({})}} style={{background:"none",border:"1px solid rgba(239,68,68,0.2)",color:"rgba(239,68,68,0.6)",padding:"8px 22px",fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",cursor:"pointer",borderRadius:20}}>Reset All Votes</button></div>}
+            {adminAuthed&&<div style={{marginTop:48,textAlign:"center"}}><button onClick={()=>{setV(DV);setVd({})}} style={{background:"none",border:"1px solid rgba(239,68,68,0.2)",color:"rgba(239,68,68,0.6)",padding:"8px 22px",fontFamily:"'Instrument Serif',serif",fontSize:11,fontStyle:"italic",cursor:"pointer",borderRadius:20}}>{t("wishReset")}</button></div>}
           </div>
         </div>
       )}
 
       {/* Detail Lightbox */}
-      {detail&&<Detail work={detail} onClose={()=>setDt(null)} admin={admin} onUploadGallery={doGal}/>}
+      {detail&&<Detail work={detail} onClose={()=>setDt(null)} admin={adminAuthed} onUploadGallery={doGal}/>}
 
       {/* Edit Modal */}
       {modal&&ed&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(20px)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",animation:"fadeIn 0.2s"}} onClick={()=>{setMo(false);setEd(null)}}>
-          <div style={{background:"rgba(28,25,23,0.95)",backdropFilter:"blur(20px)",border:"1px solid rgba(201,169,110,0.1)",borderRadius:8,width:"90%",maxWidth:520,padding:40,animation:"fu 0.3s",maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:36}}>
-              <h3 style={{fontFamily:"'Instrument Serif',serif",fontSize:24,fontStyle:"italic",fontWeight:400}}>{ed.id&&works.find(x=>x.id===ed.id)?"Edit Work":"New Work"}</h3>
-              <button onClick={()=>{setMo(false);setEd(null)}} style={{background:"none",border:"none",color:"rgba(245,240,235,0.3)",cursor:"pointer"}}><X s={20}/></button>
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(20px)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",animation:"fadeIn 0.2s"}}>
+          <div style={{background:"rgba(28,25,23,0.95)",backdropFilter:"blur(20px)",border:"1px solid rgba(201,169,110,0.1)",borderRadius:8,width:"90%",maxWidth:520,padding:40,animation:"fu 0.3s",maxHeight:"90vh",overflowY:"auto"}}>
+            <div style={{marginBottom:36}}>
+              <h3 style={{fontFamily:"'Instrument Serif',serif",fontSize:24,fontStyle:"italic",fontWeight:400}}>{ed.id&&works.find(x=>x.id===ed.id)?t("modalEdit"):t("modalNew")}</h3>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:22}}>
-              <Fld l="作品名稱" v={ed.title} c={v=>setEd({...ed,title:v})} ph="永生花・粉霧玫瑰"/>
-              <Fld l="English Title" v={ed.en||""} c={v=>setEd({...ed,en:v})} ph="Preserved Rose — Blush Mist"/>
+              <Fld l={t("modalName")} v={ed.title} c={v=>setEd({...ed,title:v})} ph="永生花・粉霧玫瑰"/>
+              <Fld l={t("modalNameEn")} v={ed.en||""} c={v=>setEd({...ed,en:v})} ph="Preserved Rose — Blush Mist"/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-                <Fld l="售價 NT$" v={ed.price} c={v=>setEd({...ed,price:Number(v)})} t="number"/>
-                <Fld l="分類" v={ed.cat} c={v=>setEd({...ed,cat:v})} ph="永生花"/>
+                <Fld l={t("modalPrice")} v={ed.price} c={v=>setEd({...ed,price:Number(v)})} tp="number"/>
+                <Fld l={t("modalCat")} v={ed.cat} c={v=>setEd({...ed,cat:v})} ph="永生花"/>
               </div>
-              <Fld l="作品說明" v={ed.desc} c={v=>setEd({...ed,desc:v})} ph="簡短說明..."/>
+              <FldArea l={t("modalDesc")} v={ed.desc} c={v=>setEd({...ed,desc:v})} ph="…"/>
+              <FldArea l={t("modalDescEn")} v={ed.descEn||""} c={v=>setEd({...ed,descEn:v})} ph="Short description…"/>
               <div>
-                <label style={lb}>主圖上傳</label>
+                <label style={lb}>{t("modalCover")}</label>
                 <label style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:28,border:"1px dashed rgba(201,169,110,0.12)",borderRadius:6,cursor:"pointer",color:"rgba(201,169,110,0.3)",fontSize:13,fontFamily:"'Instrument Serif',serif",fontStyle:"italic",backdropFilter:"blur(4px)"}}>
-                  <Cam/>{ed.image?"Uploaded — Click to Replace":"Click to Upload Image"}
+                  <Cam/>{ed.image?t("modalUploaded"):t("modalUploadHint")}
                   <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(!f)return;void (async()=>{try{const ref=await fileToImageRef(f);setEd(p=>({...p,image:ref}))}catch(err){console.error(err);window.alert((err&&err.message)||"圖片讀取失敗")}})()}}/>
                 </label>
                 {ed.image&&<img src={ed.image} alt="" style={{width:"100%",height:160,objectFit:"cover",marginTop:12,borderRadius:6,border:"1px solid rgba(201,169,110,0.08)"}}/>}
               </div>
             </div>
             <div style={{display:"flex",gap:12,marginTop:36,justifyContent:"flex-end"}}>
-              <button onClick={()=>{setMo(false);setEd(null)}} style={{background:"none",border:"1px solid rgba(201,169,110,0.1)",color:"rgba(245,240,235,0.4)",padding:"10px 24px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4}}>Cancel</button>
-              <button onClick={()=>doSv(ed)} style={{background:"rgba(201,169,110,0.15)",color:"#C9A96E",border:"1px solid rgba(201,169,110,0.2)",padding:"10px 30px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",fontWeight:400,cursor:"pointer",borderRadius:4,backdropFilter:"blur(8px)"}}>Save</button>
+              <button onClick={()=>{setMo(false);setEd(null)}} style={{background:"none",border:"1px solid rgba(201,169,110,0.1)",color:"rgba(245,240,235,0.4)",padding:"10px 24px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4}}>{t("modalCancel")}</button>
+              <button onClick={()=>doSv(ed)} style={{background:"rgba(201,169,110,0.15)",color:"#C9A96E",border:"1px solid rgba(201,169,110,0.2)",padding:"10px 30px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",fontWeight:400,cursor:"pointer",borderRadius:4,backdropFilter:"blur(8px)"}}>{t("modalSave")}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {adminLoginOpen&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.82)",backdropFilter:"blur(18px)",zIndex:250,display:"flex",alignItems:"center",justifyContent:"center",animation:"fadeIn 0.2s"}} onClick={()=>{setAdminLoginOpen(false);setLoginPwd("");setLoginErr(false)}}>
+          <div style={{background:"rgba(28,25,23,0.96)",border:"1px solid rgba(201,169,110,0.12)",borderRadius:8,width:"90%",maxWidth:400,padding:36}} onClick={e=>e.stopPropagation()}>
+            <h3 style={{fontFamily:"'Instrument Serif',serif",fontSize:22,fontStyle:"italic",marginBottom:20,color:"#F5F0EB"}}>{t("adminLoginTitle")}</h3>
+            <label style={lb}>{t("adminPassword")}</label>
+            <input className="fi" type="password" autoComplete="current-password" value={loginPwd} onChange={e=>{setLoginPwd(e.target.value);setLoginErr(false)}} onKeyDown={e=>e.key==="Enter"&&tryAdminLogin()} style={{width:"100%",marginBottom:12}}/>
+            {loginErr&&<div style={{color:"#f87171",fontSize:13,marginBottom:12,fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}}>{t("adminInvalid")}</div>}
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end",marginTop:20}}>
+              <button type="button" onClick={()=>{setAdminLoginOpen(false);setLoginPwd("");setLoginErr(false)}} style={{background:"none",border:"1px solid rgba(201,169,110,0.15)",color:"rgba(245,240,235,0.45)",padding:"10px 20px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4}}>{t("adminCancel")}</button>
+              <button type="button" onClick={()=>void tryAdminLogin()} style={{background:"rgba(201,169,110,0.18)",border:"1px solid rgba(201,169,110,0.25)",color:"#C9A96E",padding:"10px 22px",fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",cursor:"pointer",borderRadius:4}}>{t("adminSubmit")}</button>
             </div>
           </div>
         </div>
       )}
 
       <footer style={{borderTop:"1px solid rgba(201,169,110,0.04)",padding:"44px 32px",textAlign:"center"}}>
-        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.1)"}}>Nectar Atelier © 2026</div>
+        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.1)"}}>{t("footer")}</div>
       </footer>
     </div>
   );
 }
 
-function Fld({l,v,c,ph,t}){return(<div><label style={lb}>{l}</label><input className="fi" type={t||"text"} value={v} onChange={e=>c(e.target.value)} placeholder={ph||""}/></div>)}
+function Fld({l,v,c,ph,tp}){return(<div><label style={lb}>{l}</label><input className="fi" type={tp||"text"} value={v} onChange={e=>c(e.target.value)} placeholder={ph||""}/></div>)}
+function FldArea({l,v,c,ph,rows=4}){return(<div><label style={lb}>{l}</label><textarea className="fi" rows={rows} value={v} onChange={e=>c(e.target.value)} placeholder={ph||""}/></div>)}
 const lb={display:"block",fontSize:10,color:"rgba(201,169,110,0.3)",letterSpacing:"0.2em",marginBottom:8,textTransform:"uppercase",fontFamily:"'Instrument Serif',serif",fontStyle:"italic"};

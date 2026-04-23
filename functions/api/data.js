@@ -10,8 +10,20 @@ function j(body, s = 200) {
 export async function onRequestGet({ request, env }) {
   if (request.method !== "GET") return j({ error: "Method not allowed" }, 405);
   const o = await env.BUCKET.get(DATA);
-  if (!o) return j({ works: [] });
-  return new Response(o.body, { headers: { "Content-Type": "application/json" } });
+  if (!o) {
+    return new Response(JSON.stringify({ works: [] }), {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  }
+  return new Response(o.body, {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "private, no-store",
+    },
+  });
 }
 
 export async function onRequestPut({ request, env }) {

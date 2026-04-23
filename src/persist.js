@@ -31,20 +31,64 @@ export function isRemoteSync() {
   return import.meta.env.VITE_USE_REMOTE === "true";
 }
 
-function apiPath(path) {
+export function apiPath(path) {
   const base = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
   return path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
 }
 
+const ADMIN_SESSION_KEY = "nectar_admin_session";
+
 let adminToken = null;
+
+/** 開發時可於 .env 設 VITE_ADMIN_KEY 略過登入；正式站請勿設定，以免金鑰被打包 */
+export function getAdminToken() {
+  try {
+    if (typeof window !== "undefined") {
+      const ss = sessionStorage.getItem(ADMIN_SESSION_KEY);
+      if (ss) return ss;
+    }
+  } catch {
+    /* ignore */
+  }
+  if (import.meta.env.DEV && import.meta.env.VITE_ADMIN_KEY) {
+    return import.meta.env.VITE_ADMIN_KEY;
+  }
+  return adminToken || "";
+}
+
 export function setAdminToken(t) {
-  adminToken = t;
+  adminToken = t || null;
+  try {
+    if (typeof window === "undefined") return;
+    if (t) sessionStorage.setItem(ADMIN_SESSION_KEY, t);
+    else sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function clearAdminSession() {
+  adminToken = null;
+  try {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 function authHeader() {
-  const t = adminToken || import.meta.env.VITE_ADMIN_KEY || "";
+  const t = getAdminToken();
   if (!t) return {};
   return { Authorization: `Bearer ${t}` };
+}
+
+function notifyAdminUnauthorized() {
+  try {
+    clearAdminSession();
+    window.dispatchEvent(new CustomEvent("nectar-admin-unauthorized"));
+  } catch {
+    /* ignore */
+  }
 }
 
 /* ─── 雲端：作品、主 JSON 存在 R2 data.json，圖在 images/*，GET /api/file/... 讀取 ─── */
@@ -101,7 +145,9 @@ async function flushSaveWorks(worksKey) {
     try {
       const r = LOCAL_STORE.set(worksKey, JSON.stringify(j));
       if (r && typeof r.catch === "function") r.catch(() => {});
-    } catch {}
+    } catch {
+      /* ignore */
+    }
     return;
   }
   if (memWorks === null) return;
@@ -113,7 +159,8 @@ async function flushSaveWorks(worksKey) {
       body,
     });
     if (r.status === 401) {
-      console.warn("[nectar-official] 儲存失敗：未授權（檢查 VITE_ADMIN_KEY 與 Cloudflare ADMIN_SECRET 是否一致）");
+      console.warn("[nectar-official] 儲存失敗：未授權");
+      notifyAdminUnauthorized();
       return;
     }
     if (!r.ok) {
@@ -135,9 +182,9 @@ export async function fileToImageRef(file) {
       r.readAsDataURL(file);
     });
   }
-  const token = import.meta.env.VITE_ADMIN_KEY || adminToken;
+  const token = getAdminToken();
   if (!token) {
-    throw new Error("需設定 VITE_ADMIN_KEY 與佈署端 ADMIN_SECRET 才能上傳圖");
+    throw new Error("請先以管理員身分登入後再上傳");
   }
   const fd = new FormData();
   fd.append("file", file, file.name || "image.jpg");
@@ -146,7 +193,10 @@ export async function fileToImageRef(file) {
     headers: { Authorization: `Bearer ${token}` },
     body: fd,
   });
-  if (r.status === 401) throw new Error("上傳未授權");
+  if (r.status === 401) {
+    notifyAdminUnauthorized();
+    throw new Error("上傳未授權，請重新登入");
+  }
   if (!r.ok) {
     const t = await r.text();
     throw new Error(t || `upload ${r.status}`);
