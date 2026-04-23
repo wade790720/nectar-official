@@ -870,26 +870,29 @@ const navBtn = {
 
 // Work Section
 function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
-  const { t, workTitle, workSubtitle, workDesc, workCat, workPriceLabel } =
-    useI18n();
+  const { t, workTitle, workSubtitle, workCat, workPriceLabel } = useI18n();
   const [pr, po] = usePx(0.22);
   const [tr, tv] = useInView();
   const [h, setH] = useState(false);
   const gr = GR[work.cat] || GR["鮮花"];
   const hasImg = !!work.image;
+  /** 簡潔：略提對比讓細節清楚，不依賴整體提亮或暖色光 */
   const imgFilter = hasImg
     ? h
-      ? "brightness(0.92) saturate(1.06)"
-      : "brightness(0.78) saturate(1.04)"
+      ? "contrast(1.06) saturate(1.02)"
+      : "contrast(1.03) saturate(1.01)"
     : h
-      ? "blur(1px) brightness(0.5)"
-      : "blur(0px) brightness(0.35)";
+      ? "brightness(0.62) contrast(1.04) saturate(1)"
+      : "brightness(0.45) contrast(1.02) saturate(1)";
   const overlayBg = hasImg
-    ? "linear-gradient(0deg, rgba(6,8,10,0.62) 0%, rgba(6,8,10,0.18) 30%, rgba(6,8,10,0) 50%, rgba(6,8,10,0.35) 100%)"
-    : "linear-gradient(0deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.2) 28%, rgba(8,7,6,0) 50%, rgba(8,7,6,0.5) 100%)";
+    ? h
+      ? "linear-gradient(0deg, rgba(6,8,10,0.42) 0%, rgba(6,8,10,0.08) 34%, rgba(6,8,10,0) 52%, rgba(6,8,10,0.22) 100%)"
+      : "linear-gradient(0deg, rgba(6,8,10,0.54) 0%, rgba(6,8,10,0.12) 32%, rgba(6,8,10,0) 50%, rgba(6,8,10,0.3) 100%)"
+    : h
+      ? "linear-gradient(0deg, rgba(8,8,10,0.76) 0%, rgba(8,8,10,0.12) 30%, rgba(8,8,10,0) 50%, rgba(8,8,10,0.34) 100%)"
+      : "linear-gradient(0deg, rgba(8,8,10,0.9) 0%, rgba(8,8,10,0.2) 28%, rgba(8,8,10,0) 50%, rgba(8,8,10,0.48) 100%)";
   const mainT = workTitle(work);
   const subT = workSubtitle(work);
-  const dsc = workDesc(work);
   const catL = workCat(work);
   return (
     <div
@@ -910,12 +913,13 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
           position: "absolute",
           inset: "-18% 0",
           transform: `translateY(${po}px) scale(${h ? 1.04 : 1})`,
-          transition: "transform 1.4s cubic-bezier(0.16,1,0.3,1)",
+          transition:
+            "transform 1.4s cubic-bezier(0.16,1,0.3,1), filter 0.75s cubic-bezier(0.16,1,0.3,1)",
           background: hasImg
             ? `url(${work.image}) center 42% / cover no-repeat`
             : gr,
           filter: imgFilter,
-          willChange: "transform",
+          willChange: "transform, filter",
         }}
       >
         {!hasImg && (
@@ -935,32 +939,26 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
         )}
       </div>
 
-      {/* Gradient overlays — depth */}
+      {/* 中性漸層：hover 僅略減遮罩，不加分色光 */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           background: overlayBg,
           pointerEvents: "none",
+          transition: "background 0.75s cubic-bezier(0.16,1,0.3,1)",
         }}
       />
+      {/* 左側暗角（中性灰）：hover 略收 */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background:
-            "radial-gradient(ellipse at 70% 30%, rgba(201,169,110,0.03) 0%, transparent 60%)",
+          background: h
+            ? "linear-gradient(90deg, rgba(4,6,10,0.62) 0%, rgba(4,6,10,0.26) 26%, rgba(4,6,10,0.06) 46%, transparent 66%)"
+            : "linear-gradient(90deg, rgba(4,6,10,0.82) 0%, rgba(4,6,10,0.4) 22%, rgba(4,6,10,0.1) 42%, transparent 62%)",
           pointerEvents: "none",
-        }}
-      />
-      {/* 左側暗角：文字疊在亮部花瓣上時仍可讀 */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(90deg, rgba(4,6,10,0.88) 0%, rgba(4,6,10,0.45) 22%, rgba(4,6,10,0.12) 42%, transparent 62%)",
-          pointerEvents: "none",
+          transition: "background 0.75s cubic-bezier(0.16,1,0.3,1)",
         }}
       />
 
@@ -1082,23 +1080,7 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
             </div>
           ) : null}
 
-          {/* Description */}
-          <p
-            style={{
-              fontFamily: "'Noto Serif TC',serif",
-              fontSize: 14,
-              color: "rgba(245,240,235,0.72)",
-              lineHeight: 1.85,
-              maxWidth: 500,
-              marginBottom: 22,
-              letterSpacing: "0.03em",
-              textShadow: "0 1px 12px rgba(0,0,0,0.75)",
-            }}
-          >
-            {dsc}
-          </p>
-
-          {/* Price + CTA */}
+          {/* Price + CTA（說明僅在詳情光箱顯示） */}
           <div style={{ display: "flex", alignItems: "baseline", gap: 22 }}>
             <span
               style={{
@@ -1151,7 +1133,7 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
           style={{
             width: 1,
             height: 44,
-            background: "rgba(201,169,110,0.2)",
+            background: "rgba(245,240,235,0.28)",
             marginLeft: "auto",
             marginBottom: 14,
           }}
@@ -1161,7 +1143,7 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
             fontFamily: "'Instrument Serif',serif",
             fontSize: 10,
             letterSpacing: "0.3em",
-            color: "rgba(201,169,110,0.25)",
+            color: "rgba(245,240,235,0.42)",
             textTransform: "uppercase",
             writingMode: "vertical-rl",
             fontStyle: "italic",
@@ -1486,17 +1468,29 @@ export default function App() {
             height: 54,
           }}
         >
-          <span
+          <button
+            type="button"
+            onClick={() => {
+              setPg("portfolio");
+              setDt(null);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
             style={{
               fontFamily: "'Instrument Serif',serif",
               fontSize: 18,
               fontStyle: "italic",
               color: "#C9A96E",
               letterSpacing: "0.06em",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              transition: "opacity 0.2s",
             }}
+            title={t("navCollection")}
           >
             {t("navBrand")}
-          </span>
+          </button>
           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
             <button
               className={`nb ${pg === "portfolio" ? "on" : ""}`}
