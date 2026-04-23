@@ -2,11 +2,11 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useP, fileToImageRef } from "./persist.js";
 
 /* ═══════════════════════════════════════════════════════════════
-   FLORA ATELIER — Apple Minimalism × Editorial Magazine
+   NECTAR ATELIER — Apple Minimalism × Editorial Magazine
    Instrument Serif · Gaussian Blur · Gradient Depth
    ═══════════════════════════════════════════════════════════════ */
 
-const SK = { w:"flora-w3", v:"flora-v3", wi:"flora-wi3" };
+const SK = { w:"nectar-w3", v:"nectar-v3", wi:"nectar-wi3" };
 
 function useInView(th=0.15){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const el=r.current;if(!el)return;const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);o.unobserve(el)}},{threshold:th});o.observe(el);return()=>o.disconnect()},[]);return[r,v]}
 
@@ -176,7 +176,7 @@ function WS({work,index,total,admin,onEdit,onDelete,onUpload,onOpen}){
       {/* Hover — vertical text right */}
       <div style={{position:"absolute",top:"50%",right:"clamp(32px,5vw,72px)",transform:`translateY(-50%) translateX(${h?0:14}px)`,opacity:h?1:0,transition:"all 0.8s cubic-bezier(0.16,1,0.3,1)",textAlign:"right",zIndex:2,pointerEvents:"none"}}>
         <div style={{width:1,height:44,background:"rgba(201,169,110,0.2)",marginLeft:"auto",marginBottom:14}}/>
-        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,letterSpacing:"0.3em",color:"rgba(201,169,110,0.25)",textTransform:"uppercase",writingMode:"vertical-rl",fontStyle:"italic"}}>Floral Art</div>
+        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,letterSpacing:"0.3em",color:"rgba(201,169,110,0.25)",textTransform:"uppercase",writingMode:"vertical-rl",fontStyle:"italic"}}>Nectar Art</div>
       </div>
 
       {/* Admin */}
@@ -248,7 +248,7 @@ export default function App(){
       {/* NAV */}
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:50,background:"rgba(8,7,6,0.6)",backdropFilter:"blur(32px) saturate(1.5)",borderBottom:"1px solid rgba(201,169,110,0.06)"}}>
         <div style={{maxWidth:1400,margin:"0 auto",padding:"0 48px",display:"flex",alignItems:"center",justifyContent:"space-between",height:54}}>
-          <span style={{fontFamily:"'Instrument Serif',serif",fontSize:18,fontStyle:"italic",color:"#C9A96E",letterSpacing:"0.06em"}}>Flora Atelier</span>
+          <span style={{fontFamily:"'Instrument Serif',serif",fontSize:18,fontStyle:"italic",color:"#C9A96E",letterSpacing:"0.06em"}}>Nectar Atelier</span>
           <div style={{display:"flex",gap:32,alignItems:"center"}}>
             <button className={`nb ${pg==="portfolio"?"on":""}`} onClick={()=>setPg("portfolio")}>Collection</button>
             <button className={`nb ${pg==="vote"?"on":""}`} onClick={()=>setPg("vote")}>Vote</button>
@@ -274,7 +274,7 @@ export default function App(){
               <div style={{width:ho?80:0,height:1,background:"linear-gradient(90deg, transparent, rgba(201,169,110,0.35), transparent)",margin:"0 auto 36px",transition:"width 1.6s cubic-bezier(0.16,1,0.3,1) 0.3s"}}/>
 
               <div style={{fontFamily:"'Instrument Serif',serif",fontSize:13,fontStyle:"italic",letterSpacing:"0.2em",color:"rgba(201,169,110,0.35)",marginBottom:28}}>
-                Floral Art Collection
+                Nectar Art Collection
               </div>
 
               <h1 style={{fontFamily:"'Noto Serif TC',serif",fontSize:"clamp(44px,8.5vw,100px)",fontWeight:300,letterSpacing:"0.03em",lineHeight:1.1,color:"#F5F0EB",marginBottom:14}}>
@@ -411,7 +411,7 @@ export default function App(){
       )}
 
       <footer style={{borderTop:"1px solid rgba(201,169,110,0.04)",padding:"44px 32px",textAlign:"center"}}>
-        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.1)"}}>Flora Atelier © 2026</div>
+        <div style={{fontFamily:"'Instrument Serif',serif",fontSize:10,fontStyle:"italic",letterSpacing:"0.25em",color:"rgba(201,169,110,0.1)"}}>Nectar Atelier © 2026</div>
       </footer>
     </div>
   );
