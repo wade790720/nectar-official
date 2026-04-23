@@ -109,38 +109,77 @@ function notifyAdminUnauthorized() {
   }
 }
 
-/* ─── 雲端：作品、主 JSON 存在 R2 data.json，圖在 images/*，GET /api/file/... 讀取 ─── */
-let memWorks = null;
+/* ─── 雲端：data.json = { works, votes, wishes }；圖在 images/* ─── */
+const LEGACY_V_KEY = "nectar-v3";
+const LEGACY_WI_KEY = "nectar-wi3";
+
+let memCloudData = null;
 let loadPromise = null;
 
-async function loadWorksDefault(fallback) {
-  const r = await fetch(apiPath("/api/data"), { method: "GET" });
-  if (r.status === 404) return fallback;
-  if (!r.ok) throw new Error(`GET /api/data ${r.status}`);
-  const o = await r.json();
-  if (o && o.works && Array.isArray(o.works)) return o.works;
-  return fallback;
+function normalizeBundle(parsed, fallback) {
+  if (Array.isArray(parsed)) {
+    return {
+      works: parsed,
+      votes: fallback.votes,
+      wishes: fallback.wishes,
+    };
+  }
+  if (!parsed || typeof parsed !== "object") {
+    return { ...fallback };
+  }
+  return {
+    works: Array.isArray(parsed.works) ? parsed.works : fallback.works,
+    votes: Array.isArray(parsed.votes) ? parsed.votes : fallback.votes,
+    wishes: Array.isArray(parsed.wishes) ? parsed.wishes : fallback.wishes,
+  };
 }
 
-function getInitWorks(k, initial) {
+async function loadCloudBundleFromApi(fallback) {
+  const r = await fetch(apiPath("/api/data"), { method: "GET" });
+  if (r.status === 404) return { ...fallback };
+  if (!r.ok) throw new Error(`GET /api/data ${r.status}`);
+  const o = await r.json();
+  return normalizeBundle(o, fallback);
+}
+
+function getInitBundle(k, initial) {
   if (loadPromise) return loadPromise;
   loadPromise = (async () => {
     try {
       if (!isRemoteSync()) {
-        const r = await LOCAL_STORE.get(k);
-        if (r?.value) {
+        let b = { ...initial };
+        const rw = await LOCAL_STORE.get(k);
+        if (rw?.value) {
           try {
-            return JSON.parse(r.value);
+            b = normalizeBundle(JSON.parse(rw.value), b);
           } catch {
-            return initial;
+            /* ignore */
           }
         }
-        return initial;
+        const rv = await LOCAL_STORE.get(LEGACY_V_KEY);
+        if (rv?.value) {
+          try {
+            const v = JSON.parse(rv.value);
+            if (Array.isArray(v)) b.votes = v;
+          } catch {
+            /* ignore */
+          }
+        }
+        const rwi = await LOCAL_STORE.get(LEGACY_WI_KEY);
+        if (rwi?.value) {
+          try {
+            const wi = JSON.parse(rwi.value);
+            if (Array.isArray(wi)) b.wishes = wi;
+          } catch {
+            /* ignore */
+          }
+        }
+        return b;
       }
-      return await loadWorksDefault(initial);
+      return await loadCloudBundleFromApi(initial);
     } catch (e) {
       console.warn("[nectar-official] 讀取雲端失敗，使用預設：", e?.message || e);
-      return initial;
+      return { ...initial };
     } finally {
       loadPromise = null;
     }
@@ -151,40 +190,49 @@ function getInitWorks(k, initial) {
 let saveT = 0;
 const SAVE_DEBOUNCE_MS = 280;
 
-function scheduleSaveWorks(k) {
+function scheduleSaveBundle(k) {
   clearTimeout(saveT);
   saveT = setTimeout(() => {
-    void flushSaveWorks(k);
+    void flushSaveBundle(k);
   }, SAVE_DEBOUNCE_MS);
 }
 
 /**
- * 取消 debounce、立刻把作品寫回 R2 / localStorage。
+ * 取消 debounce、立刻寫回 R2 / localStorage（整包 { works, votes, wishes }）。
  * @param {string} worksKey
- * @param {unknown} [snapshot] 若傳入，會先寫入 memWorks（避免 React setState 尚未套用時 flush 讀到舊值）
+ * @param {unknown} [snapshotWorks] 若傳入，只更新 works（與 mem 合併，避免 setState 競態）
  */
-export function forceFlushWorks(worksKey, snapshot) {
+export function forceFlushWorks(worksKey, snapshotWorks) {
   clearTimeout(saveT);
-  if (snapshot !== undefined) {
-    memWorks = snapshot;
+  if (snapshotWorks !== undefined) {
+    memCloudData =
+      memCloudData != null &&
+      typeof memCloudData === "object" &&
+      !Array.isArray(memCloudData)
+        ? { ...memCloudData, works: snapshotWorks }
+        : { works: snapshotWorks };
   }
-  return flushSaveWorks(worksKey);
+  return flushSaveBundle(worksKey);
 }
 
-async function flushSaveWorks(worksKey) {
+async function flushSaveBundle(worksKey) {
   if (!isRemoteSync()) {
-    const j = memWorks;
-    if (j === null) return;
+    if (memCloudData === null) return;
     try {
-      const r = LOCAL_STORE.set(worksKey, JSON.stringify(j));
+      const r = LOCAL_STORE.set(worksKey, JSON.stringify(memCloudData));
       if (r && typeof r.catch === "function") r.catch(() => {});
     } catch {
       /* ignore */
     }
     return;
   }
-  if (memWorks === null) return;
-  const body = JSON.stringify({ works: memWorks });
+  if (memCloudData === null) return;
+  const authed = Boolean(getAdminToken());
+  const payload =
+    authed || !memCloudData
+      ? memCloudData
+      : { votes: memCloudData.votes, wishes: memCloudData.wishes };
+  const body = JSON.stringify(payload);
   try {
     const r = await fetch(apiPath("/api/data"), {
       method: "PUT",
@@ -193,7 +241,7 @@ async function flushSaveWorks(worksKey) {
     });
     if (r.status === 401) {
       console.warn("[nectar-official] 儲存失敗：未授權");
-      notifyAdminUnauthorized();
+      if (authed) notifyAdminUnauthorized();
       return;
     }
     if (!r.ok) {
@@ -245,7 +293,7 @@ export async function fileToImageRef(file) {
 }
 
 /**
- * 僅用於作品列表（cloud storage key）：雲端 = R2；其餘 = localStorage
+ * cloud: true 時同步整包 { works, votes, wishes } 至 R2 data.json（或單一 localStorage key）
  */
 export function useP(k, initial, options = {}) {
   const cloud = options.cloud === true;
@@ -257,9 +305,9 @@ export function useP(k, initial, options = {}) {
     if (cloud) {
       const genAtFetchStart = remoteLoadGen.current;
       void (async () => {
-        const w = await getInitWorks(k, initial);
+        const w = await getInitBundle(k, initial);
         if (remoteLoadGen.current !== genAtFetchStart) return;
-        memWorks = w;
+        memCloudData = w;
         setS(w);
       })();
     } else {
@@ -278,7 +326,7 @@ export function useP(k, initial, options = {}) {
     if (!cloud || typeof window === "undefined" || !isRemoteSync()) return;
     const flush = () => {
       clearTimeout(saveT);
-      void flushSaveWorks(k);
+      void flushSaveBundle(k);
     };
     const onVis = () => {
       if (document.visibilityState === "hidden") flush();
@@ -297,8 +345,8 @@ export function useP(k, initial, options = {}) {
       setS((p) => {
         const n = typeof fn === "function" ? fn(p) : fn;
         if (cloud) {
-          memWorks = n;
-          scheduleSaveWorks(k);
+          memCloudData = n;
+          scheduleSaveBundle(k);
         } else {
           try {
             const r = LOCAL_STORE.set(k, JSON.stringify(n));

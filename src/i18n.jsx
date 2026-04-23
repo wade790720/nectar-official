@@ -31,6 +31,10 @@ const messages = {
     langEn: "EN",
     langZh: "CN",
     workViewDetails: "View details →",
+    workSoldOut: "Sold out",
+    socialKicker: "Social",
+    socialInstagram: "IG",
+    socialFacebook: "FB",
     verticalArt: "Nectar",
     portfolioEnd: "End of Collection",
     voteKicker: "Classroom Vote",
@@ -39,6 +43,9 @@ const messages = {
     voteLeading: "Currently leading",
     voteVotes: "votes",
     voteVoted: "Voted",
+    voteCoursePhotos: "Course photos (for poll)",
+    voteCoursePhotosSub:
+      "Upload an image per option so voters see your class visuals.",
     wishKicker: "✦ Wishing Pool ✦",
     wishTitle: "Wish pool",
     wishSub: "Whisper your wish into the stream",
@@ -58,6 +65,9 @@ const messages = {
     modalName: "Chinese title",
     modalNameEn: "English title",
     modalPrice: "List price (NT$)",
+    modalSoldOut: "Mark as sold out",
+    modalSoldOutHint:
+      "When on, price is hidden. You can also set price to 0 for the same display.",
     modalCat: "Category",
     modalDesc: "Chinese description",
     modalDescEn: "English description",
@@ -83,6 +93,10 @@ const messages = {
     langEn: "英文",
     langZh: "繁中",
     workViewDetails: "查看詳情 →",
+    workSoldOut: "已售罄",
+    socialKicker: "社群",
+    socialInstagram: "IG",
+    socialFacebook: "FB",
     verticalArt: "花蜜水晶花工藝",
     portfolioEnd: "— 全系列瀏覽完畢 —",
     voteKicker: "課堂投票",
@@ -91,6 +105,8 @@ const messages = {
     voteLeading: "目前領先",
     voteVotes: "票",
     voteVoted: "已投票",
+    voteCoursePhotos: "課程圖片（投票用）",
+    voteCoursePhotosSub: "每個選項可上傳一張圖，讓大家依圖投票。",
     wishKicker: "✦ 許願池 ✦",
     wishTitle: "許願池",
     wishSub: "把願望悄悄寫進水流裡",
@@ -109,6 +125,8 @@ const messages = {
     modalName: "作品名稱",
     modalNameEn: "英文標題",
     modalPrice: "售價 NT$",
+    modalSoldOut: "標示為已售罄",
+    modalSoldOutHint: "開啟後不顯示價格；或將售價設為 0 元亦同。",
     modalCat: "分類",
     modalDesc: "作品說明",
     modalDescEn: "英文說明",
@@ -202,6 +220,17 @@ export function I18nProvider({ children }) {
     [locale]
   );
 
+  /** 售罄：開關 soldOut 或售價 ≤ 0（皆不顯示金額） */
+  const workPriceLabel = useCallback(
+    (work) => {
+      if (!work) return "";
+      const sold = work.soldOut === true || Number(work.price) <= 0;
+      if (sold) return t("workSoldOut");
+      return formatPrice(work.price);
+    },
+    [t, formatPrice]
+  );
+
   const value = useMemo(
     () => ({
       locale,
@@ -213,6 +242,7 @@ export function I18nProvider({ children }) {
       workCat,
       flowerName,
       formatPrice,
+      workPriceLabel,
     }),
     [
       locale,
@@ -224,6 +254,7 @@ export function I18nProvider({ children }) {
       workCat,
       flowerName,
       formatPrice,
+      workPriceLabel,
     ]
   );
 

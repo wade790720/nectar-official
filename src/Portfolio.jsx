@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   useP,
   fileToImageRef,
@@ -15,7 +15,8 @@ import { useI18n } from "./i18n.jsx";
    Instrument Serif · Gaussian Blur · Gradient Depth
    ═══════════════════════════════════════════════════════════════ */
 
-const SK = { w: "nectar-w3", v: "nectar-v3", wi: "nectar-wi3" };
+/** 雲端 data.json 單一 key；votes / wishes 一併存在同檔 */
+const SK = { w: "nectar-w3" };
 
 function useInView(th = 0.15) {
   const r = useRef(null);
@@ -265,15 +266,79 @@ const DW = [
   },
 ];
 const DV = [
-  { id: "v1", name: "玫瑰", en: "Rose", emoji: "🌹", votes: 0 },
-  { id: "v2", name: "向日葵", en: "Sunflower", emoji: "🌻", votes: 0 },
-  { id: "v3", name: "繡球花", en: "Hydrangea", emoji: "💠", votes: 0 },
-  { id: "v4", name: "鬱金香", en: "Tulip", emoji: "🌷", votes: 0 },
-  { id: "v5", name: "百合", en: "Lily", emoji: "🤍", votes: 0 },
-  { id: "v6", name: "桔梗", en: "Lisianthus", emoji: "💜", votes: 0 },
-  { id: "v7", name: "滿天星", en: "Gypsophila", emoji: "✨", votes: 0 },
-  { id: "v8", name: "芍藥", en: "Peony", emoji: "🩷", votes: 0 },
+  {
+    id: "v1",
+    name: "玫瑰",
+    en: "Rose",
+    emoji: "🌹",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v2",
+    name: "向日葵",
+    en: "Sunflower",
+    emoji: "🌻",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v3",
+    name: "繡球花",
+    en: "Hydrangea",
+    emoji: "💠",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v4",
+    name: "鬱金香",
+    en: "Tulip",
+    emoji: "🌷",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v5",
+    name: "百合",
+    en: "Lily",
+    emoji: "🤍",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v6",
+    name: "桔梗",
+    en: "Lisianthus",
+    emoji: "💜",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v7",
+    name: "滿天星",
+    en: "Gypsophila",
+    emoji: "✨",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v8",
+    name: "芍藥",
+    en: "Peony",
+    emoji: "🩷",
+    votes: 0,
+    image: "",
+  },
 ];
+
+function normalizeSocialUrl(u) {
+  if (!u || typeof u !== "string") return "";
+  const s = u.trim();
+  if (!s) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s}`;
+}
 
 // Danmaku
 function Danmaku({ wishes }) {
@@ -361,7 +426,7 @@ function removeWorkImageAtThumbIndex(work, thumbIdx) {
 
 // Detail Lightbox
 function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
-  const { workTitle, workSubtitle, workDesc, workCat, t, formatPrice } =
+  const { workTitle, workSubtitle, workDesc, workCat, t, workPriceLabel } =
     useI18n();
   const [idx, setIdx] = useState(0);
   const allImgs = useMemo(() => {
@@ -777,7 +842,7 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
               letterSpacing: "0.04em",
             }}
           >
-            {formatPrice(work.price)}
+            {workPriceLabel(work)}
           </div>
         </div>
       </div>
@@ -805,7 +870,7 @@ const navBtn = {
 
 // Work Section
 function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
-  const { t, workTitle, workSubtitle, workDesc, workCat, formatPrice } =
+  const { t, workTitle, workSubtitle, workDesc, workCat, workPriceLabel } =
     useI18n();
   const [pr, po] = usePx(0.22);
   const [tr, tv] = useInView();
@@ -1045,23 +1110,25 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
                 textShadow: "0 2px 16px rgba(0,0,0,0.5)",
               }}
             >
-              {formatPrice(work.price)}
+              {workPriceLabel(work)}
             </span>
-            <span
-              style={{
-                fontSize: 10,
-                color: "rgba(212,184,122,0.72)",
-                letterSpacing: "0.26em",
-                fontFamily: "'Instrument Serif',serif",
-                textTransform: "uppercase",
-                fontStyle: "italic",
-                borderBottom: "1px solid rgba(201,169,110,0.35)",
-                paddingBottom: 2,
-                textShadow: "0 1px 8px rgba(0,0,0,0.6)",
-              }}
-            >
-              {t("workViewDetails")}
-            </span>
+            {work.soldOut !== true && Number(work.price) > 0 ? (
+              <span
+                style={{
+                  fontSize: 10,
+                  color: "rgba(212,184,122,0.72)",
+                  letterSpacing: "0.26em",
+                  fontFamily: "'Instrument Serif',serif",
+                  textTransform: "uppercase",
+                  fontStyle: "italic",
+                  borderBottom: "1px solid rgba(201,169,110,0.35)",
+                  paddingBottom: 2,
+                  textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+                }}
+              >
+                {t("workViewDetails")}
+              </span>
+            ) : null}
           </div>
         </div>
       </div>
@@ -1161,9 +1228,38 @@ const ab = {
 export default function App() {
   const { t, locale, setLocale, flowerName } = useI18n();
   const [pg, setPg] = useState("portfolio");
-  const [works, setW] = useP(SK.w, DW, { cloud: true });
-  const [votes, setV] = useP(SK.v, DV);
-  const [wishes, setWi] = useP(SK.wi, []);
+  const bundleInit = useMemo(
+    () => ({ works: DW, votes: DV, wishes: [] }),
+    [],
+  );
+  const [bundle, setBundle] = useP(SK.w, bundleInit, { cloud: true });
+  const works = bundle.works;
+  const votes = bundle.votes;
+  const wishes = bundle.wishes;
+  const setW = useCallback(
+    (u) =>
+      setBundle((d) => ({
+        ...d,
+        works: typeof u === "function" ? u(d.works) : u,
+      })),
+    [setBundle],
+  );
+  const setVotes = useCallback(
+    (u) =>
+      setBundle((d) => ({
+        ...d,
+        votes: typeof u === "function" ? u(d.votes) : u,
+      })),
+    [setBundle],
+  );
+  const setWishes = useCallback(
+    (u) =>
+      setBundle((d) => ({
+        ...d,
+        wishes: typeof u === "function" ? u(d.wishes) : u,
+      })),
+    [setBundle],
+  );
   const [ed, setEd] = useState(null);
   const [modal, setMo] = useState(false);
   const [detail, setDt] = useState(null);
@@ -1175,6 +1271,12 @@ export default function App() {
   const [voted, setVd] = useState({});
   const [ho, setHo] = useState(false);
   const [co, setCo] = useState(false);
+  const socialIg = normalizeSocialUrl(
+    import.meta.env.VITE_SOCIAL_INSTAGRAM || "",
+  );
+  const socialFb = normalizeSocialUrl(
+    import.meta.env.VITE_SOCIAL_FACEBOOK || "",
+  );
 
   useEffect(() => {
     setAdminAuthed(!!getAdminToken());
@@ -1182,12 +1284,11 @@ export default function App() {
   useEffect(() => {
     const onUnauth = () => {
       setAdminAuthed(false);
-      window.alert(t("adminSessionExpired"));
     };
     window.addEventListener("nectar-admin-unauthorized", onUnauth);
     return () =>
       window.removeEventListener("nectar-admin-unauthorized", onUnauth);
-  }, [t]);
+  }, []);
   useEffect(() => {
     const onSaveFail = (e) => {
       const msg = e.detail?.message;
@@ -1213,13 +1314,25 @@ export default function App() {
 
   const doV = (id) => {
     if (voted[id]) return;
-    setV((p) => p.map((f) => (f.id === id ? { ...f, votes: f.votes + 1 } : f)));
+    setVotes((p) =>
+      p.map((f) => (f.id === id ? { ...f, votes: f.votes + 1 } : f)),
+    );
     setVd((p) => ({ ...p, [id]: true }));
   };
   const doWi = () => {
     if (!wiIn.trim()) return;
-    setWi((p) => [...p, { id: Date.now().toString(), text: wiIn.trim() }]);
+    setWishes((p) => [...p, { id: Date.now().toString(), text: wiIn.trim() }]);
     setWiIn("");
+  };
+  const doVoteImg = async (id, file) => {
+    if (!file) return;
+    try {
+      const ref = await fileToImageRef(file);
+      setVotes((p) => p.map((x) => (x.id === id ? { ...x, image: ref } : x)));
+    } catch (e) {
+      console.error(e);
+      window.alert((e && e.message) || "圖片上傳失敗");
+    }
   };
   const doSv = (w) => {
     const next =
@@ -1462,6 +1575,7 @@ export default function App() {
                     title: "",
                     en: "",
                     price: 0,
+                    soldOut: false,
                     image: "",
                     cat: "",
                     desc: "",
@@ -1647,8 +1761,28 @@ export default function App() {
               >
                 {t("voteLeading")}
               </div>
-              <div style={{ fontSize: 44, marginBottom: 6 }}>
-                {sorted[0].emoji}
+              <div
+                style={{
+                  marginBottom: 10,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                {sorted[0].image ? (
+                  <img
+                    src={sorted[0].image}
+                    alt=""
+                    style={{
+                      width: 140,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                      border: "1px solid rgba(201,169,110,0.15)",
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 44 }}>{sorted[0].emoji}</span>
+                )}
               </div>
               <div
                 style={{
@@ -1696,13 +1830,32 @@ export default function App() {
               >
                 <div
                   style={{
-                    fontSize: 28,
-                    width: 42,
-                    textAlign: "center",
+                    width: 56,
+                    height: 56,
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "rgba(201,169,110,0.06)",
+                    border: "1px solid rgba(201,169,110,0.08)",
                     animation: voted[f.id] ? "float 2.5s infinite" : "none",
                   }}
                 >
-                  {f.emoji}
+                  {f.image ? (
+                    <img
+                      src={f.image}
+                      alt=""
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: 26 }}>{f.emoji}</span>
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div
@@ -1792,6 +1945,125 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          {adminAuthed && (
+            <div
+              style={{
+                marginBottom: 48,
+                padding: 28,
+                background: "rgba(201,169,110,0.03)",
+                border: "1px solid rgba(201,169,110,0.1)",
+                borderRadius: 8,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 14,
+                  fontStyle: "italic",
+                  color: "#C9A96E",
+                  marginBottom: 8,
+                }}
+              >
+                {t("voteCoursePhotos")}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "rgba(245,240,235,0.35)",
+                  marginBottom: 20,
+                  lineHeight: 1.55,
+                  fontFamily: "'Noto Serif TC',serif",
+                }}
+              >
+                {t("voteCoursePhotosSub")}
+              </p>
+              <div
+                style={{
+                  display: "grid",
+                  gap: 14,
+                  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+                }}
+              >
+                {votes.map((f) => (
+                  <div
+                    key={f.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: 12,
+                      background: "rgba(0,0,0,0.2)",
+                      borderRadius: 6,
+                      border: "1px solid rgba(201,169,110,0.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 6,
+                        overflow: "hidden",
+                        flexShrink: 0,
+                        background: "rgba(201,169,110,0.08)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {f.image ? (
+                        <img
+                          src={f.image}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: 22 }}>{f.emoji}</span>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          color: "#F5F0EB",
+                          fontFamily: "'Noto Serif TC',serif",
+                        }}
+                      >
+                        {flowerName(f)}
+                      </div>
+                      <label
+                        style={{
+                          display: "inline-block",
+                          marginTop: 6,
+                          fontSize: 11,
+                          color: "rgba(201,169,110,0.5)",
+                          fontFamily: "'Instrument Serif',serif",
+                          fontStyle: "italic",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {t("modalUploadHint")}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            e.target.value = "";
+                            if (file) void doVoteImg(f.id, file);
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div
             style={{
@@ -1919,7 +2191,7 @@ export default function App() {
               <div style={{ marginTop: 48, textAlign: "center" }}>
                 <button
                   onClick={() => {
-                    setV(DV);
+                    setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
                     setVd({});
                   }}
                   style={{
@@ -1996,7 +2268,7 @@ export default function App() {
                   : t("modalNew")}
               </h3>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
               <Fld
                 l={t("modalName")}
                 v={ed.title}
@@ -2028,6 +2300,41 @@ export default function App() {
                   c={(v) => setEd({ ...ed, cat: v })}
                   ph="永生花"
                 />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    color: "rgba(245,240,235,0.75)",
+                    fontFamily: "'Noto Serif TC',serif",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!ed.soldOut}
+                    onChange={(e) =>
+                      setEd({ ...ed, soldOut: e.target.checked })
+                    }
+                    style={{ width: 18, height: 18, accentColor: "#C9A96E" }}
+                  />
+                  {t("modalSoldOut")}
+                </label>
+                <p
+                  style={{
+                    marginTop: 8,
+                    fontSize: 11,
+                    color: "rgba(201,169,110,0.35)",
+                    lineHeight: 1.5,
+                    fontFamily: "'Instrument Serif',serif",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {t("modalSoldOutHint")}
+                </p>
               </div>
               <FldArea
                 l={t("modalDesc")}
@@ -2283,6 +2590,67 @@ export default function App() {
         >
           {t("footer")}
         </div>
+        {(socialIg || socialFb) && (
+          <div style={{ marginTop: 22 }}>
+            <div
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontSize: 10,
+                fontStyle: "italic",
+                letterSpacing: "0.28em",
+                color: "rgba(201,169,110,0.22)",
+                marginBottom: 12,
+              }}
+            >
+              {t("socialKicker")}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 28,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {socialIg ? (
+                <a
+                  href={socialIg}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: "'Instrument Serif',serif",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                    color: "rgba(201,169,110,0.55)",
+                    textDecoration: "none",
+                    borderBottom: "1px solid rgba(201,169,110,0.2)",
+                    paddingBottom: 2,
+                  }}
+                >
+                  {t("socialInstagram")}
+                </a>
+              ) : null}
+              {socialFb ? (
+                <a
+                  href={socialFb}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: "'Instrument Serif',serif",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                    color: "rgba(201,169,110,0.55)",
+                    textDecoration: "none",
+                    borderBottom: "1px solid rgba(201,169,110,0.2)",
+                    paddingBottom: 2,
+                  }}
+                >
+                  {t("socialFacebook")}
+                </a>
+              ) : null}
+            </div>
+          </div>
+        )}
       </footer>
     </div>
   );
