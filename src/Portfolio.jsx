@@ -1277,6 +1277,20 @@ export default function App() {
   const socialFb = normalizeSocialUrl(
     import.meta.env.VITE_SOCIAL_FACEBOOK || "",
   );
+  const contactMail = (import.meta.env.VITE_CONTACT_EMAIL || "").trim();
+
+  useEffect(() => {
+    const raw = window.location.hash.replace(/^#\/?/, "");
+    if (raw === "nectar-admin") {
+      setLoginErr(false);
+      setAdminLoginOpen(true);
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+  }, []);
 
   useEffect(() => {
     setAdminAuthed(!!getAdminToken());
@@ -1436,6 +1450,8 @@ export default function App() {
         .nb{position:relative;padding:8px 0;color:rgba(245,240,235,0.4);background:none;border:none;cursor:pointer;font-size:13px;letter-spacing:0.06em;font-family:'Instrument Serif',serif;font-style:italic;transition:color 0.3s}
         .nb:hover,.nb.on{color:#C9A96E}
         .nb.on::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:#C9A96E}
+        a.nb{color:inherit}
+        .sf:hover{background:rgba(201,169,110,0.2)!important;border-color:rgba(201,169,110,0.55)!important}
         .fi{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);color:#F5F0EB;padding:13px 18px;font-family:'Noto Serif TC',serif;font-size:14px;border-radius:4px;outline:none;transition:all 0.3s;backdrop-filter:blur(4px)}
         .fi:focus{border-color:rgba(201,169,110,0.35);background:rgba(255,255,255,0.05)}
         .fi::placeholder{color:rgba(245,240,235,0.2)}
@@ -1531,43 +1547,70 @@ export default function App() {
                 {t("langZh")}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (adminAuthed) {
-                  clearAdminSession();
-                  setAdminAuthed(false);
-                } else {
-                  setLoginErr(false);
-                  setAdminLoginOpen(true);
-                }
-              }}
-              style={{
-                background: "none",
-                border: "1px solid rgba(201,169,110,0.1)",
-                color: adminAuthed ? "#C9A96E" : "rgba(245,240,235,0.25)",
-                padding: "5px 14px",
-                fontSize: 11,
-                letterSpacing: "0.08em",
-                fontFamily: "'Instrument Serif',serif",
-                fontStyle: "italic",
-                cursor: "pointer",
-                borderRadius: 20,
-                transition: "all 0.3s",
-              }}
-            >
-              {adminAuthed ? t("navExitAdmin") : t("navAdmin")}
-            </button>
           </div>
         </div>
       </nav>
+
+      {/* 訪客不可見：右下角隱藏區開啟後台登入；已登入則顯示登出 */}
+      {!adminAuthed ? (
+        <button
+          type="button"
+          aria-hidden="true"
+          tabIndex={-1}
+          onClick={() => {
+            setLoginErr(false);
+            setAdminLoginOpen(true);
+          }}
+          style={{
+            position: "fixed",
+            right: 0,
+            bottom: 0,
+            width: 56,
+            height: 56,
+            padding: 0,
+            margin: 0,
+            border: "none",
+            background: "transparent",
+            opacity: 0,
+            zIndex: 60,
+            cursor: "pointer",
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            clearAdminSession();
+            setAdminAuthed(false);
+          }}
+          style={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            zIndex: 60,
+            background: "rgba(8,7,6,0.75)",
+            border: "1px solid rgba(201,169,110,0.25)",
+            color: "rgba(201,169,110,0.85)",
+            padding: "6px 12px",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            fontFamily: "'Instrument Serif',serif",
+            fontStyle: "italic",
+            cursor: "pointer",
+            borderRadius: 20,
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          {t("navExitAdmin")}
+        </button>
+      )}
 
       {/* ═══ PORTFOLIO ═══ */}
       {pg === "portfolio" && (
         <div>
           {adminAuthed && (
             <div
-              style={{ position: "fixed", bottom: 32, right: 32, zIndex: 40 }}
+              style={{ position: "fixed", bottom: 96, right: 28, zIndex: 40 }}
             >
               <button
                 onClick={() => {
@@ -1633,18 +1676,19 @@ export default function App() {
             <div
               style={{
                 width: 1,
-                height: 40,
+                height: 48,
                 background:
-                  "linear-gradient(180deg, rgba(201,169,110,0.15), transparent)",
+                  "linear-gradient(180deg, rgba(201,169,110,0.35), transparent)",
               }}
             />
             <div
               style={{
                 fontFamily: "'Instrument Serif',serif",
-                fontSize: 11,
+                fontSize: 13,
                 fontStyle: "italic",
-                letterSpacing: "0.3em",
-                color: "rgba(201,169,110,0.12)",
+                letterSpacing: "0.22em",
+                color: "rgba(212,184,122,0.72)",
+                textShadow: "0 1px 16px rgba(0,0,0,0.45)",
               }}
             >
               {t("portfolioEnd")}
@@ -2574,83 +2618,188 @@ export default function App() {
 
       <footer
         style={{
-          borderTop: "1px solid rgba(201,169,110,0.04)",
-          padding: "44px 32px",
+          borderTop: "1px solid rgba(201,169,110,0.12)",
+          padding: "48px 32px 56px",
           textAlign: "center",
+          background:
+            "linear-gradient(180deg, transparent 0%, rgba(201,169,110,0.04) 100%)",
         }}
       >
         <div
           style={{
             fontFamily: "'Instrument Serif',serif",
-            fontSize: 10,
+            fontSize: 12,
             fontStyle: "italic",
-            letterSpacing: "0.25em",
-            color: "rgba(201,169,110,0.1)",
+            letterSpacing: "0.18em",
+            color: "rgba(232,220,200,0.82)",
+            marginBottom: 8,
           }}
         >
           {t("footer")}
         </div>
-        {(socialIg || socialFb) && (
-          <div style={{ marginTop: 22 }}>
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 10,
-                fontStyle: "italic",
-                letterSpacing: "0.28em",
-                color: "rgba(201,169,110,0.22)",
-                marginBottom: 12,
-              }}
-            >
-              {t("socialKicker")}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 28,
-                justifyContent: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              {socialIg ? (
-                <a
-                  href={socialIg}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    fontFamily: "'Instrument Serif',serif",
-                    fontSize: 12,
-                    fontStyle: "italic",
-                    color: "rgba(201,169,110,0.55)",
-                    textDecoration: "none",
-                    borderBottom: "1px solid rgba(201,169,110,0.2)",
-                    paddingBottom: 2,
-                  }}
-                >
-                  {t("socialInstagram")}
-                </a>
-              ) : null}
-              {socialFb ? (
-                <a
-                  href={socialFb}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    fontFamily: "'Instrument Serif',serif",
-                    fontSize: 12,
-                    fontStyle: "italic",
-                    color: "rgba(201,169,110,0.55)",
-                    textDecoration: "none",
-                    borderBottom: "1px solid rgba(201,169,110,0.2)",
-                    paddingBottom: 2,
-                  }}
-                >
-                  {t("socialFacebook")}
-                </a>
-              ) : null}
-            </div>
+        <div style={{ marginTop: 28 }}>
+          <div
+            style={{
+              fontFamily: "'Instrument Serif',serif",
+              fontSize: 11,
+              fontStyle: "italic",
+              letterSpacing: "0.24em",
+              color: "rgba(201,169,110,0.55)",
+              marginBottom: 16,
+              textTransform: "uppercase",
+            }}
+          >
+            {t("socialKicker")}
           </div>
-        )}
+          <div
+            style={{
+              display: "flex",
+              gap: 14,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            {socialIg ? (
+              <a
+                className="sf"
+                href={socialIg}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.45)",
+                  background: "rgba(201,169,110,0.12)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "#E8D5B0",
+                  textDecoration: "none",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+              >
+                {t("socialInstagram")}
+              </a>
+            ) : (
+              <span
+                title={t("socialPendingHint")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.22)",
+                  background: "rgba(201,169,110,0.04)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "rgba(201,169,110,0.42)",
+                  cursor: "help",
+                }}
+              >
+                {t("socialInstagram")}
+              </span>
+            )}
+            {socialFb ? (
+              <a
+                className="sf"
+                href={socialFb}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.45)",
+                  background: "rgba(201,169,110,0.12)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "#E8D5B0",
+                  textDecoration: "none",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+              >
+                {t("socialFacebook")}
+              </a>
+            ) : (
+              <span
+                title={t("socialPendingHint")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.22)",
+                  background: "rgba(201,169,110,0.04)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "rgba(201,169,110,0.42)",
+                  cursor: "help",
+                }}
+              >
+                {t("socialFacebook")}
+              </span>
+            )}
+            {contactMail ? (
+              <a
+                className="sf"
+                href={`mailto:${contactMail}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.45)",
+                  background: "rgba(201,169,110,0.12)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "#E8D5B0",
+                  textDecoration: "none",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+              >
+                {t("footerContact")}
+              </a>
+            ) : (
+              <span
+                title={t("contactPendingHint")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: 108,
+                  padding: "11px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(201,169,110,0.22)",
+                  background: "rgba(201,169,110,0.04)",
+                  fontFamily: "'Instrument Serif',serif",
+                  fontSize: 13,
+                  fontStyle: "italic",
+                  color: "rgba(201,169,110,0.42)",
+                  cursor: "help",
+                }}
+              >
+                {t("footerContact")}
+              </span>
+            )}
+          </div>
+        </div>
       </footer>
     </div>
   );

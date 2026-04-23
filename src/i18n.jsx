@@ -8,7 +8,7 @@ import {
 
 const LANG_KEY = "nectar_locale";
 
-/** 後台與資料以新台幣儲存；英文介面顯示美金（約當匯率，僅供參考） */
+/** 後台與資料以 NTD 儲存；英文介面顯示 USD（約當匯率，僅供參考） */
 const TWD_PER_USD = 32;
 
 const CAT_EN = {
@@ -33,8 +33,13 @@ const messages = {
     workViewDetails: "View details →",
     workSoldOut: "Sold out",
     socialKicker: "Social",
-    socialInstagram: "IG",
-    socialFacebook: "FB",
+    socialInstagram: "Instagram",
+    socialFacebook: "Facebook",
+    socialPendingHint:
+      "Set VITE_SOCIAL_INSTAGRAM and VITE_SOCIAL_FACEBOOK in your deploy env, then redeploy.",
+    footerContact: "Contact",
+    contactPendingHint:
+      "Set VITE_CONTACT_EMAIL in your deploy env (address only), then redeploy.",
     verticalArt: "Nectar",
     portfolioEnd: "End of Collection",
     voteKicker: "Classroom Vote",
@@ -64,7 +69,7 @@ const messages = {
     modalNew: "New work",
     modalName: "Chinese title",
     modalNameEn: "English title",
-    modalPrice: "List price (NT$)",
+    modalPrice: "List price (NTD)",
     modalSoldOut: "Mark as sold out",
     modalSoldOutHint:
       "When on, price is hidden. You can also set price to 0 for the same display.",
@@ -97,6 +102,11 @@ const messages = {
     socialKicker: "社群",
     socialInstagram: "IG",
     socialFacebook: "FB",
+    socialPendingHint:
+      "請在 Cloudflare Pages 環境變數設定 VITE_SOCIAL_INSTAGRAM、VITE_SOCIAL_FACEBOOK（完整網址）後重新部署。",
+    footerContact: "聯絡",
+    contactPendingHint:
+      "請在環境變數設定 VITE_CONTACT_EMAIL（僅信箱）後重新部署。",
     verticalArt: "花蜜水晶花工藝",
     portfolioEnd: "— 全系列瀏覽完畢 —",
     voteKicker: "課堂投票",
@@ -124,7 +134,7 @@ const messages = {
     modalNew: "新增作品",
     modalName: "作品名稱",
     modalNameEn: "英文標題",
-    modalPrice: "售價 NT$",
+    modalPrice: "售價 NTD",
     modalSoldOut: "標示為已售罄",
     modalSoldOutHint: "開啟後不顯示價格；或將售價設為 0 元亦同。",
     modalCat: "分類",
@@ -208,14 +218,10 @@ export function I18nProvider({ children }) {
     (ntd) => {
       const n = Number(ntd) || 0;
       if (locale === "en") {
-        const usd = n / TWD_PER_USD;
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          maximumFractionDigits: 0,
-        }).format(usd);
+        const usd = Math.round(n / TWD_PER_USD);
+        return `USD ${usd.toLocaleString("en-US")}`;
       }
-      return `NT$ ${n.toLocaleString("zh-TW")}`;
+      return `NTD ${n.toLocaleString("zh-TW")}`;
     },
     [locale]
   );
