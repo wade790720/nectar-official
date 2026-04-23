@@ -26,9 +26,27 @@ function pickStore() {
 }
 const LOCAL_STORE = pickStore();
 
-/** 僅在 build 時設為 "true" 才會在正式站走 Cloudflare R2 + Functions */
+/**
+ * 是否將作品同步到 Cloudflare R2（/api/data、/api/upload）。
+ * - 設 VITE_USE_REMOTE=false 強制只用 localStorage（本機或特殊部署）
+ * - 設 VITE_USE_REMOTE=true 強制走遠端
+ * - 未設定時：production build 預設走遠端（Pages 同網域即有 API）；開發模式預設 localStorage
+ */
 export function isRemoteSync() {
-  return import.meta.env.VITE_USE_REMOTE === "true";
+  const v = import.meta.env.VITE_USE_REMOTE;
+  if (v === "false") return false;
+  if (v === "true") return true;
+  return import.meta.env.PROD;
+}
+
+function notifySaveFailed(message) {
+  try {
+    window.dispatchEvent(
+      new CustomEvent("nectar-save-failed", { detail: { message } }),
+    );
+  } catch {
+    /* ignore */
+  }
 }
 
 export function apiPath(path) {
@@ -140,9 +158,16 @@ function scheduleSaveWorks(k) {
   }, SAVE_DEBOUNCE_MS);
 }
 
-/** 取消 debounce、立刻把 memWorks 寫回 R2（上傳圖後立刻重新整理時需要） */
-export function forceFlushWorks(worksKey) {
+/**
+ * 取消 debounce、立刻把作品寫回 R2 / localStorage。
+ * @param {string} worksKey
+ * @param {unknown} [snapshot] 若傳入，會先寫入 memWorks（避免 React setState 尚未套用時 flush 讀到舊值）
+ */
+export function forceFlushWorks(worksKey, snapshot) {
   clearTimeout(saveT);
+  if (snapshot !== undefined) {
+    memWorks = snapshot;
+  }
   return flushSaveWorks(worksKey);
 }
 
@@ -174,9 +199,15 @@ async function flushSaveWorks(worksKey) {
     if (!r.ok) {
       const t = await r.text();
       console.warn("[nectar-official] 儲存失敗：", r.status, t);
+      notifySaveFailed(
+        `儲存失敗（HTTP ${r.status}）。${t ? t.slice(0, 240) : "請檢查 Network 與 Functions 日誌。"}`,
+      );
     }
   } catch (e) {
     console.warn("[nectar-official] 儲存失敗：", e?.message || e);
+    notifySaveFailed(
+      `無法連線儲存：${e?.message || e}。若為本機預覽請設 VITE_USE_REMOTE=false。`,
+    );
   }
 }
 

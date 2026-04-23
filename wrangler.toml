@@ -2,7 +2,7 @@
 # 1) 在 Cloudflare 建立 R2 bucket（名稱可改，需與下方 bucket_name 一致）
 # 2) Pages 專案 > Settings > Functions > R2 bucket bindings，Binding 名稱填 BUCKET
 # 3) 設定祕密：npx wrangler pages secret put ADMIN_SECRET --project-name=<你的專案名>
-# 4) 建置變數：VITE_USE_REMOTE=true、VITE_ADMIN_KEY=<與 ADMIN_SECRET 相同>
+# 4) 建置：production 預設已會同步 R2；若需覆寫可設 VITE_USE_REMOTE。不要用 VITE_ADMIN_KEY 上線。
 
 name = "nectar-official"
 compatibility_date = "2024-10-22"

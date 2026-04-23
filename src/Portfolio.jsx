@@ -1005,6 +1005,14 @@ export default function App() {
       window.removeEventListener("nectar-admin-unauthorized", onUnauth);
   }, [t]);
   useEffect(() => {
+    const onSaveFail = (e) => {
+      const msg = e.detail?.message;
+      if (msg) window.alert(msg);
+    };
+    window.addEventListener("nectar-save-failed", onSaveFail);
+    return () => window.removeEventListener("nectar-save-failed", onSaveFail);
+  }, []);
+  useEffect(() => {
     setTimeout(() => setHo(true), 200);
     setTimeout(() => setCo(true), 600);
   }, []);
@@ -1029,18 +1037,15 @@ export default function App() {
     setWi((p) => [...p, { id: Date.now().toString(), text: wiIn.trim() }]);
     setWiIn("");
   };
-  const syncWorksToRemote = () => {
-    queueMicrotask(() => {
-      void forceFlushWorks(SK.w);
-    });
-  };
   const doSv = (w) => {
-    if (w.id && works.find((x) => x.id === w.id))
-      setW((p) => p.map((x) => (x.id === w.id ? w : x)));
-    else setW((p) => [...p, { ...w, id: Date.now().toString() }]);
+    const next =
+      w.id && works.find((x) => x.id === w.id)
+        ? works.map((x) => (x.id === w.id ? w : x))
+        : [...works, { ...w, id: Date.now().toString() }];
+    setW(next);
     setMo(false);
     setEd(null);
-    syncWorksToRemote();
+    void forceFlushWorks(SK.w, next);
   };
   const tryAdminLogin = async () => {
     if (!loginPwd.trim()) return;
@@ -1063,14 +1068,20 @@ export default function App() {
     }
   };
   const doDl = (id) => {
-    setW((p) => p.filter((x) => x.id !== id));
-    syncWorksToRemote();
+    const next = works.filter((x) => x.id !== id);
+    setW(next);
+    void forceFlushWorks(SK.w, next);
   };
   const doUp = async (wid, f) => {
     try {
       const ref = await fileToImageRef(f);
-      setW((p) => p.map((w) => (w.id === wid ? { ...w, image: ref } : w)));
-      syncWorksToRemote();
+      setW((p) => {
+        const next = p.map((w) =>
+          w.id === wid ? { ...w, image: ref } : w,
+        );
+        void forceFlushWorks(SK.w, next);
+        return next;
+      });
     } catch (e) {
       console.error(e);
       window.alert((e && e.message) || "主圖上傳失敗");
@@ -1080,17 +1091,20 @@ export default function App() {
     for (const f of files) {
       try {
         const ref = await fileToImageRef(f);
-        setW((p) =>
-          p.map((w) =>
-            w.id === wid ? { ...w, gallery: [...(w.gallery || []), ref] } : w,
-          ),
-        );
+        setW((p) => {
+          const next = p.map((w) =>
+            w.id === wid
+              ? { ...w, gallery: [...(w.gallery || []), ref] }
+              : w,
+          );
+          void forceFlushWorks(SK.w, next);
+          return next;
+        });
       } catch (e) {
         console.error(e);
         window.alert((e && e.message) || "圖庫上傳失敗");
       }
     }
-    syncWorksToRemote();
   };
 
   return (
