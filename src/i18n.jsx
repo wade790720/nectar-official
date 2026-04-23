@@ -32,6 +32,10 @@ const messages = {
     langZh: "CN",
     workViewDetails: "View details →",
     workSoldOut: "Sold out",
+    workSpecKicker: "Specifications",
+    workSpecDim: "Size",
+    workSpecMaterial: "Materials",
+    workSpecWeight: "Weight",
     socialKicker: "Social",
     socialInstagram: "Instagram",
     socialFacebook: "Facebook",
@@ -93,6 +97,12 @@ const messages = {
     modalUploaded: "Uploaded — click to replace",
     modalCancel: "Cancel",
     modalSave: "Save",
+    modalSpecDim: "Dimensions (ZH)",
+    modalSpecDimEn: "Dimensions (EN)",
+    modalSpecMaterial: "Materials (ZH)",
+    modalSpecMaterialEn: "Materials (EN)",
+    modalSpecWeight: "Weight (ZH)",
+    modalSpecWeightEn: "Weight (EN)",
     adminLoginTitle: "Admin sign-in",
     adminPassword: "Admin password",
     adminSubmit: "Sign in",
@@ -111,6 +121,10 @@ const messages = {
     langZh: "繁中",
     workViewDetails: "查看詳情 →",
     workSoldOut: "已售罄",
+    workSpecKicker: "規格",
+    workSpecDim: "尺寸",
+    workSpecMaterial: "材質",
+    workSpecWeight: "重量",
     socialKicker: "社群",
     socialInstagram: "IG",
     socialFacebook: "FB",
@@ -169,6 +183,12 @@ const messages = {
     modalUploaded: "已上傳 — 點此更換",
     modalCancel: "取消",
     modalSave: "儲存",
+    modalSpecDim: "尺寸（中文）",
+    modalSpecDimEn: "尺寸（英文）",
+    modalSpecMaterial: "材質（中文）",
+    modalSpecMaterialEn: "材質（英文）",
+    modalSpecWeight: "重量（中文）",
+    modalSpecWeightEn: "重量（英文）",
     adminLoginTitle: "管理員登入",
     adminPassword: "管理密碼",
     adminSubmit: "登入",
@@ -228,6 +248,34 @@ export function I18nProvider({ children }) {
     [locale]
   );
 
+  const workSpecDim = useCallback(
+    (work) =>
+      String(
+        locale === "en"
+          ? work?.dimEn || work?.dim
+          : work?.dim || work?.dimEn || "",
+      ).trim(),
+    [locale]
+  );
+  const workSpecMaterial = useCallback(
+    (work) =>
+      String(
+        locale === "en"
+          ? work?.materialEn || work?.material
+          : work?.material || work?.materialEn || "",
+      ).trim(),
+    [locale]
+  );
+  const workSpecWeight = useCallback(
+    (work) =>
+      String(
+        locale === "en"
+          ? work?.weightEn || work?.weight
+          : work?.weight || work?.weightEn || "",
+      ).trim(),
+    [locale]
+  );
+
   const workCat = useCallback(
     (work) => (locale === "en" ? CAT_EN[work.cat] || work.cat : work.cat),
     [locale]
@@ -269,6 +317,9 @@ export function I18nProvider({ children }) {
       workTitle,
       workSubtitle,
       workDesc,
+      workSpecDim,
+      workSpecMaterial,
+      workSpecWeight,
       workCat,
       flowerName,
       formatPrice,
@@ -281,6 +332,9 @@ export function I18nProvider({ children }) {
       workTitle,
       workSubtitle,
       workDesc,
+      workSpecDim,
+      workSpecMaterial,
+      workSpecWeight,
       workCat,
       flowerName,
       formatPrice,

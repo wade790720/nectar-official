@@ -1,0 +1,190 @@
+/** @fileoverview 資料驅動：預設作品、投票選項、分類底圖漸層（客戶改內容優先改此檔） */
+export const CATEGORY_GRADIENTS = {
+  永生花:
+    "linear-gradient(145deg,#1a0a1e 0%,#3d1548 35%,#5c2268 70%,#2a1030 100%)",
+  乾燥花:
+    "linear-gradient(145deg,#1a1008 0%,#4a2e14 35%,#6b4422 70%,#2a1a0a 100%)",
+  鮮花: "linear-gradient(145deg,#081a10 0%,#143a28 35%,#1e5a3c 70%,#0a2a16 100%)",
+  多肉: "linear-gradient(145deg,#0e1a0e 0%,#1e3a1e 35%,#2e5a2e 70%,#142a14 100%)",
+  花圈: "linear-gradient(145deg,#1a1508 0%,#4a3a10 35%,#6b5820 70%,#2a2008 100%)",
+  捧花: "linear-gradient(145deg,#1a1414 0%,#3a2828 35%,#5a3e3e 70%,#2a1e1e 100%)",
+  水晶花:
+    "linear-gradient(145deg,#0a1522 0%,#1a3550 38%,#2a5070 72%,#0c1828 100%)",
+};
+
+export const DEFAULT_WORKS = [
+  {
+    id: "1",
+    title: "永生花・粉霧玫瑰",
+    en: "Preserved Rose — Blush Mist",
+    price: 1280,
+    image: "",
+    cat: "永生花",
+    desc: "淡粉色永生玫瑰搭配滿天星，封存最美的瞬間",
+    descEn:
+      "Blush preserved roses with baby's breath — a fleeting moment, held still.",
+    dim: "約 Ø12×H20 cm（含玻璃罩）",
+    dimEn: "Approx. Ø12 × H20 cm (incl. glass dome)",
+    material: "永生玫瑰、滿天星、繡球永生花、玻璃罩與底座",
+    materialEn:
+      "Preserved roses, baby's breath, preserved hydrangea, glass cloche & base",
+    weight: "約 420 g",
+    weightEn: "Approx. 420 g",
+    gallery: [],
+  },
+  {
+    id: "2",
+    title: "乾燥花束・秋日暖陽",
+    en: "Dried Bouquet — Autumn Glow",
+    price: 980,
+    image: "",
+    cat: "乾燥花",
+    desc: "暖色系乾燥花束，秋冬限定的溫柔",
+    descEn:
+      "Warm-toned dried blooms — autumn and winter softness, in one bundle.",
+    dim: "花束約 W28×H38 cm（依花材略異）",
+    dimEn: "Bouquet approx. W28 × H38 cm (varies slightly)",
+    material: "乾燥玫瑰、尤加利、兔尾草、牛皮紙包裝",
+    materialEn: "Dried roses, eucalyptus, lagurus, kraft wrap",
+    weight: "約 550 g",
+    weightEn: "Approx. 550 g",
+    gallery: [],
+  },
+  {
+    id: "3",
+    title: "鮮花花藝・白綠森林",
+    en: "Fresh Arrangement — White Forest",
+    price: 1680,
+    image: "",
+    cat: "鮮花",
+    desc: "白綠色系歐式花藝，純淨的呼吸感",
+    descEn:
+      "European-style white and green fresh florals — quiet, airy clarity.",
+    gallery: [],
+  },
+  {
+    id: "4",
+    title: "多肉組盆・石蓮集",
+    en: "Succulent Planter — Stone Lotus",
+    price: 780,
+    image: "",
+    cat: "多肉",
+    desc: "多款石蓮花精緻組盆，小巧的療癒世界",
+    descEn: "A miniature garden of echeveria — small pots, big calm.",
+    dim: "盆器約 長18×寬12×高10 cm（整組）",
+    dimEn: "Planter set approx. L18 × W12 × H10 cm",
+    material: "石蓮、多肉植物、混合介質、陶盆",
+    materialEn: "Echeveria, succulents, soil mix, terracotta pot",
+    weight: "約 1.4 kg",
+    weightEn: "Approx. 1.4 kg",
+    gallery: [],
+  },
+  {
+    id: "5",
+    title: "花圈・松果聖誕",
+    en: "Wreath — Pinecone Noël",
+    price: 1480,
+    image: "",
+    cat: "花圈",
+    desc: "松果與乾燥果實交織的冬日花圈",
+    descEn: "Pinecones and dried botanicals woven into a winter wreath.",
+    dim: "外徑約 Ø42 cm（藤圈內徑約 Ø25 cm）",
+    dimEn: "Outer Ø42 cm approx. (inner ring Ø25 cm)",
+    material: "乾燥果實、松果、藤圈、麻繩吊環",
+    materialEn: "Dried pods, pinecones, grapevine base, jute hanger",
+    weight: "約 680 g",
+    weightEn: "Approx. 680 g",
+    gallery: [],
+  },
+  {
+    id: "6",
+    title: "新娘捧花・白紗",
+    en: "Bridal Bouquet — White Veil",
+    price: 2580,
+    image: "",
+    cat: "捧花",
+    desc: "經典白色系新娘捧花，為幸福加冕",
+    descEn: "Classic white bridal bouquet — a quiet crown for the big day.",
+    dim: "捧花面寬約 Ø22×H28 cm（手持比例）",
+    dimEn: "Bouquet approx. Ø22 × H28 cm (hand-held scale)",
+    material: "白玫瑰、桔梗、噴泉草、緞帶綁紮",
+    materialEn: "White roses, lisianthus, fountain grass, satin ribbon",
+    weight: "約 480 g",
+    weightEn: "Approx. 480 g",
+    gallery: [],
+  },
+]
+
+export const DEFAULT_VOTE_OPTIONS = [
+  {
+    id: "v1",
+    name: "玫瑰",
+    en: "Rose",
+    emoji: "🌹",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v2",
+    name: "向日葵",
+    en: "Sunflower",
+    emoji: "🌻",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v3",
+    name: "繡球花",
+    en: "Hydrangea",
+    emoji: "💠",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v4",
+    name: "鬱金香",
+    en: "Tulip",
+    emoji: "🌷",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v5",
+    name: "百合",
+    en: "Lily",
+    emoji: "🤍",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v6",
+    name: "桔梗",
+    en: "Lisianthus",
+    emoji: "💜",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v7",
+    name: "滿天星",
+    en: "Gypsophila",
+    emoji: "✨",
+    votes: 0,
+    image: "",
+  },
+  {
+    id: "v8",
+    name: "芍藥",
+    en: "Peony",
+    emoji: "🩷",
+    votes: 0,
+    image: "",
+  },
+]
+
+/** persist /api 使用的 bundle storage key（與 useP(SK.w, …) 一致） */
+export const SK = { w: "nectar-w3" };
+/** 向後相容別名 */
+export const DW = DEFAULT_WORKS;
+export const DV = DEFAULT_VOTE_OPTIONS;
+export const GR = CATEGORY_GRADIENTS;
