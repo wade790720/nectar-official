@@ -447,6 +447,14 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
   const dsc = workDesc(work);
   const catL = workCat(work);
 
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   return (
     <div
       style={{
@@ -479,11 +487,11 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
 
       {/* Close */}
       <button
+        type="button"
         onClick={onClose}
+        className="detail-close"
         style={{
           position: "absolute",
-          top: 24,
-          right: 24,
           background: "rgba(255,255,255,0.08)",
           backdropFilter: "blur(12px)",
           border: "1px solid rgba(255,255,255,0.1)",
@@ -503,6 +511,7 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
       </button>
 
       <div
+        className="detail-inner"
         style={{
           position: "relative",
           zIndex: 5,
@@ -511,7 +520,6 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "60px 24px 40px",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -532,9 +540,9 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
             <img
               src={allImgs[idx]}
               alt=""
+              className="detail-main-img"
               style={{
                 maxWidth: "100%",
-                maxHeight: "65vh",
                 objectFit: "contain",
                 borderRadius: 6,
                 boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
@@ -543,16 +551,22 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
             {allImgs.length > 1 && (
               <>
                 <button
+                  type="button"
                   onClick={() =>
                     setIdx((i) => (i - 1 + allImgs.length) % allImgs.length)
                   }
-                  style={{ ...navBtn, left: -20 }}
+                  className="detail-nav detail-nav--prev"
+                  style={navBtn}
+                  aria-label="Previous image"
                 >
                   <Arr s={20} d="left" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIdx((i) => (i + 1) % allImgs.length)}
-                  style={{ ...navBtn, right: -20 }}
+                  className="detail-nav detail-nav--next"
+                  style={navBtn}
+                  aria-label="Next image"
                 >
                   <Arr s={20} d="right" />
                 </button>
@@ -897,11 +911,13 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
   return (
     <div
       ref={pr}
+      className="ws-slide"
       style={{
         position: "relative",
-        height: "100vh",
         overflow: "hidden",
         cursor: "pointer",
+        WebkitTapHighlightColor: "transparent",
+        touchAction: "manipulation",
       }}
       onMouseEnter={() => setH(true)}
       onMouseLeave={() => setH(false)}
@@ -978,11 +994,9 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
       {/* Editorial text — bottom left */}
       <div
         ref={tr}
+        className="ws-meta"
         style={{
           position: "absolute",
-          bottom: "clamp(52px,9vh,96px)",
-          left: "clamp(28px,5.5vw,72px)",
-          right: "clamp(28px,5.5vw,72px)",
           zIndex: 2,
           opacity: tv ? 1 : 0,
           transform: tv ? "translateY(0)" : "translateY(55px)",
@@ -1156,10 +1170,9 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
       {/* Admin */}
       {admin && (
         <div
+          className="ws-admin-tools"
           style={{
             position: "absolute",
-            top: 76,
-            right: 24,
             display: "flex",
             gap: 8,
             zIndex: 10,
@@ -1177,10 +1190,11 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
               }
             />
           </label>
-          <button style={ab} onClick={() => onEdit(work)}>
+          <button type="button" style={ab} onClick={() => onEdit(work)}>
             <Edit />
           </button>
           <button
+            type="button"
             style={{ ...ab, color: "#EF4444" }}
             onClick={() => onDelete(work.id)}
           >
@@ -1411,8 +1425,8 @@ export default function App() {
 
   return (
     <div
+      className="app-root"
       style={{
-        minHeight: "100vh",
         background: "#080706",
         color: "#F5F0EB",
         fontFamily: "'Noto Serif TC','Instrument Serif',Georgia,serif",
@@ -1421,7 +1435,9 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap');
         *{margin:0;padding:0;box-sizing:border-box}
-        html{scroll-behavior:smooth}
+        html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+        body{margin:0;min-height:100vh;min-height:100dvh;-webkit-tap-highlight-color:rgba(201,169,110,0.12)}
+        .app-root{min-height:100vh;min-height:100dvh}
         @keyframes dm{from{transform:translateX(0)}to{transform:translateX(calc(-100vw - 360px))}}
         @keyframes fu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -1434,14 +1450,117 @@ export default function App() {
         .nb.on::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:#C9A96E}
         a.nb{color:inherit}
         .sf:hover{background:rgba(201,169,110,0.2)!important;border-color:rgba(201,169,110,0.55)!important}
-        .fi{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);color:#F5F0EB;padding:13px 18px;font-family:'Noto Serif TC',serif;font-size:14px;border-radius:4px;outline:none;transition:all 0.3s;backdrop-filter:blur(4px)}
+        .fi{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);color:#F5F0EB;padding:13px 18px;font-family:'Noto Serif TC',serif;font-size:16px;border-radius:4px;outline:none;transition:all 0.3s;backdrop-filter:blur(4px)}
+        @media (min-width:768px){
+          .fi{font-size:14px}
+        }
         .fi:focus{border-color:rgba(201,169,110,0.35);background:rgba(255,255,255,0.05)}
         .fi::placeholder{color:rgba(245,240,235,0.2)}
         textarea.fi{min-height:100px;resize:vertical;line-height:1.65;padding-top:14px;padding-bottom:14px}
         .vc{background:rgba(255,255,255,0.02);border:1px solid rgba(201,169,110,0.08);border-radius:6px;padding:20px 24px;display:flex;align-items:center;gap:18px;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);cursor:pointer;backdrop-filter:blur(4px)}
         .vc:hover{border-color:rgba(201,169,110,0.25);background:rgba(201,169,110,0.03);box-shadow:0 0 60px -15px rgba(201,169,110,0.06)}
         .vc.vd{border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.04)}
+        .vc{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        @media (max-width:640px){
+          .vc{padding:16px 14px!important;gap:14px!important;align-items:flex-start!important;min-height:56px}
+        }
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#080706}::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.15);border-radius:2px}
+        .ws-slide{position:relative;overflow:hidden;min-height:100vh;height:100vh;min-height:100dvh;height:100dvh}
+        @supports (height:100svh){
+          .ws-slide{min-height:100svh;height:100svh}
+        }
+        .ws-meta{
+          bottom:max(48px, calc(env(safe-area-inset-bottom, 0px) + 36px))!important;
+          left:max(16px, env(safe-area-inset-left, 0px))!important;
+          right:max(16px, env(safe-area-inset-right, 0px))!important;
+        }
+        @media (max-width:480px){
+          .ws-meta{bottom:max(40px, calc(env(safe-area-inset-bottom, 0px) + 28px))!important}
+        }
+        .ws-admin-tools{
+          top:max(76px, calc(env(safe-area-inset-top, 0px) + 58px))!important;
+          right:max(12px, env(safe-area-inset-right, 0px))!important;
+        }
+        .nav-row{
+          max-width:1400px;margin:0 auto;
+          padding-left:max(16px, env(safe-area-inset-left, 0px));
+          padding-right:max(16px, env(safe-area-inset-right, 0px));
+          padding-top:env(safe-area-inset-top, 0px);
+          min-height:calc(54px + env(safe-area-inset-top, 0px));
+          display:flex;align-items:center;justify-content:space-between;
+        }
+        .nav-links{display:flex;align-items:center;gap:32px;flex-shrink:0}
+        @media (max-width:640px){
+          .nav-links{gap:12px}
+          .nav-links .nb{font-size:12px;padding:10px 0;min-height:44px;display:inline-flex;align-items:center}
+          .nav-lang-btns{gap:6px!important}
+          .nav-lang-btns button{min-width:40px;min-height:36px;touch-action:manipulation}
+          .nav-brand-hit{min-height:44px;display:inline-flex;align-items:center;padding:4px 0}
+        }
+        .page-pad{
+          max-width:840px;margin:0 auto;
+          padding-top:calc(72px + env(safe-area-inset-top, 0px));
+          padding-left:max(16px, env(safe-area-inset-left, 0px));
+          padding-right:max(16px, env(safe-area-inset-right, 0px));
+          padding-bottom:max(56px, calc(env(safe-area-inset-bottom, 0px) + 40px));
+          position:relative;
+        }
+        @media (max-width:480px){
+          .page-pad{padding-top:calc(64px + env(safe-area-inset-top, 0px))}
+        }
+        .wish-bar{display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+        .wish-bar .wish-send{width:100%;min-height:48px;justify-content:center;touch-action:manipulation}
+        @media (min-width:480px){
+          .wish-bar{flex-direction:row;align-items:stretch}
+          .wish-bar .wish-send{width:auto;min-height:auto}
+        }
+        .detail-close{top:max(14px, env(safe-area-inset-top, 0px));right:max(14px, env(safe-area-inset-right, 0px))}
+        .detail-inner{
+          padding-top:max(52px, calc(env(safe-area-inset-top, 0px) + 40px));
+          padding-left:max(12px, env(safe-area-inset-left, 0px));
+          padding-right:max(12px, env(safe-area-inset-right, 0px));
+          padding-bottom:max(16px, env(safe-area-inset-bottom, 0px));
+        }
+        .detail-main-img{max-height:65vh}
+        @supports (height:100dvh){
+          .detail-main-img{max-height:min(65vh, calc(100dvh - 240px))}
+        }
+        @media (max-width:640px){
+          .detail-main-img{max-height:min(58vh, calc(100dvh - 260px))}
+        }
+        .detail-nav.detail-nav--prev{left:max(6px, env(safe-area-inset-left, 0px))}
+        .detail-nav.detail-nav--next{right:max(6px, env(safe-area-inset-right, 0px))}
+        @media (min-width:720px){
+          .detail-nav.detail-nav--prev{left:-20px}
+          .detail-nav.detail-nav--next{right:-20px}
+        }
+        .modal-sheet{
+          width:calc(100vw - 24px)!important;max-width:520px!important;
+          padding:22px 16px 24px!important;
+          max-height:min(88vh, 100dvh - 24px)!important;
+        }
+        @media (min-width:560px){
+          .modal-sheet{width:90%!important;padding:40px!important;max-height:90vh!important}
+        }
+        .modal-grid-2{display:grid;grid-template-columns:1fr;gap:16px}
+        @media (min-width:520px){
+          .modal-grid-2{grid-template-columns:1fr 1fr}
+        }
+        .fab-add{bottom:max(96px, calc(env(safe-area-inset-bottom, 0px) + 88px))!important;right:max(20px, env(safe-area-inset-right, 0px))!important}
+        .admin-out{bottom:max(20px, env(safe-area-inset-bottom, 0px));right:max(16px, env(safe-area-inset-right, 0px))}
+        .ft-safe{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-bottom:max(56px, calc(env(safe-area-inset-bottom, 0px) + 40px))}
+        .vote-admin-grid{display:grid;gap:14px;grid-template-columns:1fr}
+        @media (min-width:520px){
+          .vote-admin-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+        }
+        .vote-row-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+        .admin-login-panel{
+          width:calc(100vw - 24px)!important;max-width:400px!important;
+          padding:24px 18px!important;
+        }
+        @media (min-width:480px){
+          .admin-login-panel{width:90%!important;padding:36px!important}
+        }
       `}</style>
 
       {/* NAV */}
@@ -1457,19 +1576,10 @@ export default function App() {
           borderBottom: "1px solid rgba(201,169,110,0.06)",
         }}
       >
-        <div
-          style={{
-            maxWidth: 1400,
-            margin: "0 auto",
-            padding: "0 48px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: 54,
-          }}
-        >
+        <div className="nav-row">
           <button
             type="button"
+            className="nav-brand-hit"
             onClick={() => {
               setPg("portfolio");
               setDt(null);
@@ -1491,20 +1601,25 @@ export default function App() {
           >
             {t("navBrand")}
           </button>
-          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          <div className="nav-links">
             <button
+              type="button"
               className={`nb ${pg === "portfolio" ? "on" : ""}`}
               onClick={() => setPg("portfolio")}
             >
               {t("navCollection")}
             </button>
             <button
+              type="button"
               className={`nb ${pg === "vote" ? "on" : ""}`}
               onClick={() => setPg("vote")}
             >
               {t("navVote")}
             </button>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div
+              className="nav-lang-btns"
+              style={{ display: "flex", gap: 8, alignItems: "center" }}
+            >
               <button
                 type="button"
                 onClick={() => setLocale("en")}
@@ -1577,10 +1692,9 @@ export default function App() {
             clearAdminSession();
             setAdminAuthed(false);
           }}
+          className="admin-out"
           style={{
             position: "fixed",
-            bottom: 20,
-            right: 20,
             zIndex: 60,
             background: "rgba(8,7,6,0.75)",
             border: "1px solid rgba(201,169,110,0.25)",
@@ -1604,7 +1718,8 @@ export default function App() {
         <div>
           {adminAuthed && (
             <div
-              style={{ position: "fixed", bottom: 96, right: 28, zIndex: 40 }}
+              className="fab-add"
+              style={{ position: "fixed", zIndex: 40 }}
             >
               <button
                 onClick={() => {
@@ -1693,14 +1808,7 @@ export default function App() {
 
       {/* ═══ VOTE ═══ */}
       {pg === "vote" && (
-        <div
-          style={{
-            maxWidth: 840,
-            margin: "0 auto",
-            padding: "96px 32px 80px",
-            position: "relative",
-          }}
-        >
+        <div className="page-pad">
           <Danmaku wishes={wishes} />
 
           <div
@@ -1895,16 +2003,9 @@ export default function App() {
                     <span style={{ fontSize: 26 }}>{f.emoji}</span>
                   )}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "baseline",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="vote-row-title" style={{ marginBottom: 8 }}>
+                    <div style={{ minWidth: 0 }}>
                       <span
                         style={{
                           fontFamily: "'Noto Serif TC',serif",
@@ -1933,6 +2034,7 @@ export default function App() {
                         fontSize: 13,
                         fontStyle: "italic",
                         color: "rgba(245,240,235,0.2)",
+                        flexShrink: 0,
                       }}
                     >
                       {f.votes}
@@ -2016,13 +2118,7 @@ export default function App() {
               >
                 {t("voteCoursePhotosSub")}
               </p>
-              <div
-                style={{
-                  display: "grid",
-                  gap: 14,
-                  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-                }}
-              >
+              <div className="vote-admin-grid">
                 {votes.map((f) => (
                   <div
                     key={f.id}
@@ -2149,16 +2245,20 @@ export default function App() {
                 {t("wishSub")}
               </p>
             </div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 32 }}>
+            <div className="wish-bar">
               <input
                 className="fi"
                 placeholder={t("wishPlaceholder")}
                 value={wiIn}
                 onChange={(e) => setWiIn(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doWi()}
-                style={{ flex: 1 }}
+                style={{ flex: 1, width: "100%" }}
+                enterKeyHint="send"
+                autoComplete="off"
               />
               <button
+                type="button"
+                className="wish-send"
                 onClick={doWi}
                 style={{
                   background: "rgba(201,169,110,0.12)",
@@ -2279,16 +2379,13 @@ export default function App() {
           }}
         >
           <div
+            className="modal-sheet"
             style={{
               background: "rgba(28,25,23,0.95)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(201,169,110,0.1)",
               borderRadius: 8,
-              width: "90%",
-              maxWidth: 520,
-              padding: 40,
               animation: "fu 0.3s",
-              maxHeight: "90vh",
               overflowY: "auto",
             }}
           >
@@ -2319,13 +2416,7 @@ export default function App() {
                 c={(v) => setEd({ ...ed, en: v })}
                 ph="Preserved Rose — Blush Mist"
               />
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 16,
-                }}
-              >
+              <div className="modal-grid-2">
                 <Fld
                   l={t("modalPrice")}
                   v={ed.price}
@@ -2451,6 +2542,7 @@ export default function App() {
               }}
             >
               <button
+                type="button"
                 onClick={() => {
                   setMo(false);
                   setEd(null);
@@ -2470,6 +2562,7 @@ export default function App() {
                 {t("modalCancel")}
               </button>
               <button
+                type="button"
                 onClick={() => doSv(ed)}
                 style={{
                   background: "rgba(201,169,110,0.15)",
@@ -2512,13 +2605,11 @@ export default function App() {
           }}
         >
           <div
+            className="admin-login-panel"
             style={{
               background: "rgba(28,25,23,0.96)",
               border: "1px solid rgba(201,169,110,0.12)",
               borderRadius: 8,
-              width: "90%",
-              maxWidth: 400,
-              padding: 36,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -2611,9 +2702,10 @@ export default function App() {
       )}
 
       <footer
+        className="ft-safe"
         style={{
           borderTop: "1px solid rgba(201,169,110,0.12)",
-          padding: "48px 32px 56px",
+          paddingTop: 48,
           textAlign: "center",
           background:
             "linear-gradient(180deg, transparent 0%, rgba(201,169,110,0.04) 100%)",
