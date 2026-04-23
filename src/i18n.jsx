@@ -18,22 +18,20 @@ const CAT_EN = {
   多肉: "Succulents",
   花圈: "Wreath",
   捧花: "Bridal",
+  水晶花: "Crystal Flower",
 };
 
 const messages = {
   en: {
+    navBrand: "Nectar",
     navCollection: "Collection",
     navVote: "Vote",
     navAdmin: "Admin",
     navExitAdmin: "Sign out",
     langEn: "EN",
-    langZh: "繁中",
-    heroTag: "Nectar Art Collection",
-    heroTitle: "Floral Portfolio",
-    heroSub: "Where Flowers Become Art",
-    heroScroll: "Scroll to explore",
+    langZh: "CN",
     workViewDetails: "View details →",
-    verticalArt: "Nectar Art",
+    verticalArt: "Nectar",
     portfolioEnd: "End of Collection",
     voteKicker: "Classroom Vote",
     voteTitle: "Flower poll",
@@ -49,14 +47,20 @@ const messages = {
     wishEmpty: "Be the first to make a wish ✦",
     wishReset: "Reset all votes",
     detailAddAngles: "Add more angles",
+    detailRemovePhotoConfirm:
+      "Remove this photo from the gallery? This cannot be undone.",
+    detailRemoveCover: "Remove cover image",
+    photoTipTitle: "Photo tips",
+    photoTipBody:
+      "Full-bleed backgrounds use cover crop. Prefer 16:9 or 3:2 landscape, min width 2400px; keep the subject near the vertical center (slightly above middle). Tall 9:16 portraits crop heavily on ultrawide—crop to 16:9 before upload for the steadiest framing.",
     modalEdit: "Edit work",
     modalNew: "New work",
-    modalName: "Title (中文)",
+    modalName: "Chinese title",
     modalNameEn: "English title",
     modalPrice: "List price (NT$)",
     modalCat: "Category",
-    modalDesc: "Description (中文)",
-    modalDescEn: "Description (English)",
+    modalDesc: "Chinese description",
+    modalDescEn: "English description",
     modalCover: "Cover image",
     modalUploadHint: "Click to upload",
     modalUploaded: "Uploaded — click to replace",
@@ -68,21 +72,18 @@ const messages = {
     adminCancel: "Cancel",
     adminInvalid: "Invalid password.",
     adminSessionExpired: "Session expired or unauthorized. Please sign in again.",
-    footer: "Nectar Atelier © 2026",
+    footer: "Nectar © 2026",
   },
   "zh-TW": {
+    navBrand: "花蜜水晶花工藝",
     navCollection: "作品集",
     navVote: "投票",
     navAdmin: "管理",
     navExitAdmin: "登出",
-    langEn: "EN",
+    langEn: "英文",
     langZh: "繁中",
-    heroTag: "Nectar 花藝選集",
-    heroTitle: "花藝作品集",
-    heroSub: "讓花成為藝術",
-    heroScroll: "向下滑覽",
     workViewDetails: "查看詳情 →",
-    verticalArt: "Nectar Art",
+    verticalArt: "花蜜水晶花工藝",
     portfolioEnd: "— 全系列瀏覽完畢 —",
     voteKicker: "課堂投票",
     voteTitle: "花種投票",
@@ -98,6 +99,11 @@ const messages = {
     wishEmpty: "成為第一個許願的人 ✦",
     wishReset: "重設所有票數",
     detailAddAngles: "新增更多角度",
+    detailRemovePhotoConfirm: "要從圖庫移除此照片嗎？此操作無法復原。",
+    detailRemoveCover: "移除主圖",
+    photoTipTitle: "相片建議",
+    photoTipBody:
+      "全螢幕背景會用 cover 裁切。建議 16:9 或 3:2 橫式、寬度至少約 2400px，主體放在畫面垂直中央略偏上。直式 9:16 在超寬螢幕上下會被裁掉很多；若希望主體穩定，可先裁成 16:9 再上傳。",
     modalEdit: "編輯作品",
     modalNew: "新增作品",
     modalName: "作品名稱",
@@ -117,7 +123,7 @@ const messages = {
     adminCancel: "取消",
     adminInvalid: "密碼錯誤。",
     adminSessionExpired: "登入已失效或未授權，請重新登入。",
-    footer: "Nectar Atelier © 2026",
+    footer: "花蜜水晶花工藝 © 2026",
   },
 };
 
@@ -148,15 +154,21 @@ export function I18nProvider({ children }) {
     [locale]
   );
 
-  const workTitle = useCallback(
-    (work) => (locale === "en" ? work.en || work.title : work.title),
-    [locale]
-  );
+  /** 主標優先中文 title，再 fallback en；副標為另一語系且與主標不同才顯示 */
+  const workTitle = useCallback((work) => {
+    const zh = (work.title || "").trim();
+    const en = (work.en || "").trim();
+    return zh || en || "";
+  }, []);
 
-  const workSubtitle = useCallback(
-    (work) => (locale === "en" ? work.title : work.en),
-    [locale]
-  );
+  const workSubtitle = useCallback((work) => {
+    const zh = (work.title || "").trim();
+    const en = (work.en || "").trim();
+    const main = zh || en;
+    if (!main) return "";
+    if (main === zh) return en && en !== zh ? en : "";
+    return zh && zh !== en ? zh : "";
+  }, []);
 
   const workDesc = useCallback(
     (work) =>

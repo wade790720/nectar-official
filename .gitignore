@@ -15,6 +15,7 @@ dist-ssr
 # 環境變數（含管理密鑰）
 .env
 .env.*.local
+.dev.vars
 
 # Editor directories and files
 .vscode/*

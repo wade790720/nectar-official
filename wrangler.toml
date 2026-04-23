@@ -3,6 +3,10 @@
 # 2) Pages 專案 > Settings > Functions > R2 bucket bindings，Binding 名稱填 BUCKET
 # 3) 設定祕密：npx wrangler pages secret put ADMIN_SECRET --project-name=<你的專案名>
 # 4) 建置：production 預設已會同步 R2；若需覆寫可設 VITE_USE_REMOTE。不要用 VITE_ADMIN_KEY 上線。
+#
+# 本機跑 Functions + 綁定（模擬／遠端依 wrangler 版本）：複製 .dev.vars.example → .dev.vars，再執行
+#   npm run dev:pages
+# 瀏覽 http://localhost:8788（無 Vite HMR；改 UI 需另開 npm run dev 或改完再 build）
 
 name = "nectar-official"
 compatibility_date = "2024-10-22"

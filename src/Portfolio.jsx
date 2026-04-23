@@ -189,6 +189,8 @@ const GR = {
   多肉: "linear-gradient(145deg,#0e1a0e 0%,#1e3a1e 35%,#2e5a2e 70%,#142a14 100%)",
   花圈: "linear-gradient(145deg,#1a1508 0%,#4a3a10 35%,#6b5820 70%,#2a2008 100%)",
   捧花: "linear-gradient(145deg,#1a1414 0%,#3a2828 35%,#5a3e3e 70%,#2a1e1e 100%)",
+  水晶花:
+    "linear-gradient(145deg,#0a1522 0%,#1a3550 38%,#2a5070 72%,#0c1828 100%)",
 };
 
 const DW = [
@@ -335,8 +337,30 @@ function Danmaku({ wishes }) {
   );
 }
 
+/** 依縮圖列索引刪除：0=主圖（會由圖庫第一張遞補，無則清空） */
+function removeWorkImageAtThumbIndex(work, thumbIdx) {
+  const g = [...(work.gallery || [])];
+  const hasMain = !!work.image;
+  if (hasMain) {
+    if (thumbIdx === 0) {
+      const nextMain = g.length > 0 ? g[0] : "";
+      const nextGallery = g.slice(1);
+      return { ...work, image: nextMain, gallery: nextGallery };
+    }
+    const gi = thumbIdx - 1;
+    if (gi >= 0 && gi < g.length) {
+      return { ...work, gallery: g.filter((_, j) => j !== gi) };
+    }
+    return work;
+  }
+  if (thumbIdx >= 0 && thumbIdx < g.length) {
+    return { ...work, gallery: g.filter((_, j) => j !== thumbIdx) };
+  }
+  return work;
+}
+
 // Detail Lightbox
-function Detail({ work, onClose, admin, onUploadGallery }) {
+function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
   const { workTitle, workSubtitle, workDesc, workCat, t, formatPrice } =
     useI18n();
   const [idx, setIdx] = useState(0);
@@ -347,6 +371,12 @@ function Detail({ work, onClose, admin, onUploadGallery }) {
     return a;
   }, [work]);
   const cur = allImgs[idx] || null;
+
+  useEffect(() => {
+    if (idx >= allImgs.length) {
+      setIdx(Math.max(0, allImgs.length - 1));
+    }
+  }, [allImgs.length, idx]);
   const mainT = workTitle(work);
   const subT = workSubtitle(work);
   const dsc = workDesc(work);
@@ -368,7 +398,7 @@ function Detail({ work, onClose, admin, onUploadGallery }) {
           position: "absolute",
           inset: 0,
           background: cur
-            ? `url(${cur}) center/cover`
+            ? `url(${cur}) center 42% / cover no-repeat`
             : GR[work.cat] || GR["鮮花"],
           filter: "blur(40px) brightness(0.25) saturate(1.3)",
           transform: "scale(1.15)",
@@ -490,29 +520,81 @@ function Detail({ work, onClose, admin, onUploadGallery }) {
               gap: 8,
               marginTop: 20,
               justifyContent: "center",
+              flexWrap: "wrap",
             }}
           >
             {allImgs.map((img, i) => (
               <div
                 key={i}
-                onClick={() => setIdx(i)}
                 style={{
+                  position: "relative",
                   width: 56,
                   height: 56,
-                  borderRadius: 4,
-                  overflow: "hidden",
-                  border:
-                    i === idx ? "2px solid #C9A96E" : "2px solid transparent",
-                  cursor: "pointer",
-                  opacity: i === idx ? 1 : 0.5,
-                  transition: "all 0.3s",
                 }}
               >
-                <img
-                  src={img}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setIdx(i)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") setIdx(i);
+                  }}
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    border:
+                      i === idx
+                        ? "2px solid #C9A96E"
+                        : "2px solid transparent",
+                    cursor: "pointer",
+                    opacity: i === idx ? 1 : 0.5,
+                    transition: "all 0.3s",
+                  }}
+                >
+                  <img
+                    src={img}
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+                {admin && onRemoveImage && (
+                  <button
+                    type="button"
+                    title={t("detailRemoveCover")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(t("detailRemovePhotoConfirm"))) {
+                        onRemoveImage(work.id, i);
+                      }
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: -6,
+                      right: -6,
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      border: "none",
+                      background: "rgba(185,28,28,0.92)",
+                      color: "#fff",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 0,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                      zIndex: 2,
+                    }}
+                  >
+                    <X s={12} />
+                  </button>
+                )}
               </div>
             ))}
             {admin && (
@@ -545,46 +627,104 @@ function Detail({ work, onClose, admin, onUploadGallery }) {
           </div>
         )}
         {allImgs.length <= 1 && admin && (
-          <label
+          <div
             style={{
               marginTop: 16,
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: 6,
-              color: "rgba(201,169,110,0.4)",
-              fontSize: 12,
-              fontFamily: "'Instrument Serif',serif",
-              fontStyle: "italic",
-              cursor: "pointer",
-              padding: "8px 16px",
-              border: "1px dashed rgba(201,169,110,0.2)",
-              borderRadius: 20,
+              gap: 10,
             }}
           >
-            <Plus s={14} /> {t("detailAddAngles")}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              style={{ display: "none" }}
-              onChange={(e) => {
-                if (e.target.files)
-                  onUploadGallery(work.id, [...e.target.files]);
+            {allImgs.length === 1 && onRemoveImage && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(t("detailRemovePhotoConfirm"))) {
+                    onRemoveImage(work.id, 0);
+                    setIdx(0);
+                  }
+                }}
+                style={{
+                  background: "rgba(185,28,28,0.15)",
+                  border: "1px solid rgba(239,68,68,0.35)",
+                  color: "rgba(252,165,165,0.95)",
+                  padding: "8px 16px",
+                  fontSize: 12,
+                  fontFamily: "'Instrument Serif',serif",
+                  fontStyle: "italic",
+                  cursor: "pointer",
+                  borderRadius: 20,
+                }}
+              >
+                {t("detailRemoveCover")}
+              </button>
+            )}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                color: "rgba(201,169,110,0.4)",
+                fontSize: 12,
+                fontFamily: "'Instrument Serif',serif",
+                fontStyle: "italic",
+                cursor: "pointer",
+                padding: "8px 16px",
+                border: "1px dashed rgba(201,169,110,0.2)",
+                borderRadius: 20,
               }}
-            />
-          </label>
+            >
+              <Plus s={14} /> {t("detailAddAngles")}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  if (e.target.files)
+                    onUploadGallery(work.id, [...e.target.files]);
+                }}
+              />
+            </label>
+          </div>
+        )}
+
+        {admin && (
+          <p
+            style={{
+              fontSize: 10,
+              color: "rgba(201,169,110,0.28)",
+              maxWidth: 420,
+              marginTop: 14,
+              lineHeight: 1.55,
+              textAlign: "center",
+              fontFamily: "'Instrument Serif',serif",
+              fontStyle: "italic",
+            }}
+          >
+            <span style={{ display: "block", marginBottom: 6, letterSpacing: "0.12em" }}>
+              {t("photoTipTitle")}
+            </span>
+            {t("photoTipBody")}
+          </p>
         )}
 
         {/* Info */}
         <div style={{ textAlign: "center", marginTop: 24, maxWidth: 600 }}>
           <div
             style={{
+              display: "inline-block",
               fontFamily: "'Instrument Serif',serif",
               fontSize: 11,
-              letterSpacing: "0.35em",
+              letterSpacing: "0.32em",
               textTransform: "uppercase",
-              color: "rgba(201,169,110,0.45)",
-              marginBottom: 8,
+              color: "rgba(248,242,232,0.92)",
+              marginBottom: 12,
+              padding: "5px 16px",
+              border: "1px solid rgba(201,169,110,0.45)",
+              background: "rgba(0,0,0,0.35)",
+              borderRadius: 2,
             }}
           >
             {catL}
@@ -594,30 +734,34 @@ function Detail({ work, onClose, admin, onUploadGallery }) {
               fontFamily: "'Noto Serif TC',serif",
               fontSize: "clamp(24px,4vw,36px)",
               fontWeight: 400,
-              color: "#F5F0EB",
+              color: "#FAF7F2",
               letterSpacing: "0.04em",
               marginBottom: 6,
+              textShadow: "0 2px 12px rgba(0,0,0,0.5)",
             }}
           >
             {mainT}
           </h2>
-          <div
-            style={{
-              fontFamily: "'Instrument Serif',serif",
-              fontSize: 15,
-              fontStyle: "italic",
-              color: "rgba(201,169,110,0.5)",
-              letterSpacing: "0.15em",
-              marginBottom: 12,
-            }}
-          >
-            {subT}
-          </div>
+          {subT ? (
+            <div
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontSize: 14,
+                fontStyle: "italic",
+                color: "rgba(255,248,238,0.88)",
+                letterSpacing: "0.14em",
+                marginBottom: 12,
+                lineHeight: 1.45,
+              }}
+            >
+              {subT}
+            </div>
+          ) : null}
           <p
             style={{
               fontFamily: "'Noto Serif TC',serif",
               fontSize: 13,
-              color: "rgba(245,240,235,0.4)",
+              color: "rgba(245,240,235,0.55)",
               lineHeight: 1.9,
               marginBottom: 16,
             }}
@@ -676,7 +820,7 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
       ? "blur(1px) brightness(0.5)"
       : "blur(0px) brightness(0.35)";
   const overlayBg = hasImg
-    ? "linear-gradient(0deg, rgba(8,7,6,0.52) 0%, rgba(8,7,6,0.12) 32%, rgba(8,7,6,0) 52%, rgba(8,7,6,0.28) 100%)"
+    ? "linear-gradient(0deg, rgba(6,8,10,0.62) 0%, rgba(6,8,10,0.18) 30%, rgba(6,8,10,0) 50%, rgba(6,8,10,0.35) 100%)"
     : "linear-gradient(0deg, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.2) 28%, rgba(8,7,6,0) 50%, rgba(8,7,6,0.5) 100%)";
   const mainT = workTitle(work);
   const subT = workSubtitle(work);
@@ -702,7 +846,9 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
           inset: "-18% 0",
           transform: `translateY(${po}px) scale(${h ? 1.04 : 1})`,
           transition: "transform 1.4s cubic-bezier(0.16,1,0.3,1)",
-          background: hasImg ? `url(${work.image}) center/cover no-repeat` : gr,
+          background: hasImg
+            ? `url(${work.image}) center 42% / cover no-repeat`
+            : gr,
           filter: imgFilter,
           willChange: "transform",
         }}
@@ -742,6 +888,16 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
           pointerEvents: "none",
         }}
       />
+      {/* 左側暗角：文字疊在亮部花瓣上時仍可讀 */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(90deg, rgba(4,6,10,0.88) 0%, rgba(4,6,10,0.45) 22%, rgba(4,6,10,0.12) 42%, transparent 62%)",
+          pointerEvents: "none",
+        }}
+      />
 
       {/* Bottom edge gradient line */}
       <div
@@ -761,124 +917,152 @@ function WS({ work, index, total, admin, onEdit, onDelete, onUpload, onOpen }) {
         ref={tr}
         style={{
           position: "absolute",
-          bottom: "clamp(60px,10vh,100px)",
-          left: "clamp(36px,6vw,80px)",
-          right: "clamp(36px,6vw,80px)",
+          bottom: "clamp(52px,9vh,96px)",
+          left: "clamp(28px,5.5vw,72px)",
+          right: "clamp(28px,5.5vw,72px)",
           zIndex: 2,
           opacity: tv ? 1 : 0,
           transform: tv ? "translateY(0)" : "translateY(55px)",
           transition: "all 1.2s cubic-bezier(0.16,1,0.3,1) 0.1s",
+          pointerEvents: "none",
         }}
       >
-        {/* Sequence */}
         <div
           style={{
-            fontFamily: "'Instrument Serif',serif",
-            fontSize: 13,
-            color: "rgba(201,169,110,0.35)",
-            letterSpacing: "0.3em",
-            marginBottom: 20,
-            fontStyle: "italic",
+            maxWidth: "min(540px, 100%)",
+            padding: "clamp(18px,2.8vw,32px) clamp(20px,3.2vw,36px)",
+            borderRadius: 3,
+            background:
+              "linear-gradient(145deg, rgba(6,8,12,0.72) 0%, rgba(6,8,12,0.38) 55%, rgba(6,8,12,0.22) 100%)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            boxShadow:
+              "0 28px 64px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)",
           }}
         >
-          {String(index + 1).padStart(2, "0")}
-          <span style={{ margin: "0 8px", opacity: 0.25 }}>/</span>
-          {String(total).padStart(2, "0")}
-        </div>
-
-        {/* Category */}
-        <div
-          style={{
-            display: "inline-block",
-            border: "1px solid rgba(201,169,110,0.18)",
-            padding: "5px 20px",
-            fontSize: 10,
-            letterSpacing: "0.35em",
-            color: "rgba(201,169,110,0.5)",
-            fontFamily: "'Instrument Serif',serif",
-            textTransform: "uppercase",
-            marginBottom: 24,
-            backdropFilter: "blur(8px)",
-            background: "rgba(0,0,0,0.15)",
-            borderRadius: 2,
-          }}
-        >
-          {catL}
-        </div>
-
-        {/* Title */}
-        <h2
-          style={{
-            fontFamily: "'Noto Serif TC',serif",
-            fontSize: "clamp(28px,4.2vw,58px)",
-            fontWeight: 400,
-            letterSpacing: "0.04em",
-            lineHeight: 1.2,
-            color: "#F5F0EB",
-            marginBottom: 10,
-            textShadow: "0 4px 50px rgba(0,0,0,0.5)",
-          }}
-        >
-          {mainT}
-        </h2>
-
-        {/* English — Instrument Serif italic */}
-        <div
-          style={{
-            fontFamily: "'Instrument Serif',serif",
-            fontSize: "clamp(14px,1.8vw,20px)",
-            fontStyle: "italic",
-            fontWeight: 400,
-            letterSpacing: "0.12em",
-            color: "rgba(201,169,110,0.45)",
-            marginBottom: 20,
-          }}
-        >
-          {subT}
-        </div>
-
-        {/* Description */}
-        <p
-          style={{
-            fontFamily: "'Noto Serif TC',serif",
-            fontSize: 14,
-            color: "rgba(245,240,235,0.35)",
-            lineHeight: 1.9,
-            maxWidth: 520,
-            marginBottom: 28,
-            letterSpacing: "0.03em",
-          }}
-        >
-          {dsc}
-        </p>
-
-        {/* Price + CTA */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 24 }}>
-          <span
+          {/* Sequence */}
+          <div
             style={{
               fontFamily: "'Instrument Serif',serif",
-              fontSize: "clamp(24px,3vw,34px)",
-              fontWeight: 400,
-              color: "#C9A96E",
-              letterSpacing: "0.03em",
+              fontSize: 12,
+              color: "rgba(201,169,110,0.55)",
+              letterSpacing: "0.28em",
+              marginBottom: 16,
+              fontStyle: "italic",
+              textShadow: "0 1px 8px rgba(0,0,0,0.6)",
             }}
           >
-            {formatPrice(work.price)}
-          </span>
-          <span
+            {String(index + 1).padStart(2, "0")}
+            <span style={{ margin: "0 8px", opacity: 0.35 }}>/</span>
+            {String(total).padStart(2, "0")}
+          </div>
+
+          {/* Category */}
+          <div
             style={{
-              fontSize: 10,
-              color: "rgba(201,169,110,0.28)",
-              letterSpacing: "0.28em",
+              display: "inline-block",
+              border: "1px solid rgba(201,169,110,0.5)",
+              padding: "6px 18px",
+              fontSize: 11,
+              letterSpacing: "0.32em",
+              color: "rgba(248,242,232,0.95)",
               fontFamily: "'Instrument Serif',serif",
               textTransform: "uppercase",
-              fontStyle: "italic",
-              borderBottom: "1px solid rgba(201,169,110,0.12)",
-              paddingBottom: 2,
+              marginBottom: 20,
+              backdropFilter: "blur(10px)",
+              background: "rgba(0,0,0,0.42)",
+              borderRadius: 2,
+              boxShadow: "0 2px 16px rgba(0,0,0,0.35)",
+              textShadow: "0 1px 3px rgba(0,0,0,0.85)",
             }}
           >
-            {t("workViewDetails")}
-          </span>
+            {catL}
+          </div>
+
+          {/* Title */}
+          <h2
+            style={{
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: "clamp(26px,4vw,54px)",
+              fontWeight: 400,
+              letterSpacing: "0.04em",
+              lineHeight: 1.18,
+              color: "#FAF7F2",
+              marginBottom: 8,
+              textShadow:
+                "0 2px 4px rgba(0,0,0,0.9), 0 12px 48px rgba(0,0,0,0.55)",
+            }}
+          >
+            {mainT}
+          </h2>
+
+          {/* 副標（點綴句）：提高對比，避免與暖色花瓣融在一起 */}
+          {subT ? (
+            <div
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontSize: "clamp(12px,1.45vw,17px)",
+                fontStyle: "italic",
+                fontWeight: 400,
+                letterSpacing: "0.14em",
+                color: "rgba(255,248,238,0.9)",
+                marginBottom: 18,
+                lineHeight: 1.45,
+                textShadow:
+                  "0 1px 2px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.65)",
+              }}
+            >
+              {subT}
+            </div>
+          ) : null}
+
+          {/* Description */}
+          <p
+            style={{
+              fontFamily: "'Noto Serif TC',serif",
+              fontSize: 14,
+              color: "rgba(245,240,235,0.72)",
+              lineHeight: 1.85,
+              maxWidth: 500,
+              marginBottom: 22,
+              letterSpacing: "0.03em",
+              textShadow: "0 1px 12px rgba(0,0,0,0.75)",
+            }}
+          >
+            {dsc}
+          </p>
+
+          {/* Price + CTA */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 22 }}>
+            <span
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontSize: "clamp(22px,2.8vw,32px)",
+                fontWeight: 400,
+                color: "#D4B87A",
+                letterSpacing: "0.03em",
+                textShadow: "0 2px 16px rgba(0,0,0,0.5)",
+              }}
+            >
+              {formatPrice(work.price)}
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                color: "rgba(212,184,122,0.72)",
+                letterSpacing: "0.26em",
+                fontFamily: "'Instrument Serif',serif",
+                textTransform: "uppercase",
+                fontStyle: "italic",
+                borderBottom: "1px solid rgba(201,169,110,0.35)",
+                paddingBottom: 2,
+                textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+              }}
+            >
+              {t("workViewDetails")}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -1106,6 +1290,15 @@ export default function App() {
       }
     }
   };
+  const doRmGal = (wid, thumbIdx) => {
+    const w = works.find((x) => x.id === wid);
+    if (!w) return;
+    const nextW = removeWorkImageAtThumbIndex(w, thumbIdx);
+    const next = works.map((x) => (x.id === wid ? nextW : x));
+    setW(next);
+    setDt((d) => (d && d.id === wid ? nextW : d));
+    void forceFlushWorks(SK.w, next);
+  };
 
   return (
     <div
@@ -1173,7 +1366,7 @@ export default function App() {
               letterSpacing: "0.06em",
             }}
           >
-            Nectar Atelier
+            {t("navBrand")}
           </span>
           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
             <button
@@ -1259,162 +1452,6 @@ export default function App() {
       {/* ═══ PORTFOLIO ═══ */}
       {pg === "portfolio" && (
         <div>
-          {/* Hero */}
-          <div
-            style={{
-              position: "relative",
-              height: "100vh",
-              overflow: "hidden",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {/* Soft radial gradient background */}
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "radial-gradient(ellipse at 30% 25%, rgba(201,169,110,0.025) 0%, transparent 50%), radial-gradient(ellipse at 70% 75%, rgba(160,120,80,0.015) 0%, transparent 50%), #080706",
-              }}
-            />
-            {/* Gaussian blur orbs for depth */}
-            <div
-              style={{
-                position: "absolute",
-                top: "20%",
-                left: "15%",
-                width: 300,
-                height: 300,
-                background:
-                  "radial-gradient(circle, rgba(201,169,110,0.04) 0%, transparent 70%)",
-                filter: "blur(60px)",
-                borderRadius: "50%",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "25%",
-                right: "20%",
-                width: 200,
-                height: 200,
-                background:
-                  "radial-gradient(circle, rgba(180,140,90,0.03) 0%, transparent 70%)",
-                filter: "blur(50px)",
-                borderRadius: "50%",
-              }}
-            />
-
-            <div
-              style={{
-                textAlign: "center",
-                zIndex: 2,
-                opacity: ho ? 1 : 0,
-                transform: ho ? "translateY(0)" : "translateY(50px)",
-                transition: "all 1.8s cubic-bezier(0.16,1,0.3,1)",
-              }}
-            >
-              <div
-                style={{
-                  width: ho ? 80 : 0,
-                  height: 1,
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(201,169,110,0.35), transparent)",
-                  margin: "0 auto 36px",
-                  transition: "width 1.6s cubic-bezier(0.16,1,0.3,1) 0.3s",
-                }}
-              />
-
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  letterSpacing: "0.2em",
-                  color: "rgba(201,169,110,0.35)",
-                  marginBottom: 28,
-                }}
-              >
-                {t("heroTag")}
-              </div>
-
-              <h1
-                style={{
-                  fontFamily: "'Noto Serif TC',serif",
-                  fontSize: "clamp(44px,8.5vw,100px)",
-                  fontWeight: 300,
-                  letterSpacing: "0.03em",
-                  lineHeight: 1.1,
-                  color: "#F5F0EB",
-                  marginBottom: 14,
-                }}
-              >
-                {t("heroTitle")}
-              </h1>
-
-              <p
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: "clamp(16px,2.2vw,22px)",
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.3)",
-                  letterSpacing: "0.1em",
-                  fontWeight: 400,
-                  marginBottom: 48,
-                }}
-              >
-                {t("heroSub")}
-              </p>
-
-              <div
-                style={{
-                  width: ho ? 80 : 0,
-                  height: 1,
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(201,169,110,0.35), transparent)",
-                  margin: "0 auto",
-                  transition: "width 1.6s cubic-bezier(0.16,1,0.3,1) 0.5s",
-                }}
-              />
-            </div>
-
-            <div
-              style={{
-                position: "absolute",
-                bottom: 40,
-                left: "50%",
-                transform: "translateX(-50%)",
-                zIndex: 2,
-                opacity: ho ? 1 : 0,
-                transition: "opacity 1.2s 2s",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 10,
-                  fontStyle: "italic",
-                  letterSpacing: "0.25em",
-                  color: "rgba(201,169,110,0.2)",
-                  marginBottom: 10,
-                }}
-              >
-                {t("heroScroll")}
-              </div>
-              <Arr
-                s={14}
-                d="down"
-                style={{
-                  color: "rgba(201,169,110,0.2)",
-                  animation: "sc 2.5s infinite",
-                }}
-              />
-            </div>
-          </div>
-
           {adminAuthed && (
             <div
               style={{ position: "fixed", bottom: 32, right: 32, zIndex: 40 }}
@@ -1912,6 +1949,7 @@ export default function App() {
           onClose={() => setDt(null)}
           admin={adminAuthed}
           onUploadGallery={doGal}
+          onRemoveImage={doRmGal}
         />
       )}
 
