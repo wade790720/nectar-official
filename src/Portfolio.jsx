@@ -340,6 +340,182 @@ function normalizeSocialUrl(u) {
   return `https://${s}`;
 }
 
+function VoteAdminRow({ item, t, onSaveNames, onToggleHidden, onDelete, onUploadImage }) {
+  const [name, setName] = useState(item.name || "");
+  const [en, setEn] = useState(item.en || "");
+  useEffect(() => {
+    setName(item.name || "");
+    setEn(item.en || "");
+  }, [item.id, item.name, item.en]);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        padding: 14,
+        background: "rgba(0,0,0,0.2)",
+        borderRadius: 8,
+        border: item.hidden
+          ? "1px solid rgba(201,169,110,0.18)"
+          : "1px solid rgba(201,169,110,0.06)",
+        borderLeft: item.hidden ? "3px solid rgba(201,169,110,0.35)" : undefined,
+        opacity: item.hidden ? 0.88 : 1,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="vote-admin-thumb">
+          {item.image ? (
+            <img src={item.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <span style={{ fontSize: 28 }}>{item.emoji}</span>
+          )}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {item.hidden ? (
+            <span
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.2em",
+                color: "rgba(201,169,110,0.5)",
+                fontFamily: "'Instrument Serif',serif",
+                fontStyle: "italic",
+                textTransform: "uppercase",
+              }}
+            >
+              {t("voteHiddenBadge")}
+            </span>
+          ) : null}
+          <label
+            style={{
+              display: "block",
+              fontSize: 10,
+              color: "rgba(201,169,110,0.35)",
+              marginBottom: 4,
+              fontFamily: "'Instrument Serif',serif",
+              fontStyle: "italic",
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+            }}
+          >
+            {t("voteNameZh")}
+          </label>
+          <input
+            className="fi"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ marginBottom: 8 }}
+          />
+          <label
+            style={{
+              display: "block",
+              fontSize: 10,
+              color: "rgba(201,169,110,0.35)",
+              marginBottom: 4,
+              fontFamily: "'Instrument Serif',serif",
+              fontStyle: "italic",
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+            }}
+          >
+            {t("voteNameEn")}
+          </label>
+          <input className="fi" value={en} onChange={(e) => setEn(e.target.value)} />
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          alignItems: "center",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => onSaveNames(item.id, { name: name.trim(), en: en.trim() })}
+          style={{
+            background: "rgba(201,169,110,0.15)",
+            border: "1px solid rgba(201,169,110,0.25)",
+            color: "#C9A96E",
+            padding: "8px 14px",
+            fontFamily: "'Instrument Serif',serif",
+            fontSize: 12,
+            fontStyle: "italic",
+            cursor: "pointer",
+            borderRadius: 4,
+            touchAction: "manipulation",
+          }}
+        >
+          {t("voteSaveNames")}
+        </button>
+        <button
+          type="button"
+          onClick={() => onToggleHidden(item.id)}
+          style={{
+            background: "none",
+            border: "1px solid rgba(201,169,110,0.2)",
+            color: "rgba(245,240,235,0.55)",
+            padding: "8px 14px",
+            fontFamily: "'Instrument Serif',serif",
+            fontSize: 12,
+            fontStyle: "italic",
+            cursor: "pointer",
+            borderRadius: 4,
+            touchAction: "manipulation",
+          }}
+        >
+          {item.hidden ? t("voteShowInPoll") : t("voteHideFromPoll")}
+        </button>
+        <label
+          style={{
+            fontSize: 11,
+            color: "rgba(201,169,110,0.45)",
+            fontFamily: "'Instrument Serif',serif",
+            fontStyle: "italic",
+            cursor: "pointer",
+            padding: "8px 10px",
+            border: "1px dashed rgba(201,169,110,0.2)",
+            borderRadius: 4,
+          }}
+        >
+          {t("modalUploadHint")}
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) void onUploadImage(item.id, file);
+            }}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => onDelete(item.id)}
+          style={{
+            marginLeft: "auto",
+            background: "rgba(185,28,28,0.12)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            color: "rgba(252,165,165,0.9)",
+            padding: "8px 14px",
+            fontFamily: "'Instrument Serif',serif",
+            fontSize: 12,
+            fontStyle: "italic",
+            cursor: "pointer",
+            borderRadius: 4,
+            touchAction: "manipulation",
+          }}
+        >
+          {t("voteRemoveOption")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Danmaku
 function Danmaku({ wishes }) {
   const [its, setIts] = useState([]);
@@ -424,8 +600,97 @@ function removeWorkImageAtThumbIndex(work, thumbIdx) {
   return work;
 }
 
+function SocialContactChips({ socialIg, socialFb, contactMail, t, compact }) {
+  const gap = compact ? 10 : 14;
+  const minW = compact ? 92 : 108;
+  const pad = compact ? "10px 16px" : "11px 22px";
+  const fs = compact ? 12 : 13;
+  const link = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: minW,
+    padding: pad,
+    borderRadius: 999,
+    border: "1px solid rgba(201,169,110,0.45)",
+    background: "rgba(201,169,110,0.12)",
+    fontFamily: "'Instrument Serif',serif",
+    fontSize: fs,
+    fontStyle: "italic",
+    color: "#E8D5B0",
+    textDecoration: "none",
+    transition: "background 0.2s, border-color 0.2s",
+  };
+  const dis = {
+    ...link,
+    border: "1px solid rgba(201,169,110,0.22)",
+    background: "rgba(201,169,110,0.04)",
+    color: "rgba(201,169,110,0.42)",
+    cursor: "help",
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap,
+        justifyContent: "center",
+        flexWrap: "wrap",
+      }}
+    >
+      {socialIg ? (
+        <a
+          className="sf"
+          href={socialIg}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={link}
+        >
+          {t("socialInstagram")}
+        </a>
+      ) : (
+        <span title={t("socialPendingHint")} style={dis}>
+          {t("socialInstagram")}
+        </span>
+      )}
+      {socialFb ? (
+        <a
+          className="sf"
+          href={socialFb}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={link}
+        >
+          {t("socialFacebook")}
+        </a>
+      ) : (
+        <span title={t("socialPendingHint")} style={dis}>
+          {t("socialFacebook")}
+        </span>
+      )}
+      {contactMail ? (
+        <a className="sf" href={`mailto:${contactMail}`} style={link}>
+          {t("footerContact")}
+        </a>
+      ) : (
+        <span title={t("contactPendingHint")} style={dis}>
+          {t("footerContact")}
+        </span>
+      )}
+    </div>
+  );
+}
+
 // Detail Lightbox
-function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
+function Detail({
+  work,
+  onClose,
+  admin,
+  onUploadGallery,
+  onRemoveImage,
+  socialIg,
+  socialFb,
+  contactMail,
+}) {
   const { workTitle, workSubtitle, workDesc, workCat, t, workPriceLabel } =
     useI18n();
   const [idx, setIdx] = useState(0);
@@ -446,6 +711,11 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
   const subT = workSubtitle(work);
   const dsc = workDesc(work);
   const catL = workCat(work);
+  const inquirySubject = `${t("detailInquirySubjectPrefix")} ${mainT}`.trim();
+  const mailtoHref = contactMail
+    ? `mailto:${contactMail}?subject=${encodeURIComponent(inquirySubject)}`
+    : null;
+  const ctaHref = mailtoHref || socialIg || socialFb || null;
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -857,6 +1127,53 @@ function Detail({ work, onClose, admin, onUploadGallery, onRemoveImage }) {
             }}
           >
             {workPriceLabel(work)}
+          </div>
+          {ctaHref ? (
+            <a
+              href={ctaHref}
+              className="detail-cta"
+              onClick={(e) => e.stopPropagation()}
+              {...(ctaHref.startsWith("mailto:")
+                ? {}
+                : { target: "_blank", rel: "noopener noreferrer" })}
+            >
+              {t("detailCtaInquire")}
+            </a>
+          ) : (
+            <span
+              className="detail-cta detail-cta--disabled"
+              title={t("contactPendingHint")}
+            >
+              {t("detailCtaInquire")}
+            </span>
+          )}
+          <div
+            style={{
+              marginTop: 28,
+              paddingTop: 24,
+              borderTop: "1px solid rgba(201,169,110,0.18)",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontSize: 10,
+                fontStyle: "italic",
+                letterSpacing: "0.22em",
+                color: "rgba(201,169,110,0.45)",
+                marginBottom: 14,
+                textTransform: "uppercase",
+              }}
+            >
+              {t("socialKicker")}
+            </div>
+            <SocialContactChips
+              socialIg={socialIg}
+              socialFb={socialFb}
+              contactMail={contactMail}
+              t={t}
+              compact
+            />
           </div>
         </div>
       </div>
@@ -1316,11 +1633,18 @@ export default function App() {
     setTimeout(() => setCo(true), 250);
   }, [pg]);
 
-  const sorted = useMemo(
-    () => [...votes].sort((a, b) => b.votes - a.votes),
+  const publicVotes = useMemo(
+    () => votes.filter((v) => !v.hidden),
     [votes],
   );
-  const mx = useMemo(() => Math.max(1, ...votes.map((f) => f.votes)), [votes]);
+  const sorted = useMemo(
+    () => [...publicVotes].sort((a, b) => b.votes - a.votes),
+    [publicVotes],
+  );
+  const mx = useMemo(
+    () => Math.max(1, ...publicVotes.map((f) => f.votes)),
+    [publicVotes],
+  );
 
   const doV = (id) => {
     if (voted[id]) return;
@@ -1343,6 +1667,27 @@ export default function App() {
       console.error(e);
       window.alert((e && e.message) || "圖片上傳失敗");
     }
+  };
+  const saveVoteNames = (id, { name, en }) => {
+    setVotes((p) =>
+      p.map((x) => (x.id === id ? { ...x, name, en } : x)),
+    );
+  };
+  const toggleVoteHidden = (id) => {
+    setVotes((p) =>
+      p.map((x) =>
+        x.id === id ? { ...x, hidden: !x.hidden } : x,
+      ),
+    );
+  };
+  const deleteVoteOption = (id) => {
+    if (!window.confirm(t("voteRemoveOptionConfirm"))) return;
+    setVotes((p) => p.filter((x) => x.id !== id));
+    setVd((p) => {
+      const n = { ...p };
+      delete n[id];
+      return n;
+    });
   };
   const doSv = (w) => {
     const next =
@@ -1462,7 +1807,7 @@ export default function App() {
         .vc.vd{border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.04)}
         .vc{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
         @media (max-width:640px){
-          .vc{padding:16px 14px!important;gap:14px!important;align-items:flex-start!important;min-height:56px}
+          .vc{padding:16px 14px!important;gap:14px!important;align-items:center!important;min-height:72px}
         }
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#080706}::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.15);border-radius:2px}
         .ws-slide{position:relative;overflow:hidden;min-height:100vh;height:100vh;min-height:100dvh;height:100dvh}
@@ -1520,6 +1865,35 @@ export default function App() {
           padding-left:max(12px, env(safe-area-inset-left, 0px));
           padding-right:max(12px, env(safe-area-inset-right, 0px));
           padding-bottom:max(16px, env(safe-area-inset-bottom, 0px));
+          overflow-y:auto;
+          -webkit-overflow-scrolling:touch;
+        }
+        .detail-cta{
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          align-self:center;
+          margin-top:22px;
+          padding:14px 32px;
+          min-height:48px;
+          border-radius:999px;
+          border:1px solid rgba(201,169,110,0.55);
+          background:rgba(201,169,110,0.18);
+          color:#FAF7F2;
+          font-family:'Instrument Serif',serif;
+          font-size:14px;
+          font-style:italic;
+          letter-spacing:0.06em;
+          text-decoration:none;
+          cursor:pointer;
+          touch-action:manipulation;
+          transition:background 0.2s,border-color 0.2s,opacity 0.2s;
+        }
+        .detail-cta:hover{background:rgba(201,169,110,0.28);border-color:rgba(201,169,110,0.75)}
+        .detail-cta--disabled{
+          opacity:0.45;
+          cursor:not-allowed;
+          pointer-events:none;
         }
         .detail-main-img{max-height:65vh}
         @supports (height:100dvh){
@@ -1551,9 +1925,105 @@ export default function App() {
         .ft-safe{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-bottom:max(56px, calc(env(safe-area-inset-bottom, 0px) + 40px))}
         .vote-admin-grid{display:grid;gap:14px;grid-template-columns:1fr}
         @media (min-width:520px){
-          .vote-admin-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+          .vote-admin-grid{grid-template-columns:repeat(auto-fill, minmax(280px, 1fr))}
         }
-        .vote-row-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+        .vote-leading-img{
+          width:min(92vw,340px);
+          max-height:min(46vh,260px);
+          height:auto;
+          aspect-ratio:3/2;
+          object-fit:cover;
+          border-radius:10px;
+          border:1px solid rgba(201,169,110,0.18);
+        }
+        .vote-list-thumb{
+          width:clamp(80px,24vw,112px);
+          height:clamp(80px,24vw,112px);
+          border-radius:10px;
+          overflow:hidden;
+          flex-shrink:0;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:rgba(201,169,110,0.06);
+          border:1px solid rgba(201,169,110,0.1);
+        }
+        .vote-card-grid{
+          display:grid;
+          gap:14px;
+          margin-bottom:64px;
+          grid-template-columns:1fr;
+        }
+        @media (min-width:520px){
+          .vote-card-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+        }
+        @media (min-width:900px){
+          .vote-card-grid{grid-template-columns:repeat(3,1fr);gap:18px}
+        }
+        .vote-card.vc{
+          flex-direction:column;
+          align-items:stretch;
+          padding:0!important;
+          overflow:hidden;
+          text-align:center;
+          min-height:0;
+          height:100%;
+          border-radius:8px!important;
+        }
+        .vote-card-thumb{
+          width:100%;
+          aspect-ratio:1;
+          max-height:min(220px,28vw);
+          border-radius:8px 8px 0 0;
+          border:none;
+          border-bottom:1px solid rgba(201,169,110,0.1);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:rgba(201,169,110,0.06);
+          overflow:hidden;
+          flex-shrink:0;
+        }
+        .vote-card-thumb img{width:100%;height:100%;object-fit:cover}
+        .vote-card-body{
+          flex:1;
+          display:flex;
+          flex-direction:column;
+          gap:12px;
+          padding:14px 12px 16px;
+          min-height:0;
+        }
+        .vote-card-names{display:flex;flex-direction:column;gap:6px;align-items:center}
+        .vote-card-footer{
+          margin-top:auto;
+          display:flex;
+          flex-wrap:wrap;
+          justify-content:center;
+          align-items:center;
+          gap:8px 14px;
+          padding-top:2px;
+        }
+        @media (max-width:640px){
+          .vote-card.vc{min-height:0!important}
+        }
+        .vote-admin-thumb{
+          width:84px;
+          height:84px;
+          border-radius:8px;
+          overflow:hidden;
+          flex-shrink:0;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:rgba(201,169,110,0.08);
+          border:1px solid rgba(201,169,110,0.1);
+        }
+        @media (min-width:640px){
+          .vote-list-thumb{width:104px;height:104px}
+        }
+        @media (min-width:900px){
+          .vote-card-thumb{max-height:200px}
+        }
         .admin-login-panel{
           width:calc(100vw - 24px)!important;max-width:400px!important;
           padding:24px 18px!important;
@@ -1918,16 +2388,12 @@ export default function App() {
                   <img
                     src={sorted[0].image}
                     alt=""
-                    style={{
-                      width: 140,
-                      height: 92,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                      border: "1px solid rgba(201,169,110,0.15)",
-                    }}
+                    className="vote-leading-img"
                   />
                 ) : (
-                  <span style={{ fontSize: 44 }}>{sorted[0].emoji}</span>
+                  <span style={{ fontSize: "clamp(52px,14vw,72px)" }}>
+                    {sorted[0].emoji}
+                  </span>
                 )}
               </div>
               <div
@@ -1955,18 +2421,11 @@ export default function App() {
             </div>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              marginBottom: 64,
-            }}
-          >
+          <div className="vote-card-grid">
             {sorted.map((f, i) => (
               <div
                 key={f.id}
-                className={`vc ${voted[f.id] ? "vd" : ""}`}
+                className={`vc vote-card ${voted[f.id] ? "vd" : ""}`}
                 onClick={() => doV(f.id)}
                 style={{
                   opacity: co ? 1 : 0,
@@ -1975,75 +2434,50 @@ export default function App() {
                 }}
               >
                 <div
+                  className="vote-card-thumb"
                   style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(201,169,110,0.06)",
-                    border: "1px solid rgba(201,169,110,0.08)",
                     animation: voted[f.id] ? "float 2.5s infinite" : "none",
                   }}
                 >
                   {f.image ? (
-                    <img
-                      src={f.image}
-                      alt=""
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
+                    <img src={f.image} alt="" />
                   ) : (
-                    <span style={{ fontSize: 26 }}>{f.emoji}</span>
+                    <span style={{ fontSize: "clamp(32px,10vw,44px)" }}>
+                      {f.emoji}
+                    </span>
                   )}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="vote-row-title" style={{ marginBottom: 8 }}>
-                    <div style={{ minWidth: 0 }}>
-                      <span
-                        style={{
-                          fontFamily: "'Noto Serif TC',serif",
-                          fontSize: 15,
-                          fontWeight: 400,
-                          color: voted[f.id] ? "#C9A96E" : "#F5F0EB",
-                        }}
-                      >
-                        {flowerName(f)}
-                      </span>
+                <div className="vote-card-body">
+                  <div className="vote-card-names">
+                    <span
+                      style={{
+                        fontFamily: "'Noto Serif TC',serif",
+                        fontSize: 15,
+                        fontWeight: 400,
+                        color: voted[f.id] ? "#C9A96E" : "#F5F0EB",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {flowerName(f)}
+                    </span>
+                    {(locale === "en" ? f.name : f.en) ? (
                       <span
                         style={{
                           fontFamily: "'Instrument Serif',serif",
                           fontSize: 12,
                           fontStyle: "italic",
-                          color: "rgba(201,169,110,0.25)",
-                          marginLeft: 10,
+                          color: "rgba(201,169,110,0.35)",
+                          lineHeight: 1.35,
                         }}
                       >
                         {locale === "en" ? f.name : f.en}
                       </span>
-                    </div>
-                    <span
-                      style={{
-                        fontFamily: "'Instrument Serif',serif",
-                        fontSize: 13,
-                        fontStyle: "italic",
-                        color: "rgba(245,240,235,0.2)",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {f.votes}
-                    </span>
+                    ) : null}
                   </div>
                   <div
                     style={{
-                      height: 3,
-                      background: "rgba(201,169,110,0.06)",
+                      height: 4,
+                      background: "rgba(201,169,110,0.08)",
                       borderRadius: 2,
                       overflow: "hidden",
                     }}
@@ -2059,29 +2493,32 @@ export default function App() {
                       }}
                     />
                   </div>
+                  <div className="vote-card-footer">
+                    <span
+                      style={{
+                        fontFamily: "'Instrument Serif',serif",
+                        fontSize: 12,
+                        fontStyle: "italic",
+                        color: "rgba(245,240,235,0.45)",
+                      }}
+                    >
+                      {f.votes} {t("voteVotes")}
+                    </span>
+                    {voted[f.id] ? (
+                      <span
+                        style={{
+                          fontFamily: "'Instrument Serif',serif",
+                          fontSize: 10,
+                          fontStyle: "italic",
+                          color: "rgba(201,169,110,0.55)",
+                          letterSpacing: "0.12em",
+                        }}
+                      >
+                        {t("voteVoted")}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-                {voted[f.id] ? (
-                  <span
-                    style={{
-                      fontFamily: "'Instrument Serif',serif",
-                      fontSize: 10,
-                      fontStyle: "italic",
-                      color: "rgba(201,169,110,0.5)",
-                    }}
-                  >
-                    {t("voteVoted")}
-                  </span>
-                ) : (
-                  <Arr
-                    s={14}
-                    d="down"
-                    style={{
-                      color: "rgba(245,240,235,0.15)",
-                      transform: "rotate(180deg)",
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
               </div>
             ))}
           </div>
@@ -2105,7 +2542,7 @@ export default function App() {
                   marginBottom: 8,
                 }}
               >
-                {t("voteCoursePhotos")}
+                {t("voteEditOption")}
               </div>
               <p
                 style={{
@@ -2120,80 +2557,15 @@ export default function App() {
               </p>
               <div className="vote-admin-grid">
                 {votes.map((f) => (
-                  <div
+                  <VoteAdminRow
                     key={f.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      padding: 12,
-                      background: "rgba(0,0,0,0.2)",
-                      borderRadius: 6,
-                      border: "1px solid rgba(201,169,110,0.06)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 6,
-                        overflow: "hidden",
-                        flexShrink: 0,
-                        background: "rgba(201,169,110,0.08)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {f.image ? (
-                        <img
-                          src={f.image}
-                          alt=""
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: 22 }}>{f.emoji}</span>
-                      )}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          color: "#F5F0EB",
-                          fontFamily: "'Noto Serif TC',serif",
-                        }}
-                      >
-                        {flowerName(f)}
-                      </div>
-                      <label
-                        style={{
-                          display: "inline-block",
-                          marginTop: 6,
-                          fontSize: 11,
-                          color: "rgba(201,169,110,0.5)",
-                          fontFamily: "'Instrument Serif',serif",
-                          fontStyle: "italic",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {t("modalUploadHint")}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          style={{ display: "none" }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            e.target.value = "";
-                            if (file) void doVoteImg(f.id, file);
-                          }}
-                        />
-                      </label>
-                    </div>
-                  </div>
+                    item={f}
+                    t={t}
+                    onSaveNames={saveVoteNames}
+                    onToggleHidden={toggleVoteHidden}
+                    onDelete={deleteVoteOption}
+                    onUploadImage={doVoteImg}
+                  />
                 ))}
               </div>
             </div>
@@ -2360,6 +2732,9 @@ export default function App() {
           admin={adminAuthed}
           onUploadGallery={doGal}
           onRemoveImage={doRmGal}
+          socialIg={socialIg}
+          socialFb={socialFb}
+          contactMail={contactMail}
         />
       )}
 
@@ -2737,154 +3112,12 @@ export default function App() {
           >
             {t("socialKicker")}
           </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 14,
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            {socialIg ? (
-              <a
-                className="sf"
-                href={socialIg}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.45)",
-                  background: "rgba(201,169,110,0.12)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "#E8D5B0",
-                  textDecoration: "none",
-                  transition: "background 0.2s, border-color 0.2s",
-                }}
-              >
-                {t("socialInstagram")}
-              </a>
-            ) : (
-              <span
-                title={t("socialPendingHint")}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.22)",
-                  background: "rgba(201,169,110,0.04)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.42)",
-                  cursor: "help",
-                }}
-              >
-                {t("socialInstagram")}
-              </span>
-            )}
-            {socialFb ? (
-              <a
-                className="sf"
-                href={socialFb}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.45)",
-                  background: "rgba(201,169,110,0.12)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "#E8D5B0",
-                  textDecoration: "none",
-                  transition: "background 0.2s, border-color 0.2s",
-                }}
-              >
-                {t("socialFacebook")}
-              </a>
-            ) : (
-              <span
-                title={t("socialPendingHint")}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.22)",
-                  background: "rgba(201,169,110,0.04)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.42)",
-                  cursor: "help",
-                }}
-              >
-                {t("socialFacebook")}
-              </span>
-            )}
-            {contactMail ? (
-              <a
-                className="sf"
-                href={`mailto:${contactMail}`}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.45)",
-                  background: "rgba(201,169,110,0.12)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "#E8D5B0",
-                  textDecoration: "none",
-                  transition: "background 0.2s, border-color 0.2s",
-                }}
-              >
-                {t("footerContact")}
-              </a>
-            ) : (
-              <span
-                title={t("contactPendingHint")}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 108,
-                  padding: "11px 22px",
-                  borderRadius: 999,
-                  border: "1px solid rgba(201,169,110,0.22)",
-                  background: "rgba(201,169,110,0.04)",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.42)",
-                  cursor: "help",
-                }}
-              >
-                {t("footerContact")}
-              </span>
-            )}
-          </div>
+          <SocialContactChips
+            socialIg={socialIg}
+            socialFb={socialFb}
+            contactMail={contactMail}
+            t={t}
+          />
         </div>
       </footer>
     </div>

@@ -51,6 +51,16 @@ const messages = {
     voteCoursePhotos: "Course photos (for poll)",
     voteCoursePhotosSub:
       "Upload an image per option so voters see your class visuals.",
+    voteEditOption: "Edit poll options",
+    voteNameZh: "Chinese name",
+    voteNameEn: "English name",
+    voteSaveNames: "Save names",
+    voteHideFromPoll: "Hide from visitors",
+    voteShowInPoll: "Show in poll",
+    voteRemoveOption: "Remove option",
+    voteRemoveOptionConfirm:
+      "Remove this option from the poll? Votes for it will be lost. This cannot be undone.",
+    voteHiddenBadge: "Hidden",
     wishKicker: "✦ Wishing Pool ✦",
     wishTitle: "Wish pool",
     wishSub: "Whisper your wish into the stream",
@@ -62,6 +72,8 @@ const messages = {
     detailRemovePhotoConfirm:
       "Remove this photo from the gallery? This cannot be undone.",
     detailRemoveCover: "Remove cover image",
+    detailCtaInquire: "Inquire to purchase",
+    detailInquirySubjectPrefix: "Nectar inquiry:",
     photoTipTitle: "Photo tips",
     photoTipBody:
       "Full-bleed backgrounds use cover crop. Prefer 16:9 or 3:2 landscape, min width 2400px; keep the subject near the vertical center (slightly above middle). Tall 9:16 portraits crop heavily on ultrawide—crop to 16:9 before upload for the steadiest framing.",
@@ -117,6 +129,16 @@ const messages = {
     voteVoted: "已投票",
     voteCoursePhotos: "課程圖片（投票用）",
     voteCoursePhotosSub: "每個選項可上傳一張圖，讓大家依圖投票。",
+    voteEditOption: "編輯投票選項",
+    voteNameZh: "中文名稱",
+    voteNameEn: "英文名稱",
+    voteSaveNames: "儲存名稱",
+    voteHideFromPoll: "對訪客隱藏",
+    voteShowInPoll: "顯示於投票",
+    voteRemoveOption: "移除選項",
+    voteRemoveOptionConfirm:
+      "確定要從投票移除此選項嗎？該選項票數將一併刪除且無法復原。",
+    voteHiddenBadge: "已隱藏",
     wishKicker: "✦ 許願池 ✦",
     wishTitle: "許願池",
     wishSub: "把願望悄悄寫進水流裡",
@@ -127,6 +149,8 @@ const messages = {
     detailAddAngles: "新增更多角度",
     detailRemovePhotoConfirm: "要從圖庫移除此照片嗎？此操作無法復原。",
     detailRemoveCover: "移除主圖",
+    detailCtaInquire: "聯絡洽購",
+    detailInquirySubjectPrefix: "花蜜水晶花工藝洽詢：",
     photoTipTitle: "相片建議",
     photoTipBody:
       "全螢幕背景會用 cover 裁切。建議 16:9 或 3:2 橫式、寬度至少約 2400px，主體放在畫面垂直中央略偏上。直式 9:16 在超寬螢幕上下會被裁掉很多；若希望主體穩定，可先裁成 16:9 再上傳。",
