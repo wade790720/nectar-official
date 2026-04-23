@@ -1,0 +1,13 @@
+# Cloudflare Pages：建置目錄 dist，並綁 R2
+# 1) 在 Cloudflare 建立 R2 bucket（名稱可改，需與下方 bucket_name 一致）
+# 2) Pages 專案 > Settings > Functions > R2 bucket bindings，Binding 名稱填 BUCKET
+# 3) 設定祕密：npx wrangler pages secret put ADMIN_SECRET --project-name=<你的專案名>
+# 4) 建置變數：VITE_USE_REMOTE=true、VITE_ADMIN_KEY=<與 ADMIN_SECRET 相同>
+
+name = "nectar-official"
+compatibility_date = "2024-10-22"
+pages_build_output_dir = "dist"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "flora-site-data"
