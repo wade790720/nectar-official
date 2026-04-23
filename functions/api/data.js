@@ -10,8 +10,10 @@ function j(body, s = 200) {
 export async function onRequestGet({ request, env }) {
   if (request.method !== "GET") return j({ error: "Method not allowed" }, 405);
   const o = await env.BUCKET.get(DATA);
+  // 尚無 data.json 時回 404，前端才會用預設作品列表；勿回 works:[] 否則會覆蓋本地預設並讓首次編輯像「消失」
   if (!o) {
-    return new Response(JSON.stringify({ works: [] }), {
+    return new Response(JSON.stringify({ error: "No data yet" }), {
+      status: 404,
       headers: {
         "Content-Type": "application/json",
         "Cache-Control": "private, no-store",

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 const LS = {
   get: async (k) => {
@@ -131,11 +131,19 @@ function getInitWorks(k, initial) {
 }
 
 let saveT = 0;
+const SAVE_DEBOUNCE_MS = 280;
+
 function scheduleSaveWorks(k) {
   clearTimeout(saveT);
   saveT = setTimeout(() => {
     void flushSaveWorks(k);
-  }, 650);
+  }, SAVE_DEBOUNCE_MS);
+}
+
+/** 取消 debounce、立刻把 memWorks 寫回 R2（上傳圖後立刻重新整理時需要） */
+export function forceFlushWorks(worksKey) {
+  clearTimeout(saveT);
+  return flushSaveWorks(worksKey);
 }
 
 async function flushSaveWorks(worksKey) {
@@ -211,11 +219,15 @@ export async function fileToImageRef(file) {
 export function useP(k, initial, options = {}) {
   const cloud = options.cloud === true;
   const [s, setS] = useState(initial);
+  /** 避免「遠端 GET 较慢」回來時覆蓋使用者已上傳／已編輯的 state */
+  const remoteLoadGen = useRef(0);
 
   useEffect(() => {
     if (cloud) {
+      const genAtFetchStart = remoteLoadGen.current;
       void (async () => {
         const w = await getInitWorks(k, initial);
+        if (remoteLoadGen.current !== genAtFetchStart) return;
         memWorks = w;
         setS(w);
       })();
@@ -231,8 +243,26 @@ export function useP(k, initial, options = {}) {
     }
   }, [k, cloud, initial]);
 
+  useEffect(() => {
+    if (!cloud || typeof window === "undefined" || !isRemoteSync()) return;
+    const flush = () => {
+      clearTimeout(saveT);
+      void flushSaveWorks(k);
+    };
+    const onVis = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [k, cloud]);
+
   const set = useCallback(
     (fn) => {
+      if (cloud) remoteLoadGen.current += 1;
       setS((p) => {
         const n = typeof fn === "function" ? fn(p) : fn;
         if (cloud) {
