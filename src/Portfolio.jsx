@@ -188,6 +188,21 @@ export default function App() {
     });
     if (orphan) void deleteImageRefs([orphan]);
   };
+  const addVoteOption = () => {
+    /** 預設 hidden=true，強制 admin 填入名稱／圖片後才會對訪客顯示 */
+    setVotes((p) => [
+      ...p,
+      {
+        id: Date.now().toString(),
+        name: "",
+        en: "",
+        emoji: "✿",
+        votes: 0,
+        image: "",
+        hidden: true,
+      },
+    ]);
+  };
   const doSv = (w) => {
     const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
     const orphans = prevWork
@@ -372,6 +387,13 @@ export default function App() {
           <div className="nav-links">
             <button
               type="button"
+              className={`nb ${pg === "about" ? "on" : ""}`}
+              onClick={() => setPg("about")}
+            >
+              {t("navAbout")}
+            </button>
+            <button
+              type="button"
               className={`nb ${pg === "portfolio" ? "on" : ""}`}
               onClick={() => setPg("portfolio")}
             >
@@ -383,13 +405,6 @@ export default function App() {
               onClick={() => setPg("vote")}
             >
               {t("navVote")}
-            </button>
-            <button
-              type="button"
-              className={`nb ${pg === "about" ? "on" : ""}`}
-              onClick={() => setPg("about")}
-            >
-              {t("navAbout")}
             </button>
             <div
               className="nav-lang-btns"
@@ -525,6 +540,7 @@ export default function App() {
           onSaveNames={saveVoteNames}
           onToggleHidden={toggleVoteHidden}
           onDeleteOption={deleteVoteOption}
+          onAddOption={addVoteOption}
           onResetVotes={() => {
             setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
             setVd({});

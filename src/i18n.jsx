@@ -29,7 +29,7 @@ const messages = {
     heroTagline:
       "Each piece is composed in studio — measured, cut, and sealed by hand.",
     heroScroll: "Scroll",
-    navCollection: "Collection",
+    navCollection: "Portfolio",
     navVote: "Vote",
     navAbout: "About",
     navAdmin: "Admin",
@@ -62,6 +62,9 @@ const messages = {
     voteCoursePhotosSub:
       "Upload an image per option so voters see your class visuals.",
     voteEditOption: "Edit options",
+    voteAddOption: "Add option",
+    voteAddOptionHint:
+      "A new option starts hidden. Pick an emoji or upload an image, name it, then show it in the poll.",
     voteNameZh: "Chinese name",
     voteNameEn: "English name",
     voteSaveNames: "Save names",
@@ -123,11 +126,11 @@ const messages = {
     aboutKicker: "The Atelier",
     aboutTitle: "A slow craft,\nfor a quieter hour.",
     aboutLead:
-      "Nectar is a small atelier for preserved and crystal flowers. Each piece is built slowly — measured, cut, sealed, and set aside to settle — so that a single arrangement can hold still for years without asking anything of you.",
+      "Nectar is a small atelier for preserved and crystal flowers. Each piece is built slowly measured, cut, sealed, and set aside to settle, so that a single arrangement can hold still for years without asking anything of you.",
     aboutPhilosophyKicker: "Philosophy",
     aboutPhilosophyTitle: "Of restraint.",
     aboutPhilosophyBody1:
-      "We are not interested in abundance. We are interested in the smallest number of elements that still feels complete — the one stem that finishes a composition, the one shadow that gives it weight.",
+      "We are not interested in abundance. We are interested in the smallest number of elements that still feels complete, the one stem that finishes a composition, the one shadow that gives it weight.",
     aboutPhilosophyBody2:
       "Every work is made to be lived with. Quiet colours, considered proportions, a surface that ages well. We design around the room, not around the photograph.",
     aboutProcessKicker: "Process",
@@ -155,11 +158,12 @@ const messages = {
     aboutArtistSubtitle:
       "A designer's eye meets crystal-flower craft — devoted to both the making and the teaching of it.",
     aboutArtistFact1: "Founder of Nectar.",
-    aboutArtistFact2: "A decade of practice in jewellery and crystal-flower craft.",
+    aboutArtistFact2:
+      "A decade of practice in jewellery and crystal-flower craft.",
     aboutArtistFact3:
       "Seven years of teaching — walking beside each student learning to feel beauty.",
     aboutArtistFact4:
-      "200+ stems of morning-dew higanbana — helping students bloom, and blooming still.",
+      "200+ stems of morning-dew higanbana helping students bloom, and blooming still.",
     aboutArtistBody1:
       "Crystal-flower craft is a doorway into aesthetics. It teaches you to feel again, to observe closely, and in every small detail, to taste the quiet current of life.",
     aboutArtistBody2:
@@ -183,7 +187,7 @@ const messages = {
     aboutStudioKicker: "Studio",
     aboutStudioTitle: "By appointment.",
     aboutStudioBody:
-      "Studio visits, classes, and commissions are arranged privately. Please write ahead — we reply within two working days.",
+      "Courses, certifications, material sales, and brand collaborations are available by private appointment only. Please contact us via email first; we will respond within two business days.",
     aboutCtaNote: "For commissions and classes",
     aboutCtaEmail: "Write to the studio",
     aboutCtaInstagram: "On Instagram",
@@ -227,6 +231,9 @@ const messages = {
     voteCoursePhotos: "課程圖片（投票用）",
     voteCoursePhotosSub: "每個選項可上傳一張圖，讓大家依圖投票。",
     voteEditOption: "編輯選項",
+    voteAddOption: "新增選項",
+    voteAddOptionHint:
+      "新增的選項預設為隱藏。請先挑一個 emoji 或上傳圖片、填好名稱，再於投票中顯示。",
     voteNameZh: "中文名稱",
     voteNameEn: "英文名稱",
     voteSaveNames: "儲存名稱",
@@ -285,7 +292,7 @@ const messages = {
     aboutKicker: "工坊誌",
     aboutTitle: "以慢工藝 \n換一段靜時刻",
     aboutLead:
-      "花蜜水晶花工藝是一間小工房，以永生花與水晶花為主要媒材。每件作品從選料、裁切、組合到封存，都經過足夠沉靜的時間，能夠在日常裡靜靜安放多年，而不必被反覆照看。",
+      "花蜜水晶花工藝是一間小工房，以水晶花為主要媒材。\n每件作品從選料、裁切、組合到封存，都經過足夠沉靜的時間，能夠在日常裡靜靜安放多年，而不必被反覆照看，實現永恆。",
     aboutPhilosophyKicker: "理念",
     aboutPhilosophyTitle: "關於美學",
     aboutPhilosophyBody1:
@@ -293,24 +300,20 @@ const messages = {
     aboutPhilosophyBody2:
       "每件作品都是為了被生活所使用而設計：低彩度、斟酌過的比例、耐看的紋理。我們為空間而做，不為鏡頭而做。",
     aboutProcessKicker: "工序",
-    aboutProcessTitle: "四段工序。",
+    aboutProcessTitle: "四段工序",
     aboutProcess1N: "一",
     aboutProcess1T: "選料",
-    aboutProcess1B:
-      "由信任的花農小批供花，於工房內完成保存與處理。",
+    aboutProcess1B: "由信任的花農小批供花，於工房內完成保存與處理。",
     aboutProcess2N: "二",
     aboutProcess2T: "草圖",
-    aboutProcess2B:
-      "在下刀之前先於紙上推敲構圖，確立比例與方向。",
+    aboutProcess2B: "在下刀之前先於紙上推敲構圖，確立比例與方向。",
     aboutProcess3N: "三",
     aboutProcess3T: "組合",
-    aboutProcess3B:
-      "分數次手工組合，段與段之間靜置沉澱，直到無處再需增減。",
+    aboutProcess3B: "分數次手工組合，段與段之間靜置沉澱。",
     aboutProcess4N: "四",
     aboutProcess4T: "封存",
-    aboutProcess4B:
-      "以玻璃罩或樹脂封存，落款編號後靜置一週方出廠。",
-    aboutArtistKicker: "師資介紹",
+    aboutProcess4B: "以玻璃罩或樹脂封存，落款編號後靜置一週方出廠。",
+    aboutArtistKicker: "藝術家介紹",
     aboutArtistName: "許婷婷",
     aboutArtistTitle: "日本水晶花 MADOKA 花藝設計學院 · 副教授",
     aboutArtistSubtitle: "擁有設計美學背景，專注於水晶花工藝創作與教學。",
@@ -325,7 +328,7 @@ const messages = {
     aboutArtistBody3:
       "美，從來不是特權，是每個人值得擁有的生活能力。當開始感受美、辨別美、創造美，生活的每一個選擇，都會因此不同。",
     aboutArtistBody4:
-      "在這門課程裡，我希望給你的，不只是一枝美麗的花，而是一雙發現美的眼睛。",
+      "我希望給你的，不只是一枝美麗的花，而是一雙發現美的眼睛。",
     aboutArtistUploadPortrait: "上傳肖像",
     aboutArtistReplacePortrait: "更換肖像",
     aboutArtistRemovePortrait: "移除肖像",
@@ -339,7 +342,7 @@ const messages = {
     aboutStudioKicker: "工作室",
     aboutStudioTitle: "完全預約制。",
     aboutStudioBody:
-      "工作室參觀、課程與客製皆採私下預約。歡迎先來信——我們於兩個工作日內回覆。",
+      "課程・證照・材料販售・品牌合作皆採私下預約。歡迎先來信，我們於兩個工作日內回覆。",
     aboutCtaNote: "客製與課程事宜",
     aboutCtaEmail: "寫信到工作室",
     aboutCtaInstagram: "透過 Instagram",

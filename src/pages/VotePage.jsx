@@ -25,6 +25,7 @@ export function VotePage({
   onSaveNames,
   onToggleHidden,
   onDeleteOption,
+  onAddOption,
   onResetVotes,
   wiIn,
   onWiInChange,
@@ -159,9 +160,22 @@ export function VotePage({
       {admin && (
         <section className="vp-admin">
           <div className="vp-admin-head">
-            <h3 className="vp-admin-title">{t("voteEditOption")}</h3>
-            <p className="vp-admin-sub">{t("voteCoursePhotosSub")}</p>
+            <div className="vp-admin-head-text">
+              <h3 className="vp-admin-title">{t("voteEditOption")}</h3>
+              <p className="vp-admin-sub">{t("voteCoursePhotosSub")}</p>
+            </div>
+            <button
+              type="button"
+              className="vp-admin-add"
+              onClick={() => onAddOption?.()}
+            >
+              <span className="vp-admin-add-plus" aria-hidden="true">
+                +
+              </span>
+              <span>{t("voteAddOption")}</span>
+            </button>
           </div>
+          <p className="vp-admin-hint">{t("voteAddOptionHint")}</p>
           <div className="vp-admin-grid">
             {votes.map((f) => (
               <VoteAdminRow
