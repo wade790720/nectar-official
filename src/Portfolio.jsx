@@ -19,7 +19,7 @@ import { Detail } from "./components/DetailLightbox.jsx";
 import { WS } from "./components/WorkSlide.jsx";
 import { HeroSlide } from "./components/HeroSlide.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
-import { Plus, Cam, Crown, Send } from "./components/icons/Icons.jsx";
+import { Plus, Cam, Arr } from "./components/icons/Icons.jsx";
 
 export default function App() {
   const { t, locale, setLocale, flowerName } = useI18n();
@@ -503,286 +503,127 @@ export default function App() {
         </div>
       )}
 
-      {/* ═══ VOTE ═══ */}
+      {/* ═══ VOTE — editorial pollbook ═══ */}
       {pg === "vote" && (
-        <div className="page-pad">
+        <div className="vp-page">
           <Danmaku wishes={wishes} />
 
-          <div
+          <header
+            className="vp-head"
             style={{
-              textAlign: "center",
-              marginBottom: 56,
               opacity: ho ? 1 : 0,
-              transform: ho ? "translateY(0)" : "translateY(24px)",
-              transition: "all 1s cubic-bezier(0.16,1,0.3,1)",
+              transform: ho ? "translateY(0)" : "translateY(14px)",
+              transition:
+                "opacity 1s var(--ease-out-curve), transform 1s var(--ease-out-curve)",
             }}
           >
-            <div
-              style={{
-                width: 40,
-                height: 1,
-                background:
-                  "linear-gradient(90deg, transparent, rgba(201,169,110,0.25), transparent)",
-                margin: "0 auto 24px",
-              }}
-            />
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 12,
-                fontStyle: "italic",
-                letterSpacing: "0.2em",
-                color: "rgba(201,169,110,0.3)",
-                marginBottom: 20,
-              }}
-            >
+            <div className="vp-eyebrow">
+              <span className="vp-eyebrow-rule" aria-hidden="true" />
               {t("voteKicker")}
             </div>
-            <h2
-              style={{
-                fontFamily: "'Noto Serif TC',serif",
-                fontSize: "clamp(32px,5.5vw,50px)",
-                fontWeight: 300,
-                letterSpacing: "0.04em",
-                marginBottom: 12,
-              }}
-            >
-              {t("voteTitle")}
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 16,
-                fontStyle: "italic",
-                color: "rgba(201,169,110,0.25)",
-                letterSpacing: "0.1em",
-              }}
-            >
-              {t("voteSub")}
-            </p>
-            <div
-              style={{
-                width: 40,
-                height: 1,
-                background:
-                  "linear-gradient(90deg, transparent, rgba(201,169,110,0.25), transparent)",
-                margin: "24px auto 0",
-              }}
-            />
-          </div>
+            <h2 className="vp-title">{t("voteTitle")}</h2>
+            <p className="vp-sub">{t("voteSub")}</p>
+          </header>
 
           {sorted[0]?.votes > 0 && (
-            <div
-              style={{
-                textAlign: "center",
-                marginBottom: 48,
-                padding: "36px",
-                background: "rgba(201,169,110,0.02)",
-                border: "1px solid rgba(201,169,110,0.08)",
-                borderRadius: 8,
-                animation: "breathe 4s infinite",
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              <Crown
-                s={24}
-                style={{
-                  color: "#C9A96E",
-                  margin: "0 auto 12px",
-                  display: "block",
-                }}
-              />
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 11,
-                  fontStyle: "italic",
-                  letterSpacing: "0.25em",
-                  color: "rgba(201,169,110,0.35)",
-                  marginBottom: 10,
-                }}
-              >
-                {t("voteLeading")}
-              </div>
-              <div
-                style={{
-                  marginBottom: 10,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+            <section className="vp-leading">
+              <div className="vp-leading-plate">
                 {sorted[0].image ? (
-                  <img
-                    src={sorted[0].image}
-                    alt=""
-                    className="vote-leading-img"
-                  />
+                  <img src={sorted[0].image} alt="" />
                 ) : (
-                  <span style={{ fontSize: "clamp(52px,14vw,72px)" }}>
+                  <span className="vp-leading-emoji" aria-hidden="true">
                     {sorted[0].emoji}
                   </span>
                 )}
               </div>
-              <div
-                style={{
-                  fontFamily: "'Noto Serif TC',serif",
-                  fontSize: 26,
-                  color: "#C9A96E",
-                  fontWeight: 300,
-                }}
-              >
-                {flowerName(sorted[0])}
+              <div className="vp-leading-body">
+                <div className="vp-eyebrow">
+                  <span className="vp-eyebrow-rule" aria-hidden="true" />
+                  {t("voteLeading")}
+                </div>
+                <h3 className="vp-leading-name">{flowerName(sorted[0])}</h3>
+                {(locale === "en" ? sorted[0].name : sorted[0].en) ? (
+                  <div className="vp-leading-alt">
+                    {locale === "en" ? sorted[0].name : sorted[0].en}
+                  </div>
+                ) : null}
+                <span className="vp-leading-rule" aria-hidden="true" />
+                <div className="vp-leading-votes">
+                  <span className="vp-leading-votes-n">{sorted[0].votes}</span>
+                  <span className="vp-leading-votes-label">
+                    {t("voteVotes")}
+                  </span>
+                </div>
               </div>
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.35)",
-                  marginTop: 6,
-                }}
-              >
-                {locale === "en" ? sorted[0].name : sorted[0].en} —{" "}
-                {sorted[0].votes} {t("voteVotes")}
-              </div>
-            </div>
+            </section>
           )}
 
-          <div className="vote-card-grid">
-            {sorted.map((f, i) => (
-              <div
-                key={f.id}
-                className={`vc vote-card ${voted[f.id] ? "vd" : ""}`}
-                onClick={() => doV(f.id)}
-                style={{
-                  opacity: co ? 1 : 0,
-                  transform: co ? "translateY(0)" : "translateY(16px)",
-                  transition: `all 0.5s cubic-bezier(0.16,1,0.3,1) ${i * 0.04}s`,
-                }}
-              >
-                <div
-                  className="vote-card-thumb"
+          <div className="vp-list-kicker">{t("voteIndexKicker")}</div>
+          <ol className="vp-list">
+            {sorted.map((f, i) => {
+              const altName = locale === "en" ? f.name : f.en;
+              const ratio = mx > 0 ? f.votes / mx : 0;
+              return (
+                <li
+                  key={f.id}
+                  className={`vp-row ${voted[f.id] ? "is-voted" : ""}`}
                   style={{
-                    animation: voted[f.id] ? "float 2.5s infinite" : "none",
+                    opacity: co ? 1 : 0,
+                    transform: co ? "translateY(0)" : "translateY(8px)",
+                    transition: `opacity 0.7s var(--ease-out-curve) ${i * 40}ms, transform 0.7s var(--ease-out-curve) ${i * 40}ms`,
                   }}
                 >
-                  {f.image ? (
-                    <img src={f.image} alt="" />
-                  ) : (
-                    <span style={{ fontSize: "clamp(32px,10vw,44px)" }}>
-                      {f.emoji}
-                    </span>
-                  )}
-                </div>
-                <div className="vote-card-body">
-                  <div className="vote-card-names">
-                    <span
-                      style={{
-                        fontFamily: "'Noto Serif TC',serif",
-                        fontSize: 15,
-                        fontWeight: 400,
-                        color: voted[f.id] ? "#C9A96E" : "#F5F0EB",
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      {flowerName(f)}
-                    </span>
-                    {(locale === "en" ? f.name : f.en) ? (
-                      <span
-                        style={{
-                          fontFamily: "'Instrument Serif',serif",
-                          fontSize: 12,
-                          fontStyle: "italic",
-                          color: "rgba(201,169,110,0.35)",
-                          lineHeight: 1.35,
-                        }}
-                      >
-                        {locale === "en" ? f.name : f.en}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div
-                    style={{
-                      height: 4,
-                      background: "rgba(201,169,110,0.08)",
-                      borderRadius: 2,
-                      overflow: "hidden",
-                    }}
+                  <button
+                    type="button"
+                    className="vp-row-btn"
+                    onClick={() => doV(f.id)}
                   >
-                    <div
-                      style={{
-                        height: "100%",
-                        width: `${(f.votes / mx) * 100}%`,
-                        background:
-                          "linear-gradient(90deg, rgba(201,169,110,0.6), #C9A96E)",
-                        borderRadius: 2,
-                        transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)",
-                      }}
-                    />
-                  </div>
-                  <div className="vote-card-footer">
-                    <span
-                      style={{
-                        fontFamily: "'Instrument Serif',serif",
-                        fontSize: 12,
-                        fontStyle: "italic",
-                        color: "rgba(245,240,235,0.45)",
-                      }}
-                    >
-                      {f.votes} {t("voteVotes")}
+                    <span className="vp-row-num">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                    {voted[f.id] ? (
-                      <span
-                        style={{
-                          fontFamily: "'Instrument Serif',serif",
-                          fontSize: 10,
-                          fontStyle: "italic",
-                          color: "rgba(201,169,110,0.55)",
-                          letterSpacing: "0.12em",
-                        }}
-                      >
-                        {t("voteVoted")}
+                    <span className="vp-row-thumb">
+                      {f.image ? (
+                        <img src={f.image} alt="" />
+                      ) : (
+                        <span className="vp-row-emoji" aria-hidden="true">
+                          {f.emoji}
+                        </span>
+                      )}
+                    </span>
+                    <span className="vp-row-names">
+                      <span className="vp-row-name">{flowerName(f)}</span>
+                      {altName ? (
+                        <span className="vp-row-alt">{altName}</span>
+                      ) : null}
+                    </span>
+                    <span className="vp-row-bar-wrap" aria-hidden="true">
+                      <span className="vp-row-bar">
+                        <span
+                          className="vp-row-bar-fill"
+                          style={{ "--vp-bar": ratio }}
+                        />
                       </span>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                    </span>
+                    <span className="vp-row-votes">
+                      <span className="vp-row-votes-n">{f.votes}</span>
+                      <span className="vp-row-votes-label">
+                        {t("voteRowViewers")}
+                      </span>
+                      <span className="vp-row-tick">{t("voteVoted")}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
 
           {adminAuthed && (
-            <div
-              style={{
-                marginBottom: 48,
-                padding: 28,
-                background: "rgba(201,169,110,0.03)",
-                border: "1px solid rgba(201,169,110,0.1)",
-                borderRadius: 8,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 14,
-                  fontStyle: "italic",
-                  color: "#C9A96E",
-                  marginBottom: 8,
-                }}
-              >
-                {t("voteEditOption")}
+            <section className="vp-admin">
+              <div className="vp-admin-head">
+                <h3 className="vp-admin-title">{t("voteEditOption")}</h3>
+                <p className="vp-admin-sub">{t("voteCoursePhotosSub")}</p>
               </div>
-              <p
-                style={{
-                  fontSize: 12,
-                  color: "rgba(245,240,235,0.35)",
-                  marginBottom: 20,
-                  lineHeight: 1.55,
-                  fontFamily: "'Noto Serif TC',serif",
-                }}
-              >
-                {t("voteCoursePhotosSub")}
-              </p>
-              <div className="vote-admin-grid">
+              <div className="vp-admin-grid">
                 {votes.map((f) => (
                   <VoteAdminRow
                     key={f.id}
@@ -795,159 +636,72 @@ export default function App() {
                   />
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-          <div
-            style={{
-              height: 1,
-              background:
-                "linear-gradient(90deg, transparent, rgba(201,169,110,0.08), transparent)",
-              marginBottom: 56,
-            }}
-          />
-
-          {/* Wish Pool */}
-          <div style={{ position: "relative", zIndex: 10 }}>
-            <div style={{ textAlign: "center", marginBottom: 36 }}>
-              <div
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 11,
-                  fontStyle: "italic",
-                  letterSpacing: "0.2em",
-                  color: "rgba(201,169,110,0.3)",
-                  marginBottom: 16,
-                }}
-              >
+          <section className="vp-wish">
+            <header className="vp-wish-head">
+              <div className="vp-eyebrow">
+                <span className="vp-eyebrow-rule" aria-hidden="true" />
                 {t("wishKicker")}
               </div>
-              <h3
-                style={{
-                  fontFamily: "'Noto Serif TC',serif",
-                  fontSize: 28,
-                  fontWeight: 300,
-                  letterSpacing: "0.04em",
-                  marginBottom: 8,
-                }}
-              >
+              <h3 className="vp-title" style={{ marginTop: 12 }}>
                 {t("wishTitle")}
               </h3>
-              <p
-                style={{
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 14,
-                  fontStyle: "italic",
-                  color: "rgba(201,169,110,0.2)",
-                }}
-              >
+              <p className="vp-sub" style={{ marginTop: 10 }}>
                 {t("wishSub")}
               </p>
-            </div>
-            <div className="wish-bar">
+            </header>
+
+            <div className="vp-wish-bar">
               <input
-                className="fi"
+                className="vp-wish-input"
                 placeholder={t("wishPlaceholder")}
                 value={wiIn}
                 onChange={(e) => setWiIn(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doWi()}
-                style={{ flex: 1, width: "100%" }}
                 enterKeyHint="send"
                 autoComplete="off"
               />
               <button
                 type="button"
-                className="wish-send"
+                className="vp-wish-send"
                 onClick={doWi}
-                style={{
-                  background: "rgba(201,169,110,0.12)",
-                  color: "#C9A96E",
-                  border: "1px solid rgba(201,169,110,0.15)",
-                  padding: "12px 22px",
-                  fontFamily: "'Instrument Serif',serif",
-                  fontSize: 13,
-                  fontStyle: "italic",
-                  cursor: "pointer",
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  whiteSpace: "nowrap",
-                  backdropFilter: "blur(8px)",
-                  transition: "all 0.3s",
-                }}
               >
-                <Send /> {t("wishSend")}
+                <span>{t("wishSend")}</span>
+                <span aria-hidden="true">
+                  <Arr s={16} d="right" />
+                </span>
               </button>
             </div>
+
             {wishes.length > 0 ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                  justifyContent: "center",
-                }}
-              >
+              <ul className="vp-wish-list">
                 {wishes.slice(-30).map((w) => (
-                  <span
-                    key={w.id}
-                    style={{
-                      display: "inline-block",
-                      background: "rgba(201,169,110,0.03)",
-                      border: "1px solid rgba(201,169,110,0.08)",
-                      color: "rgba(245,240,235,0.5)",
-                      padding: "7px 16px",
-                      borderRadius: 20,
-                      fontSize: 12,
-                      fontFamily: "'Instrument Serif',serif",
-                      fontStyle: "italic",
-                      animation: "fu 0.4s",
-                      backdropFilter: "blur(4px)",
-                    }}
-                  >
-                    ✿ {w.text}
-                  </span>
+                  <li key={w.id} className="vp-wish-item">
+                    {w.text}
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: 48,
-                  color: "rgba(201,169,110,0.15)",
-                  fontSize: 13,
-                  fontFamily: "'Instrument Serif',serif",
-                  fontStyle: "italic",
-                }}
-              >
-                {t("wishEmpty")}
-              </div>
+              <div className="vp-wish-empty">{t("wishEmpty")}</div>
             )}
+
             {adminAuthed && (
-              <div style={{ marginTop: 48, textAlign: "center" }}>
+              <div className="vp-admin-reset-wrap">
                 <button
+                  type="button"
+                  className="vp-admin-reset"
                   onClick={() => {
                     setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
                     setVd({});
-                  }}
-                  style={{
-                    background: "none",
-                    border: "1px solid rgba(239,68,68,0.2)",
-                    color: "rgba(239,68,68,0.6)",
-                    padding: "8px 22px",
-                    fontFamily: "'Instrument Serif',serif",
-                    fontSize: 11,
-                    fontStyle: "italic",
-                    cursor: "pointer",
-                    borderRadius: 20,
                   }}
                 >
                   {t("wishReset")}
                 </button>
               </div>
             )}
-          </div>
+          </section>
         </div>
       )}
 
