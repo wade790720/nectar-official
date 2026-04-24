@@ -22,12 +22,14 @@ import { SocialContactChips } from "./components/SocialContactChips.jsx";
 import { Detail } from "./components/DetailLightbox.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
 import { Cam } from "./components/icons/Icons.jsx";
+import { useConfirm } from "./components/ConfirmDialog.jsx";
 import { PortfolioPage } from "./pages/PortfolioPage.jsx";
 import { VotePage } from "./pages/VotePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
 
 export default function App() {
   const { t, locale, setLocale } = useI18n();
+  const confirm = useConfirm();
   const [pg, setPg] = useState("portfolio");
   const bundleInit = useMemo(
     () => ({
@@ -178,8 +180,15 @@ export default function App() {
       p.map((x) => (x.id === id ? { ...x, hidden: !x.hidden } : x)),
     );
   };
-  const deleteVoteOption = (id) => {
-    if (!window.confirm(t("voteRemoveOptionConfirm"))) return;
+  const deleteVoteOption = async (id) => {
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("voteRemoveOptionConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
     const orphan = votes.find((x) => x.id === id)?.image || "";
     setVotes((p) => p.filter((x) => x.id !== id));
     setVd((p) => {
@@ -243,8 +252,15 @@ export default function App() {
       setLoginErr(true);
     }
   };
-  const doDl = (id) => {
-    if (!window.confirm(t("workDeleteConfirm"))) return;
+  const doDl = async (id) => {
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("workDeleteConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
     const work = works.find((x) => x.id === id);
     const orphans = work ? collectWorkImageRefs(work) : [];
     const next = works.filter((x) => x.id !== id);
@@ -318,10 +334,17 @@ export default function App() {
   };
   const doArtistPortrait = (f) => doArtistImg("portrait", f);
   const doArtistSignature = (f) => doArtistImg("signature", f);
-  const removeArtistPortrait = () => {
+  const removeArtistPortrait = async () => {
     const prev = artist.portrait || "";
     if (!prev) return;
-    if (!window.confirm(t("aboutArtistRemovePortraitConfirm"))) return;
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("aboutArtistRemovePortraitConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setArtist((p) => {
       const next = { ...p, portrait: "" };
       queueMicrotask(() => void forceFlushBundle(SK.w));
@@ -329,10 +352,17 @@ export default function App() {
     });
     void deleteImageRefs([prev]);
   };
-  const removeArtistSignature = () => {
+  const removeArtistSignature = async () => {
     const prev = artist.signature || "";
     if (!prev) return;
-    if (!window.confirm(t("aboutArtistRemoveSignatureConfirm"))) return;
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("aboutArtistRemoveSignatureConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setArtist((p) => {
       const next = { ...p, signature: "" };
       queueMicrotask(() => void forceFlushBundle(SK.w));
@@ -560,8 +590,15 @@ export default function App() {
           onDeleteOption={deleteVoteOption}
           onAddOption={addVoteOption}
           newlyAddedVoteId={newlyAddedVoteId}
-          onResetVotes={() => {
-            if (!window.confirm(t("wishResetConfirm"))) return;
+          onResetVotes={async () => {
+            const ok = await confirm({
+              title: t("confirmTitleDestructive"),
+              message: t("wishResetConfirm"),
+              confirmLabel: t("confirmReset"),
+              cancelLabel: t("confirmCancel"),
+              tone: "danger",
+            });
+            if (!ok) return;
             setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
             setVd({});
           }}

@@ -4,6 +4,7 @@ import { GR } from "../config/content.js";
 import { X, Plus, Arr } from "./icons/Icons.jsx";
 import { SocialContactChips } from "./SocialContactChips.jsx";
 import { WorkSpecLines } from "./WorkSpecLines.jsx";
+import { useConfirm } from "./ConfirmDialog.jsx";
 
 /**
  * DetailLightbox — the work's extended reading page.
@@ -35,6 +36,7 @@ export function Detail({
 }) {
   const { workTitle, workSubtitle, workDesc, workCat, t, workPriceLabel } =
     useI18n();
+  const confirm = useConfirm();
   const [idx, setIdx] = useState(0);
   const [ready, setReady] = useState(false);
 
@@ -198,11 +200,16 @@ export function Detail({
                         type="button"
                         className="dl-thumb-del"
                         title={t("detailRemoveCover")}
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          if (window.confirm(t("detailRemovePhotoConfirm"))) {
-                            onRemoveImage(work.id, i);
-                          }
+                          const ok = await confirm({
+                            title: t("confirmTitleDestructive"),
+                            message: t("detailRemovePhotoConfirm"),
+                            confirmLabel: t("confirmDelete"),
+                            cancelLabel: t("confirmCancel"),
+                            tone: "danger",
+                          });
+                          if (ok) onRemoveImage(work.id, i);
                         }}
                       >
                         <X s={10} />
@@ -237,11 +244,17 @@ export function Detail({
                   <button
                     type="button"
                     className="dl-admin-btn is-danger"
-                    onClick={() => {
-                      if (window.confirm(t("detailRemovePhotoConfirm"))) {
-                        onRemoveImage(work.id, 0);
-                        setIdx(0);
-                      }
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: t("confirmTitleDestructive"),
+                        message: t("detailRemovePhotoConfirm"),
+                        confirmLabel: t("confirmDelete"),
+                        cancelLabel: t("confirmCancel"),
+                        tone: "danger",
+                      });
+                      if (!ok) return;
+                      onRemoveImage(work.id, 0);
+                      setIdx(0);
                     }}
                   >
                     {t("detailRemoveCover")}

@@ -81,6 +81,10 @@ const messages = {
       "Reset every tally to zero? All existing votes will be lost. This cannot be undone.",
     voteRemoveOptionConfirm:
       "Remove this option from the poll? Votes for it will be lost. This cannot be undone.",
+    confirmTitleDestructive: "Confirm",
+    confirmCancel: "Cancel",
+    confirmDelete: "Delete",
+    confirmReset: "Reset",
     voteHiddenBadge: "Hidden",
     wishKicker: "Wishing Pool",
     wishTitle: "Whisper a wish",
@@ -257,6 +261,10 @@ const messages = {
     wishResetConfirm: "確定要將所有票數歸零嗎？目前的投票紀錄將一併清除，且無法復原。",
     voteRemoveOptionConfirm:
       "確定要從投票移除此選項嗎？該選項票數將一併刪除且無法復原。",
+    confirmTitleDestructive: "確認",
+    confirmCancel: "取消",
+    confirmDelete: "刪除",
+    confirmReset: "重設",
     voteHiddenBadge: "已隱藏",
     wishKicker: "心之所願",
     wishTitle: "低聲許一個願",

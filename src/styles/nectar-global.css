@@ -2703,3 +2703,149 @@ textarea.fi {
   font-family: var(--font-serif-en);
   line-height: 1.6;
 }
+
+/* ── Confirm dialog ──────────────────────────────────── */
+.cd-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.cd-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 7, 6, 0.72);
+  backdrop-filter: blur(6px);
+  animation: cd-fade-in 0.18s var(--ease-editorial) both;
+}
+
+.cd-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding: 32px 32px 24px;
+  border: 1px solid rgba(250, 247, 242, 0.08);
+  border-left: 1px solid var(--accent-400);
+  background: #0b0a09;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+  animation: cd-rise 0.26s var(--ease-editorial) both;
+}
+
+.cd-dialog.cd-tone-danger {
+  border-left-color: rgba(239, 68, 68, 0.75);
+}
+
+.cd-title {
+  margin-bottom: 10px;
+  color: var(--accent-400);
+  letter-spacing: var(--tr-widest);
+  text-transform: uppercase;
+  font-style: italic;
+  font-size: var(--fs-micro);
+  font-family: var(--font-serif-en);
+}
+
+.cd-tone-danger .cd-title {
+  color: rgba(252, 165, 165, 0.95);
+}
+
+.cd-message {
+  margin: 0;
+  color: var(--paper-100);
+  letter-spacing: 0.01em;
+  font-size: var(--fs-body);
+  font-family: var(--font-serif-zh);
+  line-height: 1.7;
+}
+
+.cd-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 28px;
+  gap: 24px;
+}
+
+.cd-btn {
+  position: relative;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  color: var(--paper-300);
+  letter-spacing: 0.02em;
+  font-style: italic;
+  font-size: var(--fs-body);
+  font-family: var(--font-serif-en);
+  cursor: pointer;
+  transition: color var(--dur-short) var(--ease-editorial);
+}
+
+.cd-btn::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: rgba(250, 247, 242, 0.12);
+  content: '';
+  transition: background var(--dur-short) var(--ease-editorial);
+}
+
+.cd-btn:hover {
+  color: var(--paper-50);
+}
+
+.cd-btn:hover::after {
+  background: rgba(250, 247, 242, 0.4);
+}
+
+.cd-btn-confirm.is-primary {
+  color: var(--accent-400);
+}
+
+.cd-btn-confirm.is-primary::after {
+  background: var(--accent-hair);
+}
+
+.cd-btn-confirm.is-primary:hover::after {
+  background: var(--accent-400);
+}
+
+.cd-btn-confirm.is-danger {
+  color: rgba(239, 68, 68, 0.85);
+}
+
+.cd-btn-confirm.is-danger::after {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.cd-btn-confirm.is-danger:hover {
+  color: rgba(252, 165, 165, 0.95);
+}
+
+.cd-btn-confirm.is-danger:hover::after {
+  background: rgba(239, 68, 68, 0.6);
+}
+
+.cd-btn:focus-visible {
+  outline: none;
+}
+
+.cd-btn:focus-visible::after {
+  background: var(--accent-400);
+  height: 2px;
+}
+
+@keyframes cd-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cd-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
