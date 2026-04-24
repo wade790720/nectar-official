@@ -149,16 +149,37 @@ export default function App() {
   }, [pg]);
 
   const doV = (id) => {
-    if (voted[id]) return;
+    /** Toggle: first click casts the vote, a second click retracts it. */
+    const already = !!voted[id];
     setVotes((p) =>
-      p.map((f) => (f.id === id ? { ...f, votes: f.votes + 1 } : f)),
+      p.map((f) => {
+        if (f.id !== id) return f;
+        const next = already ? f.votes - 1 : f.votes + 1;
+        return { ...f, votes: Math.max(0, next) };
+      }),
     );
-    setVd((p) => ({ ...p, [id]: true }));
+    setVd((p) => {
+      const n = { ...p };
+      if (already) delete n[id];
+      else n[id] = true;
+      return n;
+    });
   };
   const doWi = () => {
     if (!wiIn.trim()) return;
     setWishes((p) => [...p, { id: Date.now().toString(), text: wiIn.trim() }]);
     setWiIn("");
+  };
+  const deleteWish = async (id) => {
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("wishDeleteConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
+    setWishes((p) => p.filter((w) => w.id !== id));
   };
   const doVoteImg = async (id, file) => {
     if (!file) return;
@@ -605,6 +626,7 @@ export default function App() {
           wiIn={wiIn}
           onWiInChange={setWiIn}
           onSubmitWish={doWi}
+          onDeleteWish={deleteWish}
           headerIn={ho}
           cardsIn={co}
           admin={adminAuthed}

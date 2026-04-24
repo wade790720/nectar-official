@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useI18n } from "../i18n.jsx";
 import { Danmaku } from "../components/Danmaku.jsx";
 import { VoteAdminRow } from "../components/VoteAdminRow.jsx";
-import { Arr } from "../components/icons/Icons.jsx";
+import { Arr, X } from "../components/icons/Icons.jsx";
 
 /**
  * VotePage — editorial pollbook.
@@ -31,6 +31,7 @@ export function VotePage({
   wiIn,
   onWiInChange,
   onSubmitWish,
+  onDeleteWish,
   headerIn,
   cardsIn,
   admin,
@@ -231,10 +232,23 @@ export function VotePage({
         </div>
 
         {wishes.length > 0 ? (
-          <ul className="vp-wish-list">
-            {wishes.slice(-30).map((w) => (
+          <ul
+            className={`vp-wish-list ${admin ? "is-admin" : ""}`}
+          >
+            {(admin ? wishes : wishes.slice(-30)).map((w) => (
               <li key={w.id} className="vp-wish-item">
-                {w.text}
+                <span className="vp-wish-item-text">{w.text}</span>
+                {admin && onDeleteWish && (
+                  <button
+                    type="button"
+                    className="vp-wish-del"
+                    title={t("wishDeleteLabel")}
+                    aria-label={t("wishDeleteLabel")}
+                    onClick={() => onDeleteWish(w.id)}
+                  >
+                    <X s={10} />
+                  </button>
+                )}
               </li>
             ))}
           </ul>
