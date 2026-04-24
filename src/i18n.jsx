@@ -24,6 +24,11 @@ const CAT_EN = {
 const messages = {
   en: {
     navBrand: "Nectar",
+    heroEyebrow: "Atelier — Est. 2026",
+    heroDisplay: "A quiet study of preserved bloom.",
+    heroTagline:
+      "Each piece is composed in studio — measured, cut, and sealed by hand.",
+    heroScroll: "Scroll",
     navCollection: "Collection",
     navVote: "Vote",
     navAdmin: "Admin",
@@ -78,6 +83,8 @@ const messages = {
     detailRemoveCover: "Remove cover image",
     detailCtaInquire: "Inquire to purchase",
     detailInquirySubjectPrefix: "Nectar inquiry:",
+    detailClose: "Close",
+    detailPriceLabel: "Price",
     photoTipTitle: "Photo tips",
     photoTipBody:
       "Full-bleed backgrounds use cover crop. Prefer 16:9 or 3:2 landscape, min width 2400px; keep the subject near the vertical center (slightly above middle). Tall 9:16 portraits crop heavily on ultrawide—crop to 16:9 before upload for the steadiest framing.",
@@ -114,6 +121,10 @@ const messages = {
   },
   "zh-TW": {
     navBrand: "花蜜水晶花工藝",
+    heroEyebrow: "匠心工房 · Est. 2026",
+    heroDisplay: "在寂靜中，留住一次盛放。",
+    heroTagline: "每一件作品皆於工房完成：量測、裁切、封存，由手而成。",
+    heroScroll: "向下",
     navCollection: "作品集",
     navVote: "投票",
     navAdmin: "管理",
@@ -166,6 +177,8 @@ const messages = {
     detailRemoveCover: "移除主圖",
     detailCtaInquire: "聯絡洽購",
     detailInquirySubjectPrefix: "花蜜水晶花工藝洽詢：",
+    detailClose: "關閉",
+    detailPriceLabel: "價格",
     photoTipTitle: "相片建議",
     photoTipBody:
       "全螢幕背景會用 cover 裁切。建議 16:9 或 3:2 橫式、寬度至少約 2400px，主體放在畫面垂直中央略偏上。直式 9:16 在超寬螢幕上下會被裁掉很多；若希望主體穩定，可先裁成 16:9 再上傳。",

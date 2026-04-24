@@ -1,6 +1,11 @@
 import { useI18n } from "../i18n.jsx";
 
-/** 重量 → 尺寸 → 材質；有填寫的列才顯示 */
+/**
+ * WorkSpecLines — Weight → Size → Materials.
+ * Two variants:
+ *  - "compact"  : frameless, sits inside the editorial headline on a work slide.
+ *  - "detail"   : inside the lightbox, with a kicker label and hairline rule.
+ */
 export function WorkSpecLines({ work, variant = "detail" }) {
   const { t, workSpecDim, workSpecMaterial, workSpecWeight } = useI18n();
   const rows = [
@@ -11,79 +16,115 @@ export function WorkSpecLines({ work, variant = "detail" }) {
   if (!rows.length) return null;
 
   const compact = variant === "compact";
-  return (
-    <div
-      style={{
-        marginTop: 8,
-        marginBottom: compact ? 12 : 20,
-        paddingTop: compact ? 10 : 8,
-        borderTop: compact
-          ? "1px solid rgba(255,255,255,0.08)"
-          : "1px solid rgba(201,169,110,0.15)",
-        textAlign: "left",
-      }}
-    >
-      {!compact ? (
-        <div
-          style={{
-            fontFamily: "'Instrument Serif',serif",
-            fontSize: 10,
-            fontStyle: "italic",
-            letterSpacing: "0.22em",
-            color: "rgba(201,169,110,0.45)",
-            marginBottom: 10,
-            textTransform: "uppercase",
-          }}
-        >
-          {t("workSpecKicker")}
-        </div>
-      ) : null}
-      <div
+
+  if (compact) {
+    return (
+      <dl
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: compact ? 5 : 8,
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          columnGap: 14,
+          rowGap: 4,
+          margin: "6px 0 0",
+          padding: 0,
+          fontFamily: "'Instrument Serif', serif",
         }}
       >
         {rows.map(([label, value]) => (
-          <div
-            key={label}
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "baseline",
-              gap: compact ? "6px 10px" : "8px 12px",
-              fontFamily: "'Noto Serif TC',serif",
-              fontSize: compact ? 11 : 13,
-              lineHeight: 1.55,
-            }}
-          >
-            <span
+          <div key={label} style={{ display: "contents" }}>
+            <dt
               style={{
-                flex: "0 0 auto",
-                minWidth: compact ? 40 : 48,
-                color: "rgba(201,169,110,0.55)",
-                letterSpacing: "0.06em",
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: compact ? 10 : 11,
+                color: "rgba(250,247,242,0.42)",
                 fontStyle: "italic",
+                fontSize: 10,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                alignSelf: "baseline",
               }}
             >
               {label}
-            </span>
-            <span
+            </dt>
+            <dd
               style={{
-                color: compact
-                  ? "rgba(248,242,232,0.82)"
-                  : "rgba(245,240,235,0.75)",
-                textShadow: compact ? "0 1px 6px rgba(0,0,0,0.5)" : undefined,
+                margin: 0,
+                color: "rgba(250,247,242,0.78)",
+                fontFamily: "'Noto Serif TC', serif",
+                fontSize: 12,
+                letterSpacing: "0.03em",
+                lineHeight: 1.55,
               }}
             >
               {value}
-            </span>
+            </dd>
           </div>
         ))}
+      </dl>
+    );
+  }
+
+  return (
+    <section
+      style={{
+        marginTop: 10,
+        paddingTop: 20,
+        borderTop: "1px solid rgba(250,247,242,0.08)",
+        textAlign: "left",
+      }}
+    >
+      <div
+        style={{
+          marginBottom: 14,
+          color: "rgba(201,169,110,0.55)",
+          fontStyle: "italic",
+          fontFamily: "'Instrument Serif', serif",
+          fontSize: 11,
+          letterSpacing: "0.32em",
+          textTransform: "uppercase",
+          opacity: 0.85,
+        }}
+      >
+        {t("workSpecKicker")}
       </div>
-    </div>
+      <dl
+        style={{
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          columnGap: 22,
+          rowGap: 10,
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        {rows.map(([label, value]) => (
+          <div key={label} style={{ display: "contents" }}>
+            <dt
+              style={{
+                alignSelf: "baseline",
+                color: "rgba(250,247,242,0.44)",
+                fontStyle: "italic",
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: 11,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+              }}
+            >
+              {label}
+            </dt>
+            <dd
+              style={{
+                margin: 0,
+                color: "rgba(250,247,242,0.82)",
+                fontFamily: "'Noto Serif TC', serif",
+                fontSize: 14,
+                letterSpacing: "0.03em",
+                lineHeight: 1.65,
+              }}
+            >
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

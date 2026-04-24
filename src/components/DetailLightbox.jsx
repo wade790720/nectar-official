@@ -5,25 +5,24 @@ import { X, Plus, Arr } from "./icons/Icons.jsx";
 import { SocialContactChips } from "./SocialContactChips.jsx";
 import { WorkSpecLines } from "./WorkSpecLines.jsx";
 
-const navBtn = {
-  position: "absolute",
-  top: "50%",
-  transform: "translateY(-50%)",
-  background: "rgba(255,255,255,0.06)",
-  backdropFilter: "blur(12px)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  color: "#fff",
-  width: 44,
-  height: 44,
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  transition: "all 0.3s",
-  zIndex: 10,
-};
-
+/**
+ * DetailLightbox — the work's extended reading page.
+ *
+ * Composition (desktop):
+ *   ┌──────────────────────────┬─────────────────────┐
+ *   │ [ image plate ]          │ kicker              │
+ *   │   ← chev     chev →      │ H2 title            │
+ *   │                          │ italic subtitle     │
+ *   │ 01 / 06  thumbs          │ description         │
+ *   │                          │ specs (dl)          │
+ *   │ admin tools              │ ─── PRICE           │
+ *   │                          │ Inquire →           │
+ *   │                          │ ─── social          │
+ *   └──────────────────────────┴─────────────────────┘
+ *
+ * Mobile: stacked single column, image first.
+ * Keyboard: Esc to close, ←/→ to navigate images.
+ */
 export function Detail({
   work,
   onClose,
@@ -37,6 +36,8 @@ export function Detail({
   const { workTitle, workSubtitle, workDesc, workCat, t, workPriceLabel } =
     useI18n();
   const [idx, setIdx] = useState(0);
+  const [ready, setReady] = useState(false);
+
   const allImgs = useMemo(() => {
     const a = [];
     if (work.image) a.push(work.image);
@@ -50,11 +51,13 @@ export function Detail({
       setIdx(Math.max(0, allImgs.length - 1));
     }
   }, [allImgs.length, idx]);
-  const mainT = workTitle(work);
-  const subT = workSubtitle(work);
-  const dsc = workDesc(work);
-  const catL = workCat(work);
-  const inquirySubject = `${t("detailInquirySubjectPrefix")} ${mainT}`.trim();
+
+  const title = workTitle(work);
+  const subtitle = workSubtitle(work);
+  const desc = workDesc(work);
+  const categoryLabel = workCat(work);
+  const priceLabel = workPriceLabel(work);
+  const inquirySubject = `${t("detailInquirySubjectPrefix")} ${title}`.trim();
   const mailtoHref = contactMail
     ? `mailto:${contactMail}?subject=${encodeURIComponent(inquirySubject)}`
     : null;
@@ -68,199 +71,183 @@ export function Detail({
     };
   }, []);
 
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (allImgs.length <= 1) return;
+      if (e.key === "ArrowLeft") {
+        setIdx((i) => (i - 1 + allImgs.length) % allImgs.length);
+      } else if (e.key === "ArrowRight") {
+        setIdx((i) => (i + 1) % allImgs.length);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, allImgs.length]);
+
+  const hasMultiple = allImgs.length > 1;
+  const gradient = GR[work.cat] || GR["鮮花"];
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        animation: "fadeIn 0.3s",
-      }}
-      onClick={onClose}
-    >
+    <div className="dl-overlay" onClick={onClose}>
       <div
+        className="dl-veil"
         style={{
-          position: "absolute",
-          inset: 0,
           background: cur
             ? `url(${cur}) center 42% / cover no-repeat`
-            : GR[work.cat] || GR["鮮花"],
-          filter: "blur(40px) brightness(0.25) saturate(1.3)",
-          transform: "scale(1.15)",
+            : gradient,
         }}
       />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.55)",
-        }}
-      />
+      <div className="dl-dim" />
 
       <button
         type="button"
         onClick={onClose}
-        className="detail-close"
-        style={{
-          position: "absolute",
-          background: "rgba(255,255,255,0.08)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          color: "#fff",
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          zIndex: 10,
-          transition: "all 0.3s",
-        }}
+        className="dl-close"
+        aria-label="Close"
       >
-        <X s={18} />
+        <span className="dl-close-rule" />
+        <span>{t("detailClose")}</span>
+        <span className="dl-close-x">
+          <X s={14} />
+        </span>
       </button>
 
-      <div
-        className="detail-inner"
-        style={{
-          position: "relative",
-          zIndex: 5,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {allImgs.length > 0 ? (
+      <div className="dl-inner" onClick={(e) => e.stopPropagation()}>
+        <div className="dl-shell">
+          {/* ══ LEFT — image plate ══ */}
           <div
-            style={{
-              position: "relative",
-              zIndex: 10,
-              maxWidth: 900,
-              width: "100%",
-              flex: "1 1 auto",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              minHeight: 0,
-            }}
+            className={`dl-image-col dl-reveal ${ready ? "is-in" : ""}`}
+            style={{ transitionDelay: "120ms" }}
           >
-            <div
-              style={{
-                position: "relative",
-                flex: "1 1 auto",
-                width: "100%",
-                minHeight: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
-                  flex: "1 1 auto",
-                  width: "100%",
-                  minHeight: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src={allImgs[idx]}
-                  alt=""
-                  className="detail-main-img"
-                  style={{
-                    maxWidth: "100%",
-                    objectFit: "contain",
-                    borderRadius: 6,
-                    boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
-                  }}
-                />
+            {allImgs.length > 0 ? (
+              <div className="dl-image-wrap">
+                <img src={allImgs[idx]} alt="" className="dl-main-img" />
+                {hasMultiple && (
+                  <>
+                    <button
+                      type="button"
+                      className="dl-chev dl-chev--prev"
+                      onClick={() =>
+                        setIdx(
+                          (i) => (i - 1 + allImgs.length) % allImgs.length,
+                        )
+                      }
+                      aria-label="Previous image"
+                    >
+                      <Arr s={18} d="left" />
+                    </button>
+                    <button
+                      type="button"
+                      className="dl-chev dl-chev--next"
+                      onClick={() =>
+                        setIdx((i) => (i + 1) % allImgs.length)
+                      }
+                      aria-label="Next image"
+                    >
+                      <Arr s={18} d="right" />
+                    </button>
+                  </>
+                )}
               </div>
-              {allImgs.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setIdx((i) => (i - 1 + allImgs.length) % allImgs.length)
-                    }
-                    className="detail-nav detail-nav--prev"
-                    style={navBtn}
-                    aria-label="Previous image"
-                  >
-                    <Arr s={20} d="left" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIdx((i) => (i + 1) % allImgs.length)}
-                    className="detail-nav detail-nav--next"
-                    style={navBtn}
-                    aria-label="Next image"
-                  >
-                    <Arr s={20} d="right" />
-                  </button>
-                </>
-              )}
-            </div>
-            {allImgs.length <= 1 && admin && (
+            ) : (
               <div
                 style={{
-                  flexShrink: 0,
-                  position: "relative",
-                  zIndex: 30,
                   width: "100%",
-                  marginTop: 14,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 10,
-                  pointerEvents: "auto",
+                  aspectRatio: "4/3",
+                  background: gradient,
                 }}
-              >
+              />
+            )}
+
+            {hasMultiple ? (
+              <div className="dl-counter" aria-hidden="true">
+                <span>{String(idx + 1).padStart(2, "0")}</span>
+                <span className="dl-counter-sep" />
+                <span className="dl-counter-total">
+                  {String(allImgs.length).padStart(2, "0")}
+                </span>
+              </div>
+            ) : null}
+
+            {hasMultiple && (
+              <div className="dl-thumbs">
+                {allImgs.map((img, i) => (
+                  <div
+                    key={`${img}-${i}`}
+                    style={{ position: "relative" }}
+                  >
+                    <button
+                      type="button"
+                      className={`dl-thumb ${i === idx ? "is-on" : ""}`}
+                      onClick={() => setIdx(i)}
+                      aria-label={`View image ${i + 1}`}
+                    >
+                      <img src={img} alt="" />
+                    </button>
+                    {admin && onRemoveImage && (
+                      <button
+                        type="button"
+                        className="dl-thumb-del"
+                        title={t("detailRemoveCover")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(t("detailRemovePhotoConfirm"))) {
+                            onRemoveImage(work.id, i);
+                          }
+                        }}
+                      >
+                        <X s={10} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {admin && (
+                  <label
+                    className="dl-thumb-add"
+                    title={t("detailAddAngles")}
+                  >
+                    <Plus s={16} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        if (e.target.files)
+                          onUploadGallery(work.id, [...e.target.files]);
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
+            {allImgs.length <= 1 && admin && (
+              <div className="dl-admin-solo">
                 {allImgs.length === 1 && onRemoveImage && (
                   <button
                     type="button"
+                    className="dl-admin-btn is-danger"
                     onClick={() => {
                       if (window.confirm(t("detailRemovePhotoConfirm"))) {
                         onRemoveImage(work.id, 0);
                         setIdx(0);
                       }
                     }}
-                    style={{
-                      background: "rgba(185,28,28,0.15)",
-                      border: "1px solid rgba(239,68,68,0.35)",
-                      color: "rgba(252,165,165,0.95)",
-                      padding: "8px 16px",
-                      fontSize: 12,
-                      fontFamily: "'Instrument Serif',serif",
-                      fontStyle: "italic",
-                      cursor: "pointer",
-                      borderRadius: 20,
-                    }}
                   >
                     {t("detailRemoveCover")}
                   </button>
                 )}
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    color: "rgba(201,169,110,0.4)",
-                    fontSize: 12,
-                    fontFamily: "'Instrument Serif',serif",
-                    fontStyle: "italic",
-                    cursor: "pointer",
-                    padding: "8px 16px",
-                    border: "1px dashed rgba(201,169,110,0.2)",
-                    borderRadius: 20,
-                  }}
-                >
+                <label className="dl-admin-btn">
                   <Plus s={14} /> {t("detailAddAngles")}
                   <input
                     type="file"
@@ -275,282 +262,70 @@ export function Detail({
                 </label>
               </div>
             )}
-          </div>
-        ) : (
-          <div
-            style={{
-              width: 400,
-              height: 300,
-              background: GR[work.cat] || GR["鮮花"],
-              borderRadius: 6,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ fontSize: 80, opacity: 0.1, color: "#C9A96E" }}>
-              ✿
-            </span>
-          </div>
-        )}
 
-        {allImgs.length > 1 && (
-          <div
-            style={{
-              display: "flex",
-              gap: admin ? 12 : 8,
-              marginTop: 20,
-              justifyContent: "center",
-              flexWrap: "wrap",
-              position: "relative",
-              zIndex: 25,
-              isolation: "isolate",
-            }}
-          >
-            {allImgs.map((img, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  width: 56,
-                  height: 56,
-                }}
-              >
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIdx(i)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") setIdx(i);
-                  }}
-                  style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 4,
-                    overflow: "hidden",
-                    border:
-                      i === idx
-                        ? "2px solid #C9A96E"
-                        : "2px solid transparent",
-                    cursor: "pointer",
-                    opacity: i === idx ? 1 : 0.5,
-                    transition: "all 0.3s",
-                  }}
-                >
-                  <img
-                    src={img}
-                    alt=""
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
-                {admin && onRemoveImage && (
-                  <button
-                    type="button"
-                    title={t("detailRemoveCover")}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm(t("detailRemovePhotoConfirm"))) {
-                        onRemoveImage(work.id, i);
-                      }
-                    }}
-                    style={{
-                      position: "absolute",
-                      top: -8,
-                      right: -8,
-                      width: 22,
-                      height: 22,
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "rgba(185,28,28,0.92)",
-                      color: "#fff",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: 0,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                      zIndex: 40,
-                      pointerEvents: "auto",
-                    }}
-                  >
-                    <X s={12} />
-                  </button>
-                )}
-              </div>
-            ))}
             {admin && (
-              <label
-                style={{
-                  position: "relative",
-                  zIndex: 25,
-                  width: 56,
-                  height: 56,
-                  borderRadius: 4,
-                  border: "1px dashed rgba(201,169,110,0.3)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  color: "rgba(201,169,110,0.5)",
-                }}
-              >
-                <Plus s={18} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    if (e.target.files)
-                      onUploadGallery(work.id, [...e.target.files]);
-                  }}
-                />
-              </label>
+              <p className="dl-tip">
+                <span className="dl-tip-label">{t("photoTipTitle")}</span>
+                {t("photoTipBody")}
+              </p>
             )}
           </div>
-        )}
-        {admin && (
-          <p
-            style={{
-              fontSize: 10,
-              color: "rgba(201,169,110,0.28)",
-              maxWidth: 420,
-              marginTop: 14,
-              lineHeight: 1.55,
-              textAlign: "center",
-              fontFamily: "'Instrument Serif',serif",
-              fontStyle: "italic",
-            }}
-          >
-            <span
-              style={{ display: "block", marginBottom: 6, letterSpacing: "0.12em" }}
-            >
-              {t("photoTipTitle")}
-            </span>
-            {t("photoTipBody")}
-          </p>
-        )}
 
-        <div style={{ textAlign: "center", marginTop: 24, maxWidth: 600 }}>
+          {/* ══ RIGHT — editorial text column ══ */}
           <div
-            style={{
-              display: "inline-block",
-              fontFamily: "'Instrument Serif',serif",
-              fontSize: 11,
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: "rgba(248,242,232,0.92)",
-              marginBottom: 12,
-              padding: "5px 16px",
-              border: "1px solid rgba(201,169,110,0.45)",
-              background: "rgba(0,0,0,0.35)",
-              borderRadius: 2,
-            }}
+            className={`dl-text-col dl-reveal ${ready ? "is-in" : ""}`}
+            style={{ transitionDelay: "280ms" }}
           >
-            {catL}
-          </div>
-          <h2
-            style={{
-              fontFamily: "'Noto Serif TC',serif",
-              fontSize: "clamp(24px,4vw,36px)",
-              fontWeight: 400,
-              color: "#FAF7F2",
-              letterSpacing: "0.04em",
-              marginBottom: 6,
-              textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-            }}
-          >
-            {mainT}
-          </h2>
-          {subT ? (
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 14,
-                fontStyle: "italic",
-                color: "rgba(255,248,238,0.88)",
-                letterSpacing: "0.14em",
-                marginBottom: 12,
-                lineHeight: 1.45,
-              }}
-            >
-              {subT}
+            {categoryLabel ? (
+              <div className="dl-kicker">{categoryLabel}</div>
+            ) : null}
+            <h2 className="dl-title">{title}</h2>
+            {subtitle ? <div className="dl-subtitle">{subtitle}</div> : null}
+            {desc ? <p className="dl-desc">{desc}</p> : null}
+
+            <WorkSpecLines work={work} variant="detail" />
+
+            <div className="dl-price-row">
+              <span className="dl-price-label">{t("detailPriceLabel")}</span>
+              <span className="dl-price">{priceLabel}</span>
             </div>
-          ) : null}
-          <p
-            style={{
-              fontFamily: "'Noto Serif TC',serif",
-              fontSize: 13,
-              color: "rgba(245,240,235,0.55)",
-              lineHeight: 1.9,
-              marginBottom: 16,
-            }}
-          >
-            {dsc}
-          </p>
-          <WorkSpecLines work={work} variant="detail" />
-          <div
-            style={{
-              fontFamily: "'Instrument Serif',serif",
-              fontSize: 28,
-              fontWeight: 400,
-              color: "#C9A96E",
-              letterSpacing: "0.04em",
-            }}
-          >
-            {workPriceLabel(work)}
-          </div>
-          {ctaHref ? (
-            <a
-              href={ctaHref}
-              className="detail-cta"
-              onClick={(e) => e.stopPropagation()}
-              {...(ctaHref.startsWith("mailto:")
-                ? {}
-                : { target: "_blank", rel: "noopener noreferrer" })}
-            >
-              {t("detailCtaInquire")}
-            </a>
-          ) : (
-            <span
-              className="detail-cta detail-cta--disabled"
-              title={t("contactPendingHint")}
-            >
-              {t("detailCtaInquire")}
-            </span>
-          )}
-          <div
-            style={{
-              marginTop: 28,
-              paddingTop: 24,
-              borderTop: "1px solid rgba(201,169,110,0.18)",
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 10,
-                fontStyle: "italic",
-                letterSpacing: "0.22em",
-                color: "rgba(201,169,110,0.45)",
-                marginBottom: 14,
-                textTransform: "uppercase",
-              }}
-            >
-              {t("socialKicker")}
+
+            {ctaHref ? (
+              <a
+                href={ctaHref}
+                className="dl-cta"
+                onClick={(e) => e.stopPropagation()}
+                {...(ctaHref.startsWith("mailto:")
+                  ? {}
+                  : { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                <span>{t("detailCtaInquire")}</span>
+                <span className="dl-cta-arrow" aria-hidden="true">
+                  <Arr s={16} d="right" />
+                </span>
+              </a>
+            ) : (
+              <span
+                className="dl-cta dl-cta--disabled"
+                title={t("contactPendingHint")}
+              >
+                <span>{t("detailCtaInquire")}</span>
+                <span className="dl-cta-arrow" aria-hidden="true">
+                  <Arr s={16} d="right" />
+                </span>
+              </span>
+            )}
+
+            <div className="dl-social">
+              <div className="dl-social-kicker">{t("socialKicker")}</div>
+              <SocialContactChips
+                socialIg={socialIg}
+                socialFb={socialFb}
+                contactMail={contactMail}
+                t={t}
+                compact
+              />
             </div>
-            <SocialContactChips
-              socialIg={socialIg}
-              socialFb={socialFb}
-              contactMail={contactMail}
-              t={t}
-              compact
-            />
           </div>
         </div>
       </div>

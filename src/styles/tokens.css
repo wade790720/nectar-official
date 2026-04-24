@@ -1,0 +1,88 @@
+/**
+ * Nectar — Design Tokens
+ * Shokunin-inspired editorial system: restraint, precision, quiet luxury.
+ * All surface components should consume these instead of hard-coded values.
+ */
+
+:root {
+  /* ── Palette ──────────────────────────────────────
+     Quiet-luxury neutrals on deep ink. Gold accent is
+     reserved for hairlines and a single emphasis only. */
+  --ink-900: #060504;
+  --ink-800: #0a0908;
+  --ink-700: #121110;
+  --ink-600: #1a1917;
+
+  --paper-50: #faf7f2;
+  --paper-100: #f1ede5;
+  --paper-300: #c9c2b4;
+  --paper-500: #867e70;
+  --paper-700: #4a443b;
+
+  --accent-500: #c9a96e;
+  --accent-400: #d4b87a;
+  --accent-300: rgba(201, 169, 110, 0.55);
+  --accent-hair: rgba(201, 169, 110, 0.28);
+  --accent-whisper: rgba(201, 169, 110, 0.12);
+
+  /* ── Typography ─────────────────────────────────── */
+  --font-serif-en: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+  --font-serif-zh: 'Noto Serif TC', 'Instrument Serif', Georgia, serif;
+  --font-stack: var(--font-serif-zh);
+
+  /* Editorial scale — jump from hair-thin overline to display */
+  --fs-micro: 10px;
+  --fs-overline: 11px;
+  --fs-caption: 12px;
+  --fs-body: 14px;
+  --fs-lead: 17px;
+  --fs-h3: clamp(22px, 2.4vw, 30px);
+  --fs-h2: clamp(28px, 4.4vw, 58px);
+  --fs-h1: clamp(42px, 8.4vw, 128px);
+
+  /* Leading */
+  --lh-display: 1.02;
+  --lh-headline: 1.12;
+  --lh-subtitle: 1.45;
+  --lh-body: 1.7;
+
+  /* Tracking */
+  --tr-tight: -0.02em;
+  --tr-normal: 0;
+  --tr-wide: 0.08em;
+  --tr-wider: 0.22em;
+  --tr-widest: 0.32em;
+
+  /* ── Spacing (8pt with refined half-steps) ──────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+  --sp-32: 128px;
+
+  /* ── Motion ───────────────────────────────────────
+     Editorial easing — never default curves. */
+  --ease-editorial: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out-curve: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-curve: cubic-bezier(0.7, 0, 0.84, 0);
+
+  --dur-tap: 0.18s;
+  --dur-short: 0.28s;
+  --dur-med: 0.6s;
+  --dur-slow: 1.1s;
+  --dur-stretch: 1.6s;
+
+  /* ── Layout ─────────────────────────────────────── */
+  --frame-inset: clamp(20px, 4vw, 64px);
+  --frame-inset-y: clamp(24px, 4.5vw, 56px);
+  --nav-h: 54px;
+  --max-reading: 720px;
+}

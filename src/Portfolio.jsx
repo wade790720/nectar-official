@@ -17,6 +17,7 @@ import { Danmaku } from "./components/Danmaku.jsx";
 import { SocialContactChips } from "./components/SocialContactChips.jsx";
 import { Detail } from "./components/DetailLightbox.jsx";
 import { WS } from "./components/WorkSlide.jsx";
+import { HeroSlide } from "./components/HeroSlide.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
 import { Plus, Cam, Crown, Send } from "./components/icons/Icons.jsx";
 
@@ -252,7 +253,7 @@ export default function App() {
         fontFamily: "'Noto Serif TC','Instrument Serif',Georgia,serif",
       }}
     >
-      {/* NAV */}
+      {/* NAV — quiet, hairline-bottomed, lets the work breathe above it */}
       <nav
         style={{
           position: "fixed",
@@ -260,9 +261,11 @@ export default function App() {
           left: 0,
           right: 0,
           zIndex: 50,
-          background: "rgba(8,7,6,0.6)",
-          backdropFilter: "blur(32px) saturate(1.5)",
-          borderBottom: "1px solid rgba(201,169,110,0.06)",
+          background:
+            "linear-gradient(180deg, rgba(6,5,4,0.72) 0%, rgba(6,5,4,0.32) 70%, rgba(6,5,4,0) 100%)",
+          backdropFilter: "blur(18px) saturate(1.1)",
+          WebkitBackdropFilter: "blur(18px) saturate(1.1)",
+          borderBottom: "1px solid rgba(201,169,110,0.04)",
         }}
       >
         <div className="nav-row">
@@ -276,15 +279,16 @@ export default function App() {
             }}
             style={{
               fontFamily: "'Instrument Serif',serif",
-              fontSize: 18,
+              fontSize: 13,
               fontStyle: "italic",
-              color: "#C9A96E",
-              letterSpacing: "0.06em",
+              color: "rgba(250,247,242,0.92)",
+              letterSpacing: "0.32em",
+              textTransform: "uppercase",
               background: "none",
               border: "none",
               cursor: "pointer",
               padding: 0,
-              transition: "opacity 0.2s",
+              transition: "color var(--dur-short) var(--ease-editorial)",
             }}
             title={t("navCollection")}
           >
@@ -447,6 +451,7 @@ export default function App() {
             </div>
           )}
 
+          <HeroSlide />
           {works.map((w, i) => (
             <WS
               key={w.id}
