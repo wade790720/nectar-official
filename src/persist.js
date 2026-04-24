@@ -293,6 +293,34 @@ export async function fileToImageRef(file) {
 }
 
 /**
+ * 盡力刪除 R2 中的舊圖（best-effort）。
+ * - 本機模式（data URL）直接 return
+ * - 後端只會刪同源 /api/file/images/* 的 key；外部 URL 會被忽略
+ * - 刪除失敗不拋錯、不打擾主流程（孤兒圖可由未來 GC 清）
+ */
+export async function deleteImageRefs(urls) {
+  if (!isRemoteSync()) return;
+  const list = (Array.isArray(urls) ? urls : [urls]).filter(
+    (u) => typeof u === "string" && u.length > 0,
+  );
+  if (list.length === 0) return;
+  const token = getAdminToken();
+  if (!token) return;
+  try {
+    await fetch(apiPath("/api/delete"), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ urls: list }),
+    });
+  } catch {
+    /* 吞錯：圖片清理屬背景維運，不得中斷編輯流程 */
+  }
+}
+
+/**
  * cloud: true 時同步整包 { works, votes, wishes } 至 R2 data.json（或單一 localStorage key）
  */
 export function useP(k, initial, options = {}) {

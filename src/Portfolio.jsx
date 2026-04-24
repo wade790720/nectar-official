@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   useP,
   fileToImageRef,
+  deleteImageRefs,
   getAdminToken,
   setAdminToken,
   clearAdminSession,
@@ -11,7 +12,11 @@ import {
 import { useI18n } from "./i18n.jsx";
 import { SK, DW, DV } from "./config/content.js";
 import { normalizeSocialUrl } from "./utils/social.js";
-import { removeWorkImageAtThumbIndex } from "./utils/workGallery.js";
+import {
+  collectWorkImageRefs,
+  diffImageRefs,
+  removeWorkImageAtThumbIndex,
+} from "./utils/workGallery.js";
 import { VoteAdminRow } from "./components/VoteAdminRow.jsx";
 import { Danmaku } from "./components/Danmaku.jsx";
 import { SocialContactChips } from "./components/SocialContactChips.jsx";
@@ -145,8 +150,10 @@ export default function App() {
   const doVoteImg = async (id, file) => {
     if (!file) return;
     try {
+      const prev = votes.find((x) => x.id === id)?.image || "";
       const ref = await fileToImageRef(file);
       setVotes((p) => p.map((x) => (x.id === id ? { ...x, image: ref } : x)));
+      if (prev && prev !== ref) void deleteImageRefs([prev]);
     } catch (e) {
       console.error(e);
       window.alert((e && e.message) || "圖片上傳失敗");
@@ -162,22 +169,28 @@ export default function App() {
   };
   const deleteVoteOption = (id) => {
     if (!window.confirm(t("voteRemoveOptionConfirm"))) return;
+    const orphan = votes.find((x) => x.id === id)?.image || "";
     setVotes((p) => p.filter((x) => x.id !== id));
     setVd((p) => {
       const n = { ...p };
       delete n[id];
       return n;
     });
+    if (orphan) void deleteImageRefs([orphan]);
   };
   const doSv = (w) => {
-    const next =
-      w.id && works.find((x) => x.id === w.id)
-        ? works.map((x) => (x.id === w.id ? w : x))
-        : [...works, { ...w, id: Date.now().toString() }];
+    const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
+    const orphans = prevWork
+      ? diffImageRefs(collectWorkImageRefs(prevWork), collectWorkImageRefs(w))
+      : [];
+    const next = prevWork
+      ? works.map((x) => (x.id === w.id ? w : x))
+      : [...works, { ...w, id: Date.now().toString() }];
     setW(next);
     setMo(false);
     setEd(null);
     void forceFlushWorks(SK.w, next);
+    if (orphans.length) void deleteImageRefs(orphans);
   };
   const tryAdminLogin = async () => {
     if (!loginPwd.trim()) return;
@@ -200,18 +213,23 @@ export default function App() {
     }
   };
   const doDl = (id) => {
+    const work = works.find((x) => x.id === id);
+    const orphans = work ? collectWorkImageRefs(work) : [];
     const next = works.filter((x) => x.id !== id);
     setW(next);
     void forceFlushWorks(SK.w, next);
+    if (orphans.length) void deleteImageRefs(orphans);
   };
   const doUp = async (wid, f) => {
     try {
+      const prev = works.find((x) => x.id === wid)?.image || "";
       const ref = await fileToImageRef(f);
       setW((p) => {
         const next = p.map((w) => (w.id === wid ? { ...w, image: ref } : w));
         void forceFlushWorks(SK.w, next);
         return next;
       });
+      if (prev && prev !== ref) void deleteImageRefs([prev]);
     } catch (e) {
       console.error(e);
       window.alert((e && e.message) || "主圖上傳失敗");
@@ -238,10 +256,15 @@ export default function App() {
     const w = works.find((x) => x.id === wid);
     if (!w) return;
     const nextW = removeWorkImageAtThumbIndex(w, thumbIdx);
+    const orphans = diffImageRefs(
+      collectWorkImageRefs(w),
+      collectWorkImageRefs(nextW),
+    );
     const next = works.map((x) => (x.id === wid ? nextW : x));
     setW(next);
     setDt((d) => (d && d.id === wid ? nextW : d));
     void forceFlushWorks(SK.w, next);
+    if (orphans.length) void deleteImageRefs(orphans);
   };
 
   return (
@@ -914,8 +937,19 @@ export default function App() {
                       if (!f) return;
                       void (async () => {
                         try {
+                          const prevEd = ed?.image || "";
+                          const origRef = ed?.id
+                            ? works.find((x) => x.id === ed.id)?.image || ""
+                            : "";
                           const ref = await fileToImageRef(f);
                           setEd((p) => ({ ...p, image: ref }));
+                          if (
+                            prevEd &&
+                            prevEd !== ref &&
+                            prevEd !== origRef
+                          ) {
+                            void deleteImageRefs([prevEd]);
+                          }
                         } catch (err) {
                           console.error(err);
                           window.alert((err && err.message) || "圖片讀取失敗");
@@ -951,8 +985,16 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => {
+                  const prevWork = ed?.id
+                    ? works.find((x) => x.id === ed.id)
+                    : null;
+                  const orphans = diffImageRefs(
+                    collectWorkImageRefs(ed),
+                    prevWork ? collectWorkImageRefs(prevWork) : [],
+                  );
                   setMo(false);
                   setEd(null);
+                  if (orphans.length) void deleteImageRefs(orphans);
                 }}
                 style={{
                   background: "none",
