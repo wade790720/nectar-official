@@ -31,6 +31,7 @@ const messages = {
     heroScroll: "Scroll",
     navCollection: "Collection",
     navVote: "Vote",
+    navAbout: "About",
     navAdmin: "Admin",
     navExitAdmin: "Sign out",
     langEn: "EN",
@@ -119,16 +120,84 @@ const messages = {
     adminInvalid: "Invalid password.",
     adminSessionExpired:
       "Session expired or unauthorized. Please sign in again.",
+    aboutKicker: "The Atelier",
+    aboutTitle: "A slow craft,\nfor a quieter hour.",
+    aboutLead:
+      "Nectar is a small atelier for preserved and crystal flowers. Each piece is built slowly — measured, cut, sealed, and set aside to settle — so that a single arrangement can hold still for years without asking anything of you.",
+    aboutPhilosophyKicker: "Philosophy",
+    aboutPhilosophyTitle: "Of restraint.",
+    aboutPhilosophyBody1:
+      "We are not interested in abundance. We are interested in the smallest number of elements that still feels complete — the one stem that finishes a composition, the one shadow that gives it weight.",
+    aboutPhilosophyBody2:
+      "Every work is made to be lived with. Quiet colours, considered proportions, a surface that ages well. We design around the room, not around the photograph.",
+    aboutProcessKicker: "Process",
+    aboutProcessTitle: "Four movements.",
+    aboutProcess1N: "I.",
+    aboutProcess1T: "Source",
+    aboutProcess1B:
+      "Blooms selected in small lots from growers we trust. Preserved in studio.",
+    aboutProcess2N: "II.",
+    aboutProcess2T: "Sketch",
+    aboutProcess2B:
+      "A composition is drawn on paper before a single stem is cut. Proportion first.",
+    aboutProcess3N: "III.",
+    aboutProcess3T: "Compose",
+    aboutProcess3B:
+      "Built by hand over several sittings. Rested between. Adjusted until nothing wants changing.",
+    aboutProcess4N: "IV.",
+    aboutProcess4T: "Seal",
+    aboutProcess4B:
+      "Sealed under glass or resin, signed and numbered, then set aside to settle for a week.",
+    aboutArtistKicker: "Artist",
+    aboutArtistName: "Hsu Ting-Ting",
+    aboutArtistTitle:
+      "Associate Professor · MADOKA Crystal Flower Design Academy, Japan",
+    aboutArtistSubtitle:
+      "A designer's eye meets crystal-flower craft — devoted to both the making and the teaching of it.",
+    aboutArtistFact1: "Founder of Nectar.",
+    aboutArtistFact2: "A decade of practice in jewellery and crystal-flower craft.",
+    aboutArtistFact3:
+      "Seven years of teaching — walking beside each student learning to feel beauty.",
+    aboutArtistFact4:
+      "200+ stems of morning-dew higanbana — helping students bloom, and blooming still.",
+    aboutArtistBody1:
+      "Crystal-flower craft is a doorway into aesthetics. It teaches you to feel again, to observe closely, and in every small detail, to taste the quiet current of life.",
+    aboutArtistBody2:
+      "In our time, \u201Cbeauty\u201D has already seeped into every corner of living from bearing and dress, to the texture of home, to visual design. Quietly, it shapes what each person chooses, and how they feel about their days.",
+    aboutArtistBody3:
+      "Beauty was never a privilege. It is a life skill that belongs to everyone. The moment you begin to feel it, tell it apart, and make it every choice you make starts to change.",
+    aboutArtistBody4:
+      "In this course, what I hope to give you is not merely one beautiful flower, but a pair of eyes that find beauty everywhere.",
+    aboutArtistUploadPortrait: "Upload portrait",
+    aboutArtistReplacePortrait: "Replace portrait",
+    aboutArtistRemovePortrait: "Remove portrait",
+    aboutArtistRemovePortraitConfirm:
+      "Remove the portrait photo? This cannot be undone.",
+    aboutArtistUploadSignature: "Upload signature",
+    aboutArtistReplaceSignature: "Replace signature",
+    aboutArtistRemoveSignature: "Remove signature",
+    aboutArtistRemoveSignatureConfirm:
+      "Remove the signature file? This cannot be undone.",
+    aboutArtistPortraitHint:
+      "A vertical portrait reads best. Transparent PNG with no background works best for the signature, so it can sit over the photograph.",
+    aboutStudioKicker: "Studio",
+    aboutStudioTitle: "By appointment.",
+    aboutStudioBody:
+      "Studio visits, classes, and commissions are arranged privately. Please write ahead — we reply within two working days.",
+    aboutCtaNote: "For commissions and classes",
+    aboutCtaEmail: "Write to the studio",
+    aboutCtaInstagram: "On Instagram",
     footer: "Nectar © 2026",
   },
   "zh-TW": {
     navBrand: "花蜜水晶花工藝",
     heroEyebrow: "匠心工房 · Est. 2026",
-    heroDisplay: "在寂靜中，留住一次盛放。",
+    heroDisplay: "在寂靜中\n留住一次盛放",
     heroTagline: "每一件作品皆於工房完成：量測、裁切、封存，由手而成。",
     heroScroll: "向下",
     navCollection: "作品集",
     navVote: "投票",
+    navAbout: "關於",
     navAdmin: "管理",
     navExitAdmin: "登出",
     langEn: "英文",
@@ -213,6 +282,67 @@ const messages = {
     adminCancel: "取消",
     adminInvalid: "密碼錯誤。",
     adminSessionExpired: "登入已失效或未授權，請重新登入。",
+    aboutKicker: "工坊誌",
+    aboutTitle: "以慢工藝 \n換一段靜時刻",
+    aboutLead:
+      "花蜜水晶花工藝是一間小工房，以永生花與水晶花為主要媒材。每件作品從選料、裁切、組合到封存，都經過足夠沉靜的時間，能夠在日常裡靜靜安放多年，而不必被反覆照看。",
+    aboutPhilosophyKicker: "理念",
+    aboutPhilosophyTitle: "關於美學",
+    aboutPhilosophyBody1:
+      "我們不追求繁盛，而在意構圖所需的最少元素，讓一件作品完成的，往往是那唯一一枝、那唯一一道留白。",
+    aboutPhilosophyBody2:
+      "每件作品都是為了被生活所使用而設計：低彩度、斟酌過的比例、耐看的紋理。我們為空間而做，不為鏡頭而做。",
+    aboutProcessKicker: "工序",
+    aboutProcessTitle: "四段工序。",
+    aboutProcess1N: "一",
+    aboutProcess1T: "選料",
+    aboutProcess1B:
+      "由信任的花農小批供花，於工房內完成保存與處理。",
+    aboutProcess2N: "二",
+    aboutProcess2T: "草圖",
+    aboutProcess2B:
+      "在下刀之前先於紙上推敲構圖，確立比例與方向。",
+    aboutProcess3N: "三",
+    aboutProcess3T: "組合",
+    aboutProcess3B:
+      "分數次手工組合，段與段之間靜置沉澱，直到無處再需增減。",
+    aboutProcess4N: "四",
+    aboutProcess4T: "封存",
+    aboutProcess4B:
+      "以玻璃罩或樹脂封存，落款編號後靜置一週方出廠。",
+    aboutArtistKicker: "師資介紹",
+    aboutArtistName: "許婷婷",
+    aboutArtistTitle: "日本水晶花 MADOKA 花藝設計學院 · 副教授",
+    aboutArtistSubtitle: "擁有設計美學背景，專注於水晶花工藝創作與教學。",
+    aboutArtistFact1: "花蜜創辦人。",
+    aboutArtistFact2: "十年，飾品與水晶花工藝創作經驗。",
+    aboutArtistFact3: "七年，用教學陪伴每一位，正在學會感受美的你。",
+    aboutArtistFact4: "200+ 枝朝露彼岸花，幫助學員盛開，至今仍持續盛放。",
+    aboutArtistBody1:
+      "水晶花工藝，是一扇美學之門，帶你重新學會感受、學會觀察、學會在每一個細節中，品味生命力的流動。",
+    aboutArtistBody2:
+      "在這個時代，「美」早已滲透進生活的每一個角落，從儀態穿搭、到居家品味、視覺設計，美感正在悄悄決定一個人的選擇與生活感受。",
+    aboutArtistBody3:
+      "美，從來不是特權，是每個人值得擁有的生活能力。當開始感受美、辨別美、創造美，生活的每一個選擇，都會因此不同。",
+    aboutArtistBody4:
+      "在這門課程裡，我希望給你的，不只是一枝美麗的花，而是一雙發現美的眼睛。",
+    aboutArtistUploadPortrait: "上傳肖像",
+    aboutArtistReplacePortrait: "更換肖像",
+    aboutArtistRemovePortrait: "移除肖像",
+    aboutArtistRemovePortraitConfirm: "確定要移除肖像照嗎？此操作無法復原。",
+    aboutArtistUploadSignature: "上傳簽名",
+    aboutArtistReplaceSignature: "更換簽名",
+    aboutArtistRemoveSignature: "移除簽名",
+    aboutArtistRemoveSignatureConfirm: "確定要移除簽名檔嗎？此操作無法復原。",
+    aboutArtistPortraitHint:
+      "建議上傳直式肖像；簽名建議使用「透明背景」PNG，會疊在照片左下方。",
+    aboutStudioKicker: "工作室",
+    aboutStudioTitle: "完全預約制。",
+    aboutStudioBody:
+      "工作室參觀、課程與客製皆採私下預約。歡迎先來信——我們於兩個工作日內回覆。",
+    aboutCtaNote: "客製與課程事宜",
+    aboutCtaEmail: "寫信到工作室",
+    aboutCtaInstagram: "透過 Instagram",
     footer: "花蜜水晶花工藝 © 2026",
   },
 };

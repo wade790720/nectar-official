@@ -7,18 +7,29 @@ function j(body, s = 200) {
   });
 }
 
+const EMPTY_ARTIST = { portrait: "", signature: "" };
+
+function normalizeArtist(a) {
+  if (!a || typeof a !== "object" || Array.isArray(a)) return { ...EMPTY_ARTIST };
+  return {
+    portrait: typeof a.portrait === "string" ? a.portrait : "",
+    signature: typeof a.signature === "string" ? a.signature : "",
+  };
+}
+
 /** 與前端一致：舊檔僅 { works }、或誤存成純陣列 */
 function normalizeStored(parsed) {
   if (Array.isArray(parsed)) {
-    return { works: parsed, votes: [], wishes: [] };
+    return { works: parsed, votes: [], wishes: [], artist: { ...EMPTY_ARTIST } };
   }
   if (!parsed || typeof parsed !== "object") {
-    return { works: [], votes: [], wishes: [] };
+    return { works: [], votes: [], wishes: [], artist: { ...EMPTY_ARTIST } };
   }
   return {
     works: Array.isArray(parsed.works) ? parsed.works : [],
     votes: Array.isArray(parsed.votes) ? parsed.votes : [],
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : [],
+    artist: normalizeArtist(parsed.artist),
   };
 }
 
@@ -60,7 +71,12 @@ export async function onRequestPut({ request, env }) {
     return j({ error: "Invalid body" }, 400);
   }
 
-  let existing = { works: [], votes: [], wishes: [] };
+  let existing = {
+    works: [],
+    votes: [],
+    wishes: [],
+    artist: { ...EMPTY_ARTIST },
+  };
   const prev = await env.BUCKET.get(DATA);
   if (prev) {
     try {
@@ -88,10 +104,16 @@ export async function onRequestPut({ request, env }) {
           ? body.wishes
           : existing.wishes
         : existing.wishes,
+      artist: Object.prototype.hasOwnProperty.call(body, "artist")
+        ? normalizeArtist(body.artist)
+        : existing.artist,
     };
   } else {
-    /** 訪客可更新投票／許願；不可改 works（避免未授權竄改作品） */
-    if (Object.prototype.hasOwnProperty.call(body, "works")) {
+    /** 訪客可更新投票／許願；不可改 works/artist（避免未授權竄改作品與師資資訊） */
+    if (
+      Object.prototype.hasOwnProperty.call(body, "works") ||
+      Object.prototype.hasOwnProperty.call(body, "artist")
+    ) {
       return j({ error: "Unauthorized" }, 401);
     }
     const hasVotes = Object.prototype.hasOwnProperty.call(body, "votes");
@@ -111,6 +133,7 @@ export async function onRequestPut({ request, env }) {
           ? body.wishes
           : existing.wishes
         : existing.wishes,
+      artist: existing.artist,
     };
   }
 

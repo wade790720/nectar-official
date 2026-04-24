@@ -48,10 +48,12 @@ export function WorkSpecLines({ work, variant = "detail" }) {
               style={{
                 margin: 0,
                 color: "rgba(250,247,242,0.78)",
+                fontStyle: "italic",
                 fontFamily: "'Noto Serif TC', serif",
-                fontSize: 12,
-                letterSpacing: "0.03em",
+                fontSize: 10,
+                letterSpacing: "0.22em",
                 lineHeight: 1.55,
+                alignSelf: "baseline",
               }}
             >
               {value}
@@ -112,11 +114,13 @@ export function WorkSpecLines({ work, variant = "detail" }) {
             </dt>
             <dd
               style={{
+                alignSelf: "baseline",
                 margin: 0,
                 color: "rgba(250,247,242,0.82)",
+                fontStyle: "italic",
                 fontFamily: "'Noto Serif TC', serif",
-                fontSize: 14,
-                letterSpacing: "0.03em",
+                fontSize: 11,
+                letterSpacing: "0.22em",
                 lineHeight: 1.65,
               }}
             >

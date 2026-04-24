@@ -116,21 +116,34 @@ const LEGACY_WI_KEY = "nectar-wi3";
 let memCloudData = null;
 let loadPromise = null;
 
+function normalizeArtist(a, fallback) {
+  const fb = fallback || { portrait: "", signature: "" };
+  if (!a || typeof a !== "object" || Array.isArray(a)) return { ...fb };
+  return {
+    portrait: typeof a.portrait === "string" ? a.portrait : fb.portrait || "",
+    signature:
+      typeof a.signature === "string" ? a.signature : fb.signature || "",
+  };
+}
+
 function normalizeBundle(parsed, fallback) {
+  const fbArtist = fallback.artist || { portrait: "", signature: "" };
   if (Array.isArray(parsed)) {
     return {
       works: parsed,
       votes: fallback.votes,
       wishes: fallback.wishes,
+      artist: { ...fbArtist },
     };
   }
   if (!parsed || typeof parsed !== "object") {
-    return { ...fallback };
+    return { ...fallback, artist: { ...fbArtist } };
   }
   return {
     works: Array.isArray(parsed.works) ? parsed.works : fallback.works,
     votes: Array.isArray(parsed.votes) ? parsed.votes : fallback.votes,
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : fallback.wishes,
+    artist: normalizeArtist(parsed.artist, fbArtist),
   };
 }
 
@@ -213,6 +226,16 @@ export function forceFlushWorks(worksKey, snapshotWorks) {
         : { works: snapshotWorks };
   }
   return flushSaveBundle(worksKey);
+}
+
+/**
+ * 取消 debounce、立刻寫回當前 memCloudData（整包）。
+ * 適用於非作品欄位的即時寫入（如 artist 肖像／簽名上傳），
+ * 避免使用者上傳後馬上重新整理，造成 debounce 尚未 flush 的遺失。
+ */
+export function forceFlushBundle(bundleKey) {
+  clearTimeout(saveT);
+  return flushSaveBundle(bundleKey);
 }
 
 async function flushSaveBundle(worksKey) {

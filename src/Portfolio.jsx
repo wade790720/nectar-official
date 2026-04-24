@@ -8,6 +8,7 @@ import {
   clearAdminSession,
   apiPath,
   forceFlushWorks,
+  forceFlushBundle,
 } from "./persist.js";
 import { useI18n } from "./i18n.jsx";
 import { SK, DW, DV } from "./config/content.js";
@@ -17,23 +18,31 @@ import {
   diffImageRefs,
   removeWorkImageAtThumbIndex,
 } from "./utils/workGallery.js";
-import { VoteAdminRow } from "./components/VoteAdminRow.jsx";
-import { Danmaku } from "./components/Danmaku.jsx";
 import { SocialContactChips } from "./components/SocialContactChips.jsx";
 import { Detail } from "./components/DetailLightbox.jsx";
-import { WS } from "./components/WorkSlide.jsx";
-import { HeroSlide } from "./components/HeroSlide.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
-import { Plus, Cam, Arr } from "./components/icons/Icons.jsx";
+import { Cam } from "./components/icons/Icons.jsx";
+import { PortfolioPage } from "./pages/PortfolioPage.jsx";
+import { VotePage } from "./pages/VotePage.jsx";
+import { AboutPage } from "./pages/AboutPage.jsx";
 
 export default function App() {
-  const { t, locale, setLocale, flowerName } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const [pg, setPg] = useState("portfolio");
-  const bundleInit = useMemo(() => ({ works: DW, votes: DV, wishes: [] }), []);
+  const bundleInit = useMemo(
+    () => ({
+      works: DW,
+      votes: DV,
+      wishes: [],
+      artist: { portrait: "", signature: "" },
+    }),
+    [],
+  );
   const [bundle, setBundle] = useP(SK.w, bundleInit, { cloud: true });
   const works = bundle.works;
   const votes = bundle.votes;
   const wishes = bundle.wishes;
+  const artist = bundle.artist || { portrait: "", signature: "" };
   const setW = useCallback(
     (u) =>
       setBundle((d) => ({
@@ -56,6 +65,17 @@ export default function App() {
         ...d,
         wishes: typeof u === "function" ? u(d.wishes) : u,
       })),
+    [setBundle],
+  );
+  const setArtist = useCallback(
+    (u) =>
+      setBundle((d) => {
+        const prev = d.artist || { portrait: "", signature: "" };
+        return {
+          ...d,
+          artist: typeof u === "function" ? u(prev) : u,
+        };
+      }),
     [setBundle],
   );
   const [ed, setEd] = useState(null);
@@ -124,16 +144,6 @@ export default function App() {
     setCo(false);
     setTimeout(() => setCo(true), 250);
   }, [pg]);
-
-  const publicVotes = useMemo(() => votes.filter((v) => !v.hidden), [votes]);
-  const sorted = useMemo(
-    () => [...publicVotes].sort((a, b) => b.votes - a.votes),
-    [publicVotes],
-  );
-  const mx = useMemo(
-    () => Math.max(1, ...publicVotes.map((f) => f.votes)),
-    [publicVotes],
-  );
 
   const doV = (id) => {
     if (voted[id]) return;
@@ -267,6 +277,48 @@ export default function App() {
     if (orphans.length) void deleteImageRefs(orphans);
   };
 
+  const doArtistImg = async (field, file) => {
+    if (!file) return;
+    try {
+      const prev = artist[field] || "";
+      const ref = await fileToImageRef(file);
+      setArtist((p) => {
+        const next = { ...p, [field]: ref };
+        /** flush 內層更新後的完整 bundle（用 updater 回傳值同步到 memCloudData 後再觸發） */
+        queueMicrotask(() => void forceFlushBundle(SK.w));
+        return next;
+      });
+      if (prev && prev !== ref) void deleteImageRefs([prev]);
+    } catch (e) {
+      console.error(e);
+      window.alert((e && e.message) || "上傳失敗");
+    }
+  };
+  const doArtistPortrait = (f) => doArtistImg("portrait", f);
+  const doArtistSignature = (f) => doArtistImg("signature", f);
+  const removeArtistPortrait = () => {
+    const prev = artist.portrait || "";
+    if (!prev) return;
+    if (!window.confirm(t("aboutArtistRemovePortraitConfirm"))) return;
+    setArtist((p) => {
+      const next = { ...p, portrait: "" };
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
+    void deleteImageRefs([prev]);
+  };
+  const removeArtistSignature = () => {
+    const prev = artist.signature || "";
+    if (!prev) return;
+    if (!window.confirm(t("aboutArtistRemoveSignatureConfirm"))) return;
+    setArtist((p) => {
+      const next = { ...p, signature: "" };
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
+    void deleteImageRefs([prev]);
+  };
+
   return (
     <div
       className="app-root"
@@ -331,6 +383,13 @@ export default function App() {
               onClick={() => setPg("vote")}
             >
               {t("navVote")}
+            </button>
+            <button
+              type="button"
+              className={`nb ${pg === "about" ? "on" : ""}`}
+              onClick={() => setPg("about")}
+            >
+              {t("navAbout")}
             </button>
             <div
               className="nav-lang-btns"
@@ -429,303 +488,54 @@ export default function App() {
         </button>
       )}
 
-      {/* ═══ PORTFOLIO ═══ */}
       {pg === "portfolio" && (
-        <div>
-          {adminAuthed && (
-            <div className="fab-add" style={{ position: "fixed", zIndex: 40 }}>
-              <button
-                onClick={() => {
-                  setEd({
-                    title: "",
-                    en: "",
-                    price: 0,
-                    soldOut: false,
-                    image: "",
-                    cat: "",
-                    desc: "",
-                    descEn: "",
-                    dim: "",
-                    dimEn: "",
-                    material: "",
-                    materialEn: "",
-                    weight: "",
-                    weightEn: "",
-                    gallery: [],
-                  });
-                  setMo(true);
-                }}
-                style={{
-                  background: "#C9A96E",
-                  color: "#080706",
-                  border: "none",
-                  width: 50,
-                  height: 50,
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  boxShadow: "0 8px 40px rgba(201,169,110,0.3)",
-                }}
-              >
-                <Plus s={22} />
-              </button>
-            </div>
-          )}
-
-          <HeroSlide />
-          {works.map((w, i) => (
-            <WS
-              key={w.id}
-              work={w}
-              index={i}
-              total={works.length}
-              admin={adminAuthed}
-              onEdit={(w) => {
-                setEd(w);
-                setMo(true);
-              }}
-              onDelete={doDl}
-              onUpload={doUp}
-              onOpen={setDt}
-            />
-          ))}
-
-          <div
-            className="portfolio-end"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            <div
-              style={{
-                width: 1,
-                height: 48,
-                background:
-                  "linear-gradient(180deg, rgba(201,169,110,0.35), transparent)",
-              }}
-            />
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 13,
-                fontStyle: "italic",
-                letterSpacing: "0.22em",
-                color: "rgba(212,184,122,0.72)",
-                textShadow: "0 1px 16px rgba(0,0,0,0.45)",
-              }}
-            >
-              {t("portfolioEnd")}
-            </div>
-          </div>
-        </div>
+        <PortfolioPage
+          works={works}
+          admin={adminAuthed}
+          onOpenEditor={(w) => {
+            setEd(w);
+            setMo(true);
+          }}
+          onDeleteWork={doDl}
+          onUploadCover={doUp}
+          onOpenDetail={setDt}
+        />
       )}
 
-      {/* ═══ VOTE — editorial pollbook ═══ */}
+      {pg === "about" && (
+        <AboutPage
+          socialIg={socialIg}
+          contactMail={contactMail}
+          artist={artist}
+          admin={adminAuthed}
+          onUploadPortrait={doArtistPortrait}
+          onUploadSignature={doArtistSignature}
+          onRemovePortrait={removeArtistPortrait}
+          onRemoveSignature={removeArtistSignature}
+        />
+      )}
+
       {pg === "vote" && (
-        <div className="vp-page">
-          <Danmaku wishes={wishes} />
-
-          <header
-            className="vp-head"
-            style={{
-              opacity: ho ? 1 : 0,
-              transform: ho ? "translateY(0)" : "translateY(14px)",
-              transition:
-                "opacity 1s var(--ease-out-curve), transform 1s var(--ease-out-curve)",
-            }}
-          >
-            <div className="vp-eyebrow">
-              <span className="vp-eyebrow-rule" aria-hidden="true" />
-              {t("voteKicker")}
-            </div>
-            <h2 className="vp-title">{t("voteTitle")}</h2>
-            <p className="vp-sub">{t("voteSub")}</p>
-          </header>
-
-          {sorted[0]?.votes > 0 && (
-            <section className="vp-leading">
-              <div className="vp-leading-plate">
-                {sorted[0].image ? (
-                  <img src={sorted[0].image} alt="" />
-                ) : (
-                  <span className="vp-leading-emoji" aria-hidden="true">
-                    {sorted[0].emoji}
-                  </span>
-                )}
-              </div>
-              <div className="vp-leading-body">
-                <div className="vp-eyebrow">
-                  <span className="vp-eyebrow-rule" aria-hidden="true" />
-                  {t("voteLeading")}
-                </div>
-                <h3 className="vp-leading-name">{flowerName(sorted[0])}</h3>
-                {(locale === "en" ? sorted[0].name : sorted[0].en) ? (
-                  <div className="vp-leading-alt">
-                    {locale === "en" ? sorted[0].name : sorted[0].en}
-                  </div>
-                ) : null}
-                <span className="vp-leading-rule" aria-hidden="true" />
-                <div className="vp-leading-votes">
-                  <span className="vp-leading-votes-n">{sorted[0].votes}</span>
-                  <span className="vp-leading-votes-label">
-                    {t("voteVotes")}
-                  </span>
-                </div>
-              </div>
-            </section>
-          )}
-
-          <div className="vp-list-kicker">{t("voteIndexKicker")}</div>
-          <ol className="vp-list">
-            {sorted.map((f, i) => {
-              const altName = locale === "en" ? f.name : f.en;
-              const ratio = mx > 0 ? f.votes / mx : 0;
-              return (
-                <li
-                  key={f.id}
-                  className={`vp-row ${voted[f.id] ? "is-voted" : ""}`}
-                  style={{
-                    opacity: co ? 1 : 0,
-                    transform: co ? "translateY(0)" : "translateY(8px)",
-                    transition: `opacity 0.7s var(--ease-out-curve) ${i * 40}ms, transform 0.7s var(--ease-out-curve) ${i * 40}ms`,
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="vp-row-btn"
-                    onClick={() => doV(f.id)}
-                  >
-                    <span className="vp-row-num">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="vp-row-thumb">
-                      {f.image ? (
-                        <img src={f.image} alt="" />
-                      ) : (
-                        <span className="vp-row-emoji" aria-hidden="true">
-                          {f.emoji}
-                        </span>
-                      )}
-                    </span>
-                    <span className="vp-row-names">
-                      <span className="vp-row-name">{flowerName(f)}</span>
-                      {altName ? (
-                        <span className="vp-row-alt">{altName}</span>
-                      ) : null}
-                    </span>
-                    <span className="vp-row-bar-wrap" aria-hidden="true">
-                      <span className="vp-row-bar">
-                        <span
-                          className="vp-row-bar-fill"
-                          style={{ "--vp-bar": ratio }}
-                        />
-                      </span>
-                    </span>
-                    <span className="vp-row-votes">
-                      <span className="vp-row-votes-n">{f.votes}</span>
-                      <span className="vp-row-votes-label">
-                        {t("voteRowViewers")}
-                      </span>
-                      <span className="vp-row-tick">{t("voteVoted")}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-
-          {adminAuthed && (
-            <section className="vp-admin">
-              <div className="vp-admin-head">
-                <h3 className="vp-admin-title">{t("voteEditOption")}</h3>
-                <p className="vp-admin-sub">{t("voteCoursePhotosSub")}</p>
-              </div>
-              <div className="vp-admin-grid">
-                {votes.map((f) => (
-                  <VoteAdminRow
-                    key={f.id}
-                    item={f}
-                    t={t}
-                    onSaveNames={saveVoteNames}
-                    onToggleHidden={toggleVoteHidden}
-                    onDelete={deleteVoteOption}
-                    onUploadImage={doVoteImg}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          <section className="vp-wish">
-            <header className="vp-wish-head">
-              <div className="vp-eyebrow">
-                <span className="vp-eyebrow-rule" aria-hidden="true" />
-                {t("wishKicker")}
-              </div>
-              <h3 className="vp-title" style={{ marginTop: 12 }}>
-                {t("wishTitle")}
-              </h3>
-              <p className="vp-sub" style={{ marginTop: 10 }}>
-                {t("wishSub")}
-              </p>
-            </header>
-
-            <div className="vp-wish-bar">
-              <input
-                className="vp-wish-input"
-                placeholder={t("wishPlaceholder")}
-                value={wiIn}
-                onChange={(e) => setWiIn(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && doWi()}
-                enterKeyHint="send"
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className="vp-wish-send"
-                onClick={doWi}
-              >
-                <span>{t("wishSend")}</span>
-                <span aria-hidden="true">
-                  <Arr s={16} d="right" />
-                </span>
-              </button>
-            </div>
-
-            {wishes.length > 0 ? (
-              <ul className="vp-wish-list">
-                {wishes.slice(-30).map((w) => (
-                  <li key={w.id} className="vp-wish-item">
-                    {w.text}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="vp-wish-empty">{t("wishEmpty")}</div>
-            )}
-
-            {adminAuthed && (
-              <div className="vp-admin-reset-wrap">
-                <button
-                  type="button"
-                  className="vp-admin-reset"
-                  onClick={() => {
-                    setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
-                    setVd({});
-                  }}
-                >
-                  {t("wishReset")}
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
+        <VotePage
+          votes={votes}
+          wishes={wishes}
+          voted={voted}
+          voteFor={doV}
+          onVoteImg={doVoteImg}
+          onSaveNames={saveVoteNames}
+          onToggleHidden={toggleVoteHidden}
+          onDeleteOption={deleteVoteOption}
+          onResetVotes={() => {
+            setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
+            setVd({});
+          }}
+          wiIn={wiIn}
+          onWiInChange={setWiIn}
+          onSubmitWish={doWi}
+          headerIn={ho}
+          cardsIn={co}
+          admin={adminAuthed}
+        />
       )}
 
       {/* Detail Lightbox */}

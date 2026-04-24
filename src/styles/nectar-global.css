@@ -1989,3 +1989,480 @@ textarea.fi {
     width: 90% !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   About page (.ab-*) — reads like a book's colophon.
+   Wide measure, generous leading, caption column left
+   of every section at desktop; a single flowing stack
+   on mobile. No photography, no cards.
+   ═══════════════════════════════════════════════════ */
+
+.ab-page {
+  position: relative;
+  margin: 0 auto;
+  padding: calc(var(--nav-h) + 96px)
+  max(20px, env(safe-area-inset-right, 0px))
+  max(96px, calc(env(safe-area-inset-bottom, 0px) + 64px))
+  max(20px, env(safe-area-inset-left, 0px));
+  max-width: 1040px;
+}
+
+/* ── Masthead ────────────────────────────────────── */
+.ab-mast {
+  margin-bottom: 88px;
+  max-width: 780px;
+}
+
+.ab-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 28px;
+  color: var(--paper-300);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-widest);
+  font-style: italic;
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+  opacity: 0.78;
+
+  gap: 14px;
+}
+
+.ab-eyebrow-rule {
+  width: 44px;
+  height: 1px;
+  background: var(--accent-hair);
+}
+
+.ab-display {
+  margin: 0 0 36px;
+  color: var(--paper-50);
+  text-wrap: balance;
+  white-space: pre-line;
+  letter-spacing: 0.005em;
+  font-weight: 400;
+  font-size: clamp(38px, 6.4vw, 76px);
+  font-family: var(--font-serif-en);
+  line-height: 1.04;
+}
+
+.ab-lead {
+  margin: 0;
+  max-width: 52ch;
+  color: rgba(250, 247, 242, 0.72);
+  letter-spacing: 0.02em;
+  font-size: clamp(16px, 1.3vw, 19px);
+  font-family: var(--font-serif-zh);
+  line-height: 1.85;
+}
+
+/* ── Section (caption + body, side-by-side on desktop) ── */
+.ab-section {
+  display: grid;
+  padding: 44px 0;
+  border-top: 1px solid rgba(250, 247, 242, 0.06);
+
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+.ab-section--last {
+  padding-bottom: 0;
+}
+
+@media (min-width: 820px) {
+  .ab-section {
+    padding: 64px 0;
+
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 72px;
+  }
+}
+
+.ab-section-caption {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.ab-section-n {
+  color: var(--paper-500);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-widest);
+  font-style: italic;
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+  opacity: 0.7;
+}
+
+.ab-section-kicker {
+  color: var(--accent-300);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-wider);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  font-family: var(--font-serif-en);
+}
+
+.ab-section-title {
+  margin: 0;
+  color: var(--paper-50);
+  text-wrap: balance;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-family: var(--font-serif-en);
+  line-height: 1.1;
+}
+
+.ab-section-body {
+  display: flex;
+  flex-direction: column;
+  max-width: 62ch;
+
+  gap: 20px;
+}
+
+.ab-body {
+  margin: 0;
+  color: rgba(250, 247, 242, 0.72);
+  letter-spacing: 0.015em;
+  font-size: var(--fs-lead);
+  font-family: var(--font-serif-zh);
+  line-height: 1.85;
+}
+
+/* ── Process list ────────────────────────────────── */
+.ab-process {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(250, 247, 242, 0.06);
+  list-style: none;
+}
+
+.ab-process-row {
+  display: grid;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.06);
+  column-gap: 20px;
+
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-areas: 'n title'
+  'n body';
+  row-gap: 6px;
+}
+
+@media (min-width: 640px) {
+  .ab-process-row {
+    align-items: baseline;
+    padding: 26px 0;
+    column-gap: 40px;
+
+    grid-template-columns: 56px minmax(140px, 200px) minmax(0, 1fr);
+    grid-template-areas: 'n title body';
+    row-gap: 0;
+  }
+}
+
+.ab-process-n {
+  color: var(--paper-500);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-widest);
+  font-style: italic;
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+
+  grid-area: n;
+  font-variant-numeric: tabular-nums;
+}
+
+.ab-process-title {
+  color: var(--paper-50);
+  letter-spacing: 0.02em;
+  font-size: var(--fs-lead);
+  font-family: var(--font-serif-en);
+
+  grid-area: title;
+}
+
+.ab-process-body {
+  color: rgba(250, 247, 242, 0.62);
+  letter-spacing: 0.015em;
+  font-size: var(--fs-body);
+  font-family: var(--font-serif-zh);
+  line-height: 1.7;
+
+  grid-area: body;
+}
+
+/* ── CTA block ───────────────────────────────────── */
+.ab-cta-note {
+  margin-top: 32px;
+  color: var(--paper-500);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-widest);
+  font-style: italic;
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+}
+
+.ab-cta-list {
+  display: flex;
+  flex-direction: column;
+  margin: 16px 0 0;
+  padding: 0;
+  border-top: 1px solid rgba(250, 247, 242, 0.08);
+  list-style: none;
+
+  gap: 2px;
+}
+
+.ab-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 2px;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.08);
+  color: var(--paper-50);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  font-size: var(--fs-lead);
+  font-family: var(--font-serif-en);
+  transition: color var(--dur-short) var(--ease-editorial);
+
+  gap: 18px;
+}
+
+.ab-cta:hover {
+  color: var(--accent-400);
+}
+
+.ab-cta-arr {
+  display: inline-flex;
+  align-items: center;
+  color: var(--paper-500);
+  transition: transform var(--dur-short) var(--ease-editorial),
+  color var(--dur-short) var(--ease-editorial);
+  transform: translateX(0);
+}
+
+.ab-cta:hover .ab-cta-arr {
+  color: var(--accent-400);
+  transform: translateX(6px);
+}
+
+/* ── § 03 Artist — nameplate, portrait, bio ──────── */
+
+.ab-artist {
+  /* escape the caption/body grid of .ab-section — this block is a full page */
+  display: block !important;
+
+  grid-template-columns: none !important;
+  gap: 0 !important;
+}
+
+.ab-artist-head {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 40px;
+  max-width: 780px;
+
+  gap: 10px;
+}
+
+.ab-artist-name {
+  margin: 4px 0 0;
+  color: var(--paper-50);
+  text-wrap: balance;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  font-size: clamp(32px, 4.4vw, 56px);
+  font-family: var(--font-serif-en);
+  line-height: 1.08;
+}
+
+.ab-artist-grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+  gap: 36px;
+}
+
+@media (min-width: 820px) {
+  .ab-artist-grid {
+    align-items: start;
+
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  .ab-artist-grid--noportrait {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Portrait + signature figure */
+.ab-artist-figure {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid rgba(250, 247, 242, 0.06);
+  background: rgba(250, 247, 242, 0.02);
+
+  aspect-ratio: 4 / 5;
+}
+
+.ab-artist-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: saturate(0.96) contrast(1.02);
+
+  object-fit: cover;
+}
+
+.ab-artist-signature {
+  position: absolute;
+  right: 5%;
+  bottom: 4%;
+  max-width: 180px;
+  width: 42%;
+  height: auto;
+  opacity: 0.95;
+  /* lift dark handwritten strokes so they read over the photograph */
+  filter: brightness(1.35) contrast(1.15) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+  pointer-events: none;
+}
+
+.ab-artist-empty {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(201, 169, 110, 0.22);
+  background: rgba(250, 247, 242, 0.02);
+  color: rgba(201, 169, 110, 0.4);
+  letter-spacing: 0.1em;
+  font-style: italic;
+  font-size: 13px;
+  font-family: var(--font-serif-en);
+
+  inset: 0;
+}
+
+/* Admin upload controls overlay (top-right of figure) */
+.ab-artist-admin {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.ab-artist-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid rgba(201, 169, 110, 0.28);
+  border-radius: 4px;
+  background: rgba(8, 7, 6, 0.78);
+  color: rgba(201, 169, 110, 0.9);
+  letter-spacing: 0.08em;
+  font-style: italic;
+  font-size: 11px;
+  font-family: var(--font-serif-en);
+  cursor: pointer;
+  transition: color var(--dur-short) var(--ease-editorial),
+  border-color var(--dur-short) var(--ease-editorial);
+
+  gap: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.ab-artist-admin-btn:hover {
+  border-color: rgba(201, 169, 110, 0.55);
+  color: var(--accent-400);
+}
+
+.ab-artist-admin-btn input[type='file'] {
+  display: none;
+}
+
+.ab-artist-admin-btn--ghost {
+  border-color: rgba(245, 240, 235, 0.15);
+  background: rgba(8, 7, 6, 0.4);
+  color: rgba(245, 240, 235, 0.5);
+}
+
+.ab-artist-admin-btn--ghost:hover {
+  border-color: rgba(248, 113, 113, 0.4);
+  color: rgba(248, 113, 113, 0.9);
+}
+
+/* Right column — nameplate meta + bio */
+.ab-artist-text {
+  display: flex;
+  flex-direction: column;
+  max-width: 62ch;
+
+  gap: 18px;
+}
+
+.ab-artist-title {
+  color: var(--accent-300);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-wider);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  font-family: var(--font-serif-en);
+}
+
+.ab-artist-sub {
+  margin: 0;
+  color: rgba(250, 247, 242, 0.72);
+  letter-spacing: 0.015em;
+  font-size: var(--fs-lead);
+  font-family: var(--font-serif-zh);
+  line-height: 1.7;
+}
+
+.ab-artist-facts {
+  margin: 6px 0 10px;
+  padding: 0;
+  border-top: 1px solid rgba(250, 247, 242, 0.06);
+  list-style: none;
+}
+
+.ab-artist-facts li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.06);
+  color: rgba(250, 247, 242, 0.78);
+  letter-spacing: 0.015em;
+  font-size: var(--fs-body);
+  font-family: var(--font-serif-zh);
+  line-height: 1.7;
+}
+
+/* Last paragraph — gently italic, like a closing line */
+.ab-artist-closing {
+  margin-top: 4px;
+  color: rgba(250, 247, 242, 0.85);
+  font-style: italic;
+}
+
+.ab-artist-hint {
+  margin: 8px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px dashed rgba(201, 169, 110, 0.22);
+  color: rgba(201, 169, 110, 0.45);
+  letter-spacing: 0.04em;
+  font-style: italic;
+  font-size: 12px;
+  font-family: var(--font-serif-en);
+  line-height: 1.6;
+}

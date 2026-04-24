@@ -28,7 +28,7 @@ export function HeroSlide() {
 
         <h1
           className={`hero-display ws-reveal ${ready ? "is-in" : ""}`}
-          style={{ transitionDelay: "260ms" }}
+          style={{ transitionDelay: "260ms", whiteSpace: "pre-line" }}
         >
           {t("heroDisplay")}
         </h1>
