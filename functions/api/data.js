@@ -20,16 +20,29 @@ function normalizeArtist(a) {
 /** 與前端一致：舊檔僅 { works }、或誤存成純陣列 */
 function normalizeStored(parsed) {
   if (Array.isArray(parsed)) {
-    return { works: parsed, votes: [], wishes: [], artist: { ...EMPTY_ARTIST } };
+    return {
+      works: parsed,
+      votes: [],
+      wishes: [],
+      artist: { ...EMPTY_ARTIST },
+      courses: [],
+    };
   }
   if (!parsed || typeof parsed !== "object") {
-    return { works: [], votes: [], wishes: [], artist: { ...EMPTY_ARTIST } };
+    return {
+      works: [],
+      votes: [],
+      wishes: [],
+      artist: { ...EMPTY_ARTIST },
+      courses: [],
+    };
   }
   return {
     works: Array.isArray(parsed.works) ? parsed.works : [],
     votes: Array.isArray(parsed.votes) ? parsed.votes : [],
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : [],
     artist: normalizeArtist(parsed.artist),
+    courses: Array.isArray(parsed.courses) ? parsed.courses : [],
   };
 }
 
@@ -76,6 +89,7 @@ export async function onRequestPut({ request, env }) {
     votes: [],
     wishes: [],
     artist: { ...EMPTY_ARTIST },
+    courses: [],
   };
   const prev = await env.BUCKET.get(DATA);
   if (prev) {
@@ -107,12 +121,18 @@ export async function onRequestPut({ request, env }) {
       artist: Object.prototype.hasOwnProperty.call(body, "artist")
         ? normalizeArtist(body.artist)
         : existing.artist,
+      courses: Object.prototype.hasOwnProperty.call(body, "courses")
+        ? Array.isArray(body.courses)
+          ? body.courses
+          : existing.courses
+        : existing.courses,
     };
   } else {
-    /** 訪客可更新投票／許願；不可改 works/artist（避免未授權竄改作品與師資資訊） */
+    /** 訪客可更新投票／許願；不可改 works/artist/courses（避免未授權竄改作品、師資、課程資訊） */
     if (
       Object.prototype.hasOwnProperty.call(body, "works") ||
-      Object.prototype.hasOwnProperty.call(body, "artist")
+      Object.prototype.hasOwnProperty.call(body, "artist") ||
+      Object.prototype.hasOwnProperty.call(body, "courses")
     ) {
       return j({ error: "Unauthorized" }, 401);
     }
@@ -134,6 +154,7 @@ export async function onRequestPut({ request, env }) {
           : existing.wishes
         : existing.wishes,
       artist: existing.artist,
+      courses: existing.courses,
     };
   }
 

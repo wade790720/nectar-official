@@ -2924,3 +2924,395 @@ textarea.fi {
     transform: translateY(0) scale(1);
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Gallery page — editorial catalogue of works + courses.
+   4:5 tiles, quiet hairlines, restrained hover transitions.
+   ────────────────────────────────────────────────────────────── */
+
+.gl-page {
+  background: var(--ink-900);
+  color: var(--paper-100);
+  padding: clamp(56px, 8vw, 128px) var(--frame-inset) var(--sp-24);
+  min-height: 100vh;
+  font-family: var(--font-stack);
+}
+
+/* ── Masthead ─────────────────────────────────────── */
+.gl-mast {
+  max-width: 900px;
+  margin: 0 auto var(--sp-20);
+  text-align: left;
+}
+
+.gl-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-overline);
+  letter-spacing: var(--tr-widest);
+  text-transform: uppercase;
+  color: var(--paper-500);
+}
+
+.gl-eyebrow-rule {
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--accent-hair);
+}
+
+.gl-display {
+  margin: var(--sp-5) 0 var(--sp-4);
+  font-family: var(--font-serif-en);
+  font-weight: 400;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-tight);
+  color: var(--paper-50);
+}
+
+.gl-lead {
+  max-width: 560px;
+  margin: 0;
+  font-size: var(--fs-lead);
+  line-height: var(--lh-subtitle);
+  color: var(--paper-300);
+}
+
+/* ── Section heading ──────────────────────────────── */
+.gl-section {
+  margin-top: var(--sp-20);
+  padding-top: var(--sp-10);
+  border-top: 1px solid rgba(250, 247, 242, 0.08);
+}
+
+.gl-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-10);
+}
+
+.gl-section-n {
+  font-family: var(--font-serif-en);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wider);
+  color: var(--accent-400);
+}
+
+.gl-section-title {
+  margin: 0;
+  font-family: var(--font-serif-en);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-headline);
+  letter-spacing: var(--tr-tight);
+  color: var(--paper-50);
+}
+
+.gl-empty {
+  font-family: var(--font-serif-en);
+  font-style: italic;
+  font-size: var(--fs-lead);
+  color: var(--paper-500);
+  padding: var(--sp-12) 0;
+}
+
+/* ── Grid ─────────────────────────────────────────── */
+.gl-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 36px);
+}
+
+@media (max-width: 960px) {
+  .gl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .gl-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+}
+
+/* ── Tile shell ───────────────────────────────────── */
+.gl-tile {
+  position: relative;
+  list-style: none;
+}
+
+.gl-tile-btn,
+.gl-tile-static {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gl-tile-static {
+  cursor: default;
+}
+
+/* ── 4:5 cover ───────────────────────────────────── */
+.gl-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: var(--ink-700);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  transition:
+    transform var(--dur-med) var(--ease-out-curve),
+    filter var(--dur-short) var(--ease-editorial);
+}
+
+.gl-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px rgba(250, 247, 242, 0.06);
+  pointer-events: none;
+  transition: box-shadow var(--dur-short) var(--ease-editorial);
+}
+
+.gl-tile-btn:hover .gl-cover {
+  filter: brightness(1.05);
+}
+
+.gl-tile-btn:hover .gl-cover::after,
+.gl-tile-edit:hover .gl-cover::after {
+  box-shadow: inset 0 0 0 1px var(--accent-hair);
+}
+
+.gl-cover.is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gl-cover-empty {
+  font-family: var(--font-serif-en);
+  font-size: 24px;
+  color: rgba(250, 247, 242, 0.22);
+  letter-spacing: var(--tr-wider);
+}
+
+/* ── Caption ──────────────────────────────────────── */
+.gl-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0 0;
+}
+
+.gl-caption-title {
+  font-family: var(--font-serif-en);
+  font-size: var(--fs-body);
+  line-height: var(--lh-subtitle);
+  color: var(--paper-100);
+  letter-spacing: 0.005em;
+}
+
+.gl-caption-meta {
+  flex-shrink: 0;
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tr-wider);
+  text-transform: uppercase;
+  color: var(--paper-500);
+}
+
+/* ── Course admin: hover-to-upload cover ──────────── */
+.gl-tile-edit {
+  transition: transform var(--dur-short) var(--ease-editorial);
+}
+
+.gl-tile-edit.is-pulsing {
+  animation: gl-pulse 2.2s var(--ease-editorial) 1;
+}
+
+@keyframes gl-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 169, 110, 0);
+  }
+  20% {
+    box-shadow: 0 0 0 6px rgba(201, 169, 110, 0.22);
+  }
+}
+
+.gl-cover-upload {
+  cursor: pointer;
+  outline: none;
+}
+
+.gl-cover-upload:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-500);
+}
+
+.gl-cover-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  color: var(--paper-50);
+  background: rgba(6, 5, 4, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity var(--dur-short) var(--ease-editorial);
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.gl-cover-upload:hover .gl-cover-overlay,
+.gl-cover-upload:focus-visible .gl-cover-overlay {
+  opacity: 1;
+}
+
+/* ── Course edit body ─────────────────────────────── */
+.gl-edit-body {
+  padding: var(--sp-4) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.gl-edit-input {
+  width: 100%;
+  padding: var(--sp-2) 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.14);
+  color: var(--paper-50);
+  font-family: var(--font-stack);
+  font-size: var(--fs-body);
+  letter-spacing: 0.01em;
+  outline: none;
+  transition: border-color var(--dur-short) var(--ease-editorial);
+}
+
+.gl-edit-input::placeholder {
+  color: var(--paper-500);
+  font-style: italic;
+}
+
+.gl-edit-input:focus {
+  border-bottom-color: var(--accent-400);
+}
+
+.gl-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-2);
+}
+
+.gl-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+  background: transparent;
+  border: none;
+  color: var(--paper-100);
+  font-family: var(--font-stack);
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--dur-short) var(--ease-editorial);
+}
+
+.gl-edit-btn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(250, 247, 242, 0.18);
+  transition: background var(--dur-short) var(--ease-editorial);
+}
+
+.gl-edit-btn:hover::after {
+  background: var(--paper-50);
+}
+
+.gl-edit-btn:hover {
+  color: var(--paper-50);
+}
+
+.gl-edit-btn:disabled {
+  color: var(--paper-500);
+  cursor: not-allowed;
+}
+
+.gl-edit-btn:disabled::after {
+  background: rgba(250, 247, 242, 0.08);
+}
+
+.gl-edit-btn.is-danger {
+  margin-left: auto;
+  color: rgba(250, 247, 242, 0.65);
+}
+
+.gl-edit-btn.is-danger:hover {
+  color: #e07b7b;
+}
+
+.gl-edit-btn.is-danger:hover::after {
+  background: rgba(224, 123, 123, 0.75);
+}
+
+/* ── "Add course" placeholder tile ────────────────── */
+.gl-tile-add {
+  aspect-ratio: 4 / 5;
+}
+
+.gl-add-btn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  background: transparent;
+  border: 1px dashed rgba(250, 247, 242, 0.18);
+  color: var(--paper-300);
+  font-family: var(--font-stack);
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-short) var(--ease-editorial),
+    color var(--dur-short) var(--ease-editorial);
+}
+
+.gl-add-btn:hover {
+  border-color: var(--accent-400);
+  color: var(--paper-50);
+}
+

@@ -182,9 +182,16 @@ export const DEFAULT_VOTE_OPTIONS = [
   },
 ]
 
+/**
+ * 課程影像集預設資料：由管理員於 Gallery 頁面以圖像＋名稱（中／英）自由增刪。
+ * 尚未編輯時先以空陣列登場，避免假內容混淆視覺節奏。
+ */
+export const DEFAULT_COURSES = []
+
 /** persist /api 使用的 bundle storage key（與 useP(SK.w, …) 一致） */
 export const SK = { w: "nectar-w3" };
 /** 向後相容別名 */
 export const DW = DEFAULT_WORKS;
 export const DV = DEFAULT_VOTE_OPTIONS;
+export const DC = DEFAULT_COURSES;
 export const GR = CATEGORY_GRADIENTS;

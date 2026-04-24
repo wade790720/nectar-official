@@ -128,22 +128,25 @@ function normalizeArtist(a, fallback) {
 
 function normalizeBundle(parsed, fallback) {
   const fbArtist = fallback.artist || { portrait: "", signature: "" };
+  const fbCourses = Array.isArray(fallback.courses) ? fallback.courses : [];
   if (Array.isArray(parsed)) {
     return {
       works: parsed,
       votes: fallback.votes,
       wishes: fallback.wishes,
       artist: { ...fbArtist },
+      courses: [...fbCourses],
     };
   }
   if (!parsed || typeof parsed !== "object") {
-    return { ...fallback, artist: { ...fbArtist } };
+    return { ...fallback, artist: { ...fbArtist }, courses: [...fbCourses] };
   }
   return {
     works: Array.isArray(parsed.works) ? parsed.works : fallback.works,
     votes: Array.isArray(parsed.votes) ? parsed.votes : fallback.votes,
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : fallback.wishes,
     artist: normalizeArtist(parsed.artist, fbArtist),
+    courses: Array.isArray(parsed.courses) ? parsed.courses : fbCourses,
   };
 }
 

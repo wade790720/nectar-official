@@ -11,7 +11,7 @@ import {
   forceFlushBundle,
 } from "./persist.js";
 import { useI18n } from "./i18n.jsx";
-import { SK, DW, DV } from "./config/content.js";
+import { SK, DW, DV, DC } from "./config/content.js";
 import { normalizeSocialUrl } from "./utils/social.js";
 import {
   collectWorkImageRefs,
@@ -26,6 +26,7 @@ import { useConfirm } from "./components/ConfirmDialog.jsx";
 import { PortfolioPage } from "./pages/PortfolioPage.jsx";
 import { VotePage } from "./pages/VotePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
+import { GalleryPage } from "./pages/GalleryPage.jsx";
 
 export default function App() {
   const { t, locale, setLocale } = useI18n();
@@ -37,6 +38,7 @@ export default function App() {
       votes: DV,
       wishes: [],
       artist: { portrait: "", signature: "" },
+      courses: DC,
     }),
     [],
   );
@@ -45,6 +47,10 @@ export default function App() {
   const votes = bundle.votes;
   const wishes = bundle.wishes;
   const artist = bundle.artist || { portrait: "", signature: "" };
+  const courses = useMemo(
+    () => (Array.isArray(bundle.courses) ? bundle.courses : []),
+    [bundle.courses],
+  );
   const setW = useCallback(
     (u) =>
       setBundle((d) => ({
@@ -80,6 +86,17 @@ export default function App() {
       }),
     [setBundle],
   );
+  const setCourses = useCallback(
+    (u) =>
+      setBundle((d) => {
+        const prev = Array.isArray(d.courses) ? d.courses : [];
+        return {
+          ...d,
+          courses: typeof u === "function" ? u(prev) : u,
+        };
+      }),
+    [setBundle],
+  );
   const [ed, setEd] = useState(null);
   const [modal, setMo] = useState(false);
   const [detail, setDt] = useState(null);
@@ -90,6 +107,7 @@ export default function App() {
   const [loginErr, setLoginErr] = useState(false);
   const [voted, setVd] = useState({});
   const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
+  const [newlyAddedCourseId, setNewlyAddedCourseId] = useState(null);
   const [ho, setHo] = useState(false);
   const [co, setCo] = useState(false);
   const socialIg = normalizeSocialUrl(
@@ -238,6 +256,46 @@ export default function App() {
     window.setTimeout(() => {
       setNewlyAddedVoteId((cur) => (cur === id ? null : cur));
     }, 2200);
+  };
+
+  /* ─── 課程影像集（課程 Gallery）CRUD ─── */
+  const addCourse = () => {
+    const id = `c${Date.now()}`;
+    setCourses((p) => [...p, { id, name: "", en: "", image: "" }]);
+    setNewlyAddedCourseId(id);
+    window.setTimeout(() => {
+      setNewlyAddedCourseId((cur) => (cur === id ? null : cur));
+    }, 2200);
+  };
+  const saveCourseNames = (id, { name, en }) => {
+    setCourses((p) => p.map((x) => (x.id === id ? { ...x, name, en } : x)));
+  };
+  const uploadCourseImage = async (id, file) => {
+    if (!file) return;
+    try {
+      const prev = courses.find((x) => x.id === id)?.image || "";
+      const ref = await fileToImageRef(file);
+      setCourses((p) =>
+        p.map((x) => (x.id === id ? { ...x, image: ref } : x)),
+      );
+      if (prev && prev !== ref) void deleteImageRefs([prev]);
+    } catch (e) {
+      console.error(e);
+      window.alert((e && e.message) || "圖片上傳失敗");
+    }
+  };
+  const deleteCourse = async (id) => {
+    const ok = await confirm({
+      title: t("confirmTitleDestructive"),
+      message: t("galleryCourseDeleteConfirm"),
+      confirmLabel: t("confirmDelete"),
+      cancelLabel: t("confirmCancel"),
+      tone: "danger",
+    });
+    if (!ok) return;
+    const orphan = courses.find((x) => x.id === id)?.image || "";
+    setCourses((p) => p.filter((x) => x.id !== id));
+    if (orphan) void deleteImageRefs([orphan]);
   };
   const doSv = (w) => {
     const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
@@ -459,6 +517,13 @@ export default function App() {
             </button>
             <button
               type="button"
+              className={`nb ${pg === "gallery" ? "on" : ""}`}
+              onClick={() => setPg("gallery")}
+            >
+              {t("navGallery")}
+            </button>
+            <button
+              type="button"
               className={`nb ${pg === "vote" ? "on" : ""}`}
               onClick={() => setPg("vote")}
             >
@@ -596,6 +661,20 @@ export default function App() {
           onUploadSignature={doArtistSignature}
           onRemovePortrait={removeArtistPortrait}
           onRemoveSignature={removeArtistSignature}
+        />
+      )}
+
+      {pg === "gallery" && (
+        <GalleryPage
+          works={works}
+          courses={courses}
+          admin={adminAuthed}
+          onOpenDetail={setDt}
+          onAddCourse={addCourse}
+          onSaveCourseNames={saveCourseNames}
+          onUploadCourseImage={uploadCourseImage}
+          onDeleteCourse={deleteCourse}
+          newlyAddedCourseId={newlyAddedCourseId}
         />
       )}
 
