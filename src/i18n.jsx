@@ -108,7 +108,8 @@ const messages = {
     adminSubmit: "Sign in",
     adminCancel: "Cancel",
     adminInvalid: "Invalid password.",
-    adminSessionExpired: "Session expired or unauthorized. Please sign in again.",
+    adminSessionExpired:
+      "Session expired or unauthorized. Please sign in again.",
     footer: "Nectar © 2026",
   },
   "zh-TW": {
@@ -223,7 +224,7 @@ export function I18nProvider({ children }) {
 
   const t = useCallback(
     (key) => messages[locale]?.[key] ?? messages.en[key] ?? key,
-    [locale]
+    [locale],
   );
 
   /** 主標優先中文 title，再 fallback en；副標為另一語系且與主標不同才顯示 */
@@ -243,47 +244,46 @@ export function I18nProvider({ children }) {
   }, []);
 
   const workDesc = useCallback(
-    (work) =>
-      locale === "en" ? work.descEn || work.desc : work.desc,
-    [locale]
+    (work) => (locale === "en" ? work.descEn || work.desc : work.desc),
+    [locale],
   );
 
   const workSpecDim = useCallback(
     (work) =>
       String(
         locale === "en"
-          ? work?.dimEn || work?.dim
-          : work?.dim || work?.dimEn || "",
+          ? (work?.dimEn ?? work?.dim ?? "")
+          : (work?.dim ?? work?.dimEn ?? ""),
       ).trim(),
-    [locale]
+    [locale],
   );
   const workSpecMaterial = useCallback(
     (work) =>
       String(
         locale === "en"
-          ? work?.materialEn || work?.material
-          : work?.material || work?.materialEn || "",
+          ? (work?.materialEn ?? work?.material ?? "")
+          : (work?.material ?? work?.materialEn ?? ""),
       ).trim(),
-    [locale]
+    [locale],
   );
   const workSpecWeight = useCallback(
     (work) =>
       String(
         locale === "en"
-          ? work?.weightEn || work?.weight
-          : work?.weight || work?.weightEn || "",
+          ? (work?.weightEn ?? work?.weight ?? "")
+          : (work?.weight ?? work?.weightEn ?? ""),
       ).trim(),
-    [locale]
+    [locale],
   );
 
   const workCat = useCallback(
     (work) => (locale === "en" ? CAT_EN[work.cat] || work.cat : work.cat),
-    [locale]
+    [locale],
   );
 
   const flowerName = useCallback(
     (f) => (locale === "en" ? f.en : f.name),
-    [locale]
+    [locale],
   );
 
   const formatPrice = useCallback(
@@ -295,7 +295,7 @@ export function I18nProvider({ children }) {
       }
       return `NTD ${n.toLocaleString("zh-TW")}`;
     },
-    [locale]
+    [locale],
   );
 
   /** 售罄：開關 soldOut 或售價 ≤ 0（皆不顯示金額） */
@@ -306,7 +306,7 @@ export function I18nProvider({ children }) {
       if (sold) return t("workSoldOut");
       return formatPrice(work.price);
     },
-    [t, formatPrice]
+    [t, formatPrice],
   );
 
   const value = useMemo(
@@ -339,7 +339,7 @@ export function I18nProvider({ children }) {
       flowerName,
       formatPrice,
       workPriceLabel,
-    ]
+    ],
   );
 
   return <I18nCtx.Provider value={value}>{children}</I18nCtx.Provider>;

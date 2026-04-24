@@ -12,7 +12,6 @@ import { useI18n } from "./i18n.jsx";
 import { SK, DW, DV } from "./config/content.js";
 import { normalizeSocialUrl } from "./utils/social.js";
 import { removeWorkImageAtThumbIndex } from "./utils/workGallery.js";
-import { GlobalStyles } from "./components/GlobalStyles.jsx";
 import { VoteAdminRow } from "./components/VoteAdminRow.jsx";
 import { Danmaku } from "./components/Danmaku.jsx";
 import { SocialContactChips } from "./components/SocialContactChips.jsx";
@@ -71,6 +70,13 @@ export default function App() {
     import.meta.env.VITE_SOCIAL_FACEBOOK || "",
   );
   const contactMail = (import.meta.env.VITE_CONTACT_EMAIL || "").trim();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (pg === "portfolio") root.classList.add("portfolio-scroll-snap");
+    else root.classList.remove("portfolio-scroll-snap");
+    return () => root.classList.remove("portfolio-scroll-snap");
+  }, [pg]);
 
   useEffect(() => {
     const raw = window.location.hash.replace(/^#\/?/, "");
@@ -246,8 +252,6 @@ export default function App() {
         fontFamily: "'Noto Serif TC','Instrument Serif',Georgia,serif",
       }}
     >
-      <GlobalStyles />
-
       {/* NAV */}
       <nav
         style={{
@@ -461,8 +465,8 @@ export default function App() {
           ))}
 
           <div
+            className="portfolio-end"
             style={{
-              height: "30vh",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

@@ -138,62 +138,142 @@ export function Detail({
           <div
             style={{
               position: "relative",
-              zIndex: 0,
+              zIndex: 10,
               maxWidth: 900,
               width: "100%",
               flex: "1 1 auto",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
               minHeight: 0,
             }}
           >
             <div
               style={{
+                position: "relative",
                 flex: "1 1 auto",
                 width: "100%",
                 minHeight: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                overflow: "hidden",
               }}
             >
-              <img
-                src={allImgs[idx]}
-                alt=""
-                className="detail-main-img"
+              <div
                 style={{
-                  maxWidth: "100%",
-                  objectFit: "contain",
-                  borderRadius: 6,
-                  boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
+                  flex: "1 1 auto",
+                  width: "100%",
+                  minHeight: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
                 }}
-              />
+              >
+                <img
+                  src={allImgs[idx]}
+                  alt=""
+                  className="detail-main-img"
+                  style={{
+                    maxWidth: "100%",
+                    objectFit: "contain",
+                    borderRadius: 6,
+                    boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
+                  }}
+                />
+              </div>
+              {allImgs.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIdx((i) => (i - 1 + allImgs.length) % allImgs.length)
+                    }
+                    className="detail-nav detail-nav--prev"
+                    style={navBtn}
+                    aria-label="Previous image"
+                  >
+                    <Arr s={20} d="left" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIdx((i) => (i + 1) % allImgs.length)}
+                    className="detail-nav detail-nav--next"
+                    style={navBtn}
+                    aria-label="Next image"
+                  >
+                    <Arr s={20} d="right" />
+                  </button>
+                </>
+              )}
             </div>
-            {allImgs.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setIdx((i) => (i - 1 + allImgs.length) % allImgs.length)
-                  }
-                  className="detail-nav detail-nav--prev"
-                  style={navBtn}
-                  aria-label="Previous image"
+            {allImgs.length <= 1 && admin && (
+              <div
+                style={{
+                  flexShrink: 0,
+                  position: "relative",
+                  zIndex: 30,
+                  width: "100%",
+                  marginTop: 14,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 10,
+                  pointerEvents: "auto",
+                }}
+              >
+                {allImgs.length === 1 && onRemoveImage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(t("detailRemovePhotoConfirm"))) {
+                        onRemoveImage(work.id, 0);
+                        setIdx(0);
+                      }
+                    }}
+                    style={{
+                      background: "rgba(185,28,28,0.15)",
+                      border: "1px solid rgba(239,68,68,0.35)",
+                      color: "rgba(252,165,165,0.95)",
+                      padding: "8px 16px",
+                      fontSize: 12,
+                      fontFamily: "'Instrument Serif',serif",
+                      fontStyle: "italic",
+                      cursor: "pointer",
+                      borderRadius: 20,
+                    }}
+                  >
+                    {t("detailRemoveCover")}
+                  </button>
+                )}
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "rgba(201,169,110,0.4)",
+                    fontSize: 12,
+                    fontFamily: "'Instrument Serif',serif",
+                    fontStyle: "italic",
+                    cursor: "pointer",
+                    padding: "8px 16px",
+                    border: "1px dashed rgba(201,169,110,0.2)",
+                    borderRadius: 20,
+                  }}
                 >
-                  <Arr s={20} d="left" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIdx((i) => (i + 1) % allImgs.length)}
-                  className="detail-nav detail-nav--next"
-                  style={navBtn}
-                  aria-label="Next image"
-                >
-                  <Arr s={20} d="right" />
-                </button>
-              </>
+                  <Plus s={14} /> {t("detailAddAngles")}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      if (e.target.files)
+                        onUploadGallery(work.id, [...e.target.files]);
+                    }}
+                  />
+                </label>
+              </div>
             )}
           </div>
         ) : (
@@ -334,70 +414,6 @@ export function Detail({
             )}
           </div>
         )}
-        {allImgs.length <= 1 && admin && (
-          <div
-            style={{
-              marginTop: 16,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            {allImgs.length === 1 && onRemoveImage && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm(t("detailRemovePhotoConfirm"))) {
-                    onRemoveImage(work.id, 0);
-                    setIdx(0);
-                  }
-                }}
-                style={{
-                  background: "rgba(185,28,28,0.15)",
-                  border: "1px solid rgba(239,68,68,0.35)",
-                  color: "rgba(252,165,165,0.95)",
-                  padding: "8px 16px",
-                  fontSize: 12,
-                  fontFamily: "'Instrument Serif',serif",
-                  fontStyle: "italic",
-                  cursor: "pointer",
-                  borderRadius: 20,
-                }}
-              >
-                {t("detailRemoveCover")}
-              </button>
-            )}
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                color: "rgba(201,169,110,0.4)",
-                fontSize: 12,
-                fontFamily: "'Instrument Serif',serif",
-                fontStyle: "italic",
-                cursor: "pointer",
-                padding: "8px 16px",
-                border: "1px dashed rgba(201,169,110,0.2)",
-                borderRadius: 20,
-              }}
-            >
-              <Plus s={14} /> {t("detailAddAngles")}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  if (e.target.files)
-                    onUploadGallery(work.id, [...e.target.files]);
-                }}
-              />
-            </label>
-          </div>
-        )}
-
         {admin && (
           <p
             style={{
