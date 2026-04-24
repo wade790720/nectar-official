@@ -223,7 +223,7 @@ const messages = {
     aboutStudioBody:
       "Courses, certifications, material sales, and brand collaborations are available by private appointment only. Please contact us via email first; we will respond within two business days.",
     aboutCtaNote: "For commissions and classes",
-    aboutCtaEmail: "Write to the studio",
+    aboutCtaEmail: "Send email",
     aboutCtaInstagram: "On Instagram",
     footer: "Nectar Artistry © 2026",
   },
@@ -233,7 +233,7 @@ const messages = {
     heroDisplay: "在寂靜中\n留住一次盛放",
     heroTagline: "每一件作品皆於工房完成：量測、裁切、封存，由手而成。",
     heroScroll: "向下",
-    navCollection: "作品集",
+    navCollection: "作品",
     navVote: "投票",
     navAbout: "關於",
     navCourse: "課程",
