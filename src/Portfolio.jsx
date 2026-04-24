@@ -87,6 +87,7 @@ export default function App() {
   const [loginPwd, setLoginPwd] = useState("");
   const [loginErr, setLoginErr] = useState(false);
   const [voted, setVd] = useState({});
+  const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
   const [ho, setHo] = useState(false);
   const [co, setCo] = useState(false);
   const socialIg = normalizeSocialUrl(
@@ -190,10 +191,11 @@ export default function App() {
   };
   const addVoteOption = () => {
     /** 預設 hidden=true，強制 admin 填入名稱／圖片後才會對訪客顯示 */
+    const id = Date.now().toString();
     setVotes((p) => [
       ...p,
       {
-        id: Date.now().toString(),
+        id,
         name: "",
         en: "",
         emoji: "✿",
@@ -202,6 +204,10 @@ export default function App() {
         hidden: true,
       },
     ]);
+    setNewlyAddedVoteId(id);
+    window.setTimeout(() => {
+      setNewlyAddedVoteId((cur) => (cur === id ? null : cur));
+    }, 2200);
   };
   const doSv = (w) => {
     const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
@@ -238,6 +244,7 @@ export default function App() {
     }
   };
   const doDl = (id) => {
+    if (!window.confirm(t("workDeleteConfirm"))) return;
     const work = works.find((x) => x.id === id);
     const orphans = work ? collectWorkImageRefs(work) : [];
     const next = works.filter((x) => x.id !== id);
@@ -406,6 +413,17 @@ export default function App() {
             >
               {t("navVote")}
             </button>
+            <a
+              className="nb nb-ext"
+              href="https://yellow510.kaik.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>{t("navCourse")}</span>
+              <span className="nb-ext-arr" aria-hidden="true">
+                ↗
+              </span>
+            </a>
             <div
               className="nav-lang-btns"
               style={{ display: "flex", gap: 8, alignItems: "center" }}
@@ -541,7 +559,9 @@ export default function App() {
           onToggleHidden={toggleVoteHidden}
           onDeleteOption={deleteVoteOption}
           onAddOption={addVoteOption}
+          newlyAddedVoteId={newlyAddedVoteId}
           onResetVotes={() => {
+            if (!window.confirm(t("wishResetConfirm"))) return;
             setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
             setVd({});
           }}

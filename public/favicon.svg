@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#080706"/>
+  <text
+    x="50%"
+    y="54%"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="'Instrument Serif', Georgia, 'Noto Serif TC', serif"
+    font-size="22"
+    font-style="italic"
+    font-weight="400"
+    fill="#C9A96E"
+  >N</text>
+</svg>

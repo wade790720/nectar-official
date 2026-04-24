@@ -26,6 +26,7 @@ export function VotePage({
   onToggleHidden,
   onDeleteOption,
   onAddOption,
+  newlyAddedVoteId,
   onResetVotes,
   wiIn,
   onWiInChange,
@@ -182,6 +183,7 @@ export function VotePage({
                 key={f.id}
                 item={f}
                 t={t}
+                autoFocus={f.id === newlyAddedVoteId}
                 onSaveNames={onSaveNames}
                 onToggleHidden={onToggleHidden}
                 onDelete={onDeleteOption}

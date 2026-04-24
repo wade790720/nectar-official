@@ -23,7 +23,7 @@ const CAT_EN = {
 
 const messages = {
   en: {
-    navBrand: "Nectar",
+    navBrand: "Nectar Artistry",
     heroEyebrow: "Atelier — Est. 2026",
     heroDisplay: "A quiet study of preserved bloom.",
     heroTagline:
@@ -32,6 +32,7 @@ const messages = {
     navCollection: "Portfolio",
     navVote: "Vote",
     navAbout: "About",
+    navCourse: "Course",
     navAdmin: "Admin",
     navExitAdmin: "Sign out",
     langEn: "EN",
@@ -50,7 +51,7 @@ const messages = {
     footerContact: "Contact",
     contactPendingHint:
       "Set VITE_CONTACT_EMAIL in your deploy env (address only), then redeploy.",
-    verticalArt: "Nectar",
+    verticalArt: "Nectar Artistry",
     portfolioEnd: "End of Collection",
     voteKicker: "Classroom Vote",
     voteTitle: "Course Wishlist",
@@ -67,10 +68,17 @@ const messages = {
       "A new option starts hidden. Pick an emoji or upload an image, name it, then show it in the poll.",
     voteNameZh: "Chinese name",
     voteNameEn: "English name",
-    voteSaveNames: "Save names",
+    voteSaveNames: "Save",
     voteHideFromPoll: "Hide from visitors",
     voteShowInPoll: "Show in poll",
-    voteRemoveOption: "Remove option",
+    voteVisibilityOn: "Visible",
+    voteVisibilityOff: "Hidden",
+    voteReplaceImage: "Click to replace",
+    voteRemoveOption: "Remove",
+    workDeleteConfirm:
+      "Delete this work? All of its photos will be permanently removed. This cannot be undone.",
+    wishResetConfirm:
+      "Reset every tally to zero? All existing votes will be lost. This cannot be undone.",
     voteRemoveOptionConfirm:
       "Remove this option from the poll? Votes for it will be lost. This cannot be undone.",
     voteHiddenBadge: "Hidden",
@@ -88,7 +96,7 @@ const messages = {
       "Remove this photo from the gallery? This cannot be undone.",
     detailRemoveCover: "Remove cover image",
     detailCtaInquire: "Inquire to purchase",
-    detailInquirySubjectPrefix: "Nectar inquiry:",
+    detailInquirySubjectPrefix: "Nectar Artistry inquiry:",
     detailClose: "Close",
     detailPriceLabel: "Price",
     photoTipTitle: "Photo tips",
@@ -126,7 +134,7 @@ const messages = {
     aboutKicker: "The Atelier",
     aboutTitle: "A slow craft,\nfor a quieter hour.",
     aboutLead:
-      "Nectar is a small atelier for preserved and crystal flowers. Each piece is built slowly measured, cut, sealed, and set aside to settle, so that a single arrangement can hold still for years without asking anything of you.",
+      "Nectar Artistry is a small atelier for preserved and crystal flowers. Each piece is built slowly measured, cut, sealed, and set aside to settle, so that a single arrangement can hold still for years without asking anything of you.",
     aboutPhilosophyKicker: "Philosophy",
     aboutPhilosophyTitle: "Of restraint.",
     aboutPhilosophyBody1:
@@ -157,7 +165,7 @@ const messages = {
       "Associate Professor · MADOKA Crystal Flower Design Academy, Japan",
     aboutArtistSubtitle:
       "A designer's eye meets crystal-flower craft — devoted to both the making and the teaching of it.",
-    aboutArtistFact1: "Founder of Nectar.",
+    aboutArtistFact1: "Founder of Nectar Artistry.",
     aboutArtistFact2:
       "A decade of practice in jewellery and crystal-flower craft.",
     aboutArtistFact3:
@@ -191,7 +199,7 @@ const messages = {
     aboutCtaNote: "For commissions and classes",
     aboutCtaEmail: "Write to the studio",
     aboutCtaInstagram: "On Instagram",
-    footer: "Nectar © 2026",
+    footer: "Nectar Artistry © 2026",
   },
   "zh-TW": {
     navBrand: "花蜜水晶花工藝",
@@ -202,6 +210,7 @@ const messages = {
     navCollection: "作品集",
     navVote: "投票",
     navAbout: "關於",
+    navCourse: "課程",
     navAdmin: "管理",
     navExitAdmin: "登出",
     langEn: "英文",
@@ -236,10 +245,16 @@ const messages = {
       "新增的選項預設為隱藏。請先挑一個 emoji 或上傳圖片、填好名稱，再於投票中顯示。",
     voteNameZh: "中文名稱",
     voteNameEn: "英文名稱",
-    voteSaveNames: "儲存名稱",
+    voteSaveNames: "儲存",
     voteHideFromPoll: "對訪客隱藏",
     voteShowInPoll: "顯示於投票",
-    voteRemoveOption: "移除選項",
+    voteVisibilityOn: "顯示",
+    voteVisibilityOff: "隱藏",
+    voteReplaceImage: "點此更換",
+    voteRemoveOption: "移除",
+    workDeleteConfirm:
+      "確定要刪除這幅作品嗎？所有相關照片都會一併移除，且無法復原。",
+    wishResetConfirm: "確定要將所有票數歸零嗎？目前的投票紀錄將一併清除，且無法復原。",
     voteRemoveOptionConfirm:
       "確定要從投票移除此選項嗎？該選項票數將一併刪除且無法復原。",
     voteHiddenBadge: "已隱藏",

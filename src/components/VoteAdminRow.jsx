@@ -1,12 +1,25 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Cam } from "./icons/Icons";
 
 /**
  * VoteAdminRow — inline editor for a single poll option.
- * Styled in the editorial hairline language (.vp-edit-*).
+ *
+ * Design:
+ *  - The thumbnail itself is the upload target. Hovering reveals a
+ *    "Click to replace" overlay with a camera glyph; clicking anywhere on
+ *    the thumb opens the file picker.
+ *  - Visibility is controlled by a hairline-styled toggle switch so the
+ *    current state is always legible (on/off, not a button you have to click
+ *    to discover what it does).
+ *  - Only Save / Remove remain as text actions.
+ *  - When `autoFocus` is true (i.e. this row was just added by the admin),
+ *    the row scrolls itself into view and focuses the ZH name input so the
+ *    admin immediately knows the option exists and can start typing.
  */
 export function VoteAdminRow({
   item,
   t,
+  autoFocus = false,
   onSaveNames,
   onToggleHidden,
   onDelete,
@@ -14,16 +27,46 @@ export function VoteAdminRow({
 }) {
   const [name, setName] = useState(item.name || "");
   const [en, setEn] = useState(item.en || "");
+  const rowRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   useEffect(() => {
     setName(item.name || "");
     setEn(item.en || "");
   }, [item.id, item.name, item.en]);
 
+  useEffect(() => {
+    if (!autoFocus) return;
+    const row = rowRef.current;
+    const input = nameInputRef.current;
+    if (row) {
+      try {
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch {
+        row.scrollIntoView();
+      }
+    }
+    const id = window.setTimeout(() => {
+      input?.focus();
+      input?.select?.();
+    }, 260);
+    return () => window.clearTimeout(id);
+  }, [autoFocus]);
+
+  const visible = !item.hidden;
+
   return (
-    <div className={`vp-edit ${item.hidden ? "is-hidden" : ""}`}>
+    <div
+      ref={rowRef}
+      className={`vp-edit ${item.hidden ? "is-hidden" : ""} ${
+        autoFocus ? "is-new" : ""
+      }`}
+    >
       <div className="vp-edit-head">
-        <div className="vp-edit-thumb">
+        <label
+          className="vp-edit-thumb vp-edit-thumb--upload"
+          title={t("voteReplaceImage")}
+        >
           {item.image ? (
             <img src={item.image} alt="" />
           ) : (
@@ -31,7 +74,23 @@ export function VoteAdminRow({
               {item.emoji}
             </span>
           )}
-        </div>
+          <span className="vp-edit-thumb-overlay" aria-hidden="true">
+            <Cam s={18} />
+            <span className="vp-edit-thumb-overlay-text">
+              {t("voteReplaceImage")}
+            </span>
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) void onUploadImage(item.id, file);
+            }}
+          />
+        </label>
         <div className="vp-edit-fields">
           {item.hidden ? (
             <span className="vp-edit-hidden-badge">
@@ -40,6 +99,7 @@ export function VoteAdminRow({
           ) : null}
           <label className="vp-edit-label">{t("voteNameZh")}</label>
           <input
+            ref={nameInputRef}
             className="vp-edit-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -56,6 +116,25 @@ export function VoteAdminRow({
       </div>
 
       <div className="vp-edit-actions">
+        <label className="vp-edit-toggle">
+          <input
+            type="checkbox"
+            className="vp-edit-toggle-input"
+            checked={visible}
+            onChange={() => onToggleHidden(item.id)}
+          />
+          <span className="vp-edit-toggle-track" aria-hidden="true">
+            <span className="vp-edit-toggle-dot" />
+          </span>
+          <span
+            className={`vp-edit-toggle-label ${
+              visible ? "is-on" : "is-off"
+            }`}
+          >
+            {visible ? t("voteVisibilityOn") : t("voteVisibilityOff")}
+          </span>
+        </label>
+
         <button
           type="button"
           className="vp-edit-btn is-primary"
@@ -65,26 +144,6 @@ export function VoteAdminRow({
         >
           {t("voteSaveNames")}
         </button>
-        <button
-          type="button"
-          className="vp-edit-btn"
-          onClick={() => onToggleHidden(item.id)}
-        >
-          {item.hidden ? t("voteShowInPoll") : t("voteHideFromPoll")}
-        </button>
-        <label className="vp-edit-btn" style={{ cursor: "pointer" }}>
-          {t("modalUploadHint")}
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = "";
-              if (file) void onUploadImage(item.id, file);
-            }}
-          />
-        </label>
         <button
           type="button"
           className="vp-edit-btn is-danger"
