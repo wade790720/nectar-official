@@ -271,6 +271,8 @@ async function flushSaveBundle(worksKey) {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
       body,
+      /** keepalive 讓 pagehide / 重整時的未完成寫入仍能送達（payload 需 <64KB） */
+      keepalive: body.length < 60000,
     });
     if (r.status === 401) {
       console.warn("[nectar-official] 儲存失敗：未授權");

@@ -1,5 +1,6 @@
 import { useI18n } from "../i18n.jsx";
 import { Arr, Cam } from "../components/icons/Icons.jsx";
+import { usePageMeta } from "../hooks/usePageMeta.js";
 
 /**
  * AboutPage — editorial "colophon" for the atelier.
@@ -22,6 +23,11 @@ export function AboutPage({
   onRemoveSignature,
 }) {
   const { t } = useI18n();
+  usePageMeta({
+    title: t("metaAboutTitle"),
+    description: t("metaAboutDesc"),
+    pathname: "/about",
+  });
 
   const processItems = [1, 2, 3, 4].map((n) => ({
     n: t(`aboutProcess${n}N`),

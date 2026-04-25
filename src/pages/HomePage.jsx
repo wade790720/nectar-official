@@ -2,6 +2,7 @@ import { useI18n } from "../i18n.jsx";
 import { HeroSlide } from "../components/HeroSlide.jsx";
 import { WS } from "../components/WorkSlide.jsx";
 import { Plus } from "../components/icons/Icons.jsx";
+import { usePageMeta } from "../hooks/usePageMeta.js";
 
 export const EMPTY_WORK = {
   title: "",
@@ -36,6 +37,11 @@ export function HomePage({
   onOpenDetail,
 }) {
   const { t } = useI18n();
+  usePageMeta({
+    title: t("metaHomeTitle"),
+    description: t("metaHomeDesc"),
+    pathname: "/",
+  });
   const featuredWorks = works.slice(0, 6);
 
   return (

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n.jsx";
 import { GR } from "../config/content.js";
 import { Cam, Plus, X } from "../components/icons/Icons.jsx";
+import { usePageMeta } from "../hooks/usePageMeta.js";
 
 /**
  * GalleryPage — an editorial catalogue of works and courses.
@@ -27,6 +28,11 @@ export function GalleryPage({
   newlyAddedCourseId = null,
 }) {
   const { t, locale } = useI18n();
+  usePageMeta({
+    title: t("metaGalleryTitle"),
+    description: t("metaGalleryDesc"),
+    pathname: "/gallery",
+  });
 
   return (
     <div className="gl-page">

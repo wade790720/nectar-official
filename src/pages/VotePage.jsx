@@ -3,6 +3,7 @@ import { useI18n } from "../i18n.jsx";
 import { Danmaku } from "../components/Danmaku.jsx";
 import { VoteAdminRow } from "../components/VoteAdminRow.jsx";
 import { Arr, X } from "../components/icons/Icons.jsx";
+import { usePageMeta } from "../hooks/usePageMeta.js";
 
 /**
  * VotePage — editorial pollbook.
@@ -37,6 +38,11 @@ export function VotePage({
   admin,
 }) {
   const { t, locale, flowerName } = useI18n();
+  usePageMeta({
+    title: t("metaVoteTitle"),
+    description: t("metaVoteDesc"),
+    pathname: "/vote",
+  });
 
   const publicVotes = useMemo(() => votes.filter((v) => !v.hidden), [votes]);
   const sorted = useMemo(

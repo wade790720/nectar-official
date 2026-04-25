@@ -71,10 +71,31 @@ src/
   components/      # 共用 UI（Hero、WorkSlide、DetailLightbox 等）
   config/          # 預設內容
   styles/          # 全域與 tokens
-  hooks/, utils/
+  hooks/           # usePageMeta 等
+  utils/
 functions/         # Pages Functions：/api/data、upload、delete 等
-public/            # 靜態檔（favicon、OG 圖等）
+public/
+  _redirects       # Cloudflare Pages SPA fallback
+  favicon.svg, og-image.jpg
 ```
+
+## 路由
+
+以 `react-router-dom`（HTML5 History）管理：
+
+| 路徑       | 頁面        | 備註                       |
+| ---------- | ----------- | -------------------------- |
+| `/`        | HomePage    | 首頁（Hero + 前 6 件作品） |
+| `/about`   | AboutPage   | 藝術家                     |
+| `/gallery` | GalleryPage | 全部作品 + 課程影像        |
+| `/vote`    | VotePage    | 作品票選／留言             |
+| `*`        | → `/`       | 未知路徑一律導回首頁       |
+
+**課程**為外連（`https://yellow510.kaik.io/`），不進路由。
+
+**每頁 meta**：各 page 元件呼叫 `hooks/usePageMeta.js`，在切頁瞬間更新 `document.title`、`meta[description]`、`og:title/description`、`link[rel=canonical]`。Cloudflare Zaraz 可接手自動發送 `page_view`。
+
+**SPA fallback**：`public/_redirects` 寫 `/* /index.html 200`，直打 `https://www.lustreyellow.com/about` 不會吃 404。API Functions（`/api/*`）因 Pages 路由優先序，不受影響。
 
 ## SEO 關鍵主題
 

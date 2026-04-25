@@ -1,5 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import {
   useP,
   fileToImageRef,
   deleteImageRefs,
@@ -32,10 +39,34 @@ import { GalleryPage } from "./pages/GalleryPage.jsx";
  * NectarApp — site shell: persisted bundle, navigation, admin tools, and routing.
  * Pages: home → HomePage, about → AboutPage, gallery → GalleryPage, vote → VotePage.
  */
+/**
+ * Path ↔ pg 映射：集中在這裡，避免散落。
+ * 不存在的路徑一律視為 home，由下方 <Route path="*"> 做 redirect。
+ */
+const PATH_TO_PG = {
+  "/": "home",
+  "/about": "about",
+  "/gallery": "gallery",
+  "/vote": "vote",
+};
+function pathToPg(pathname) {
+  if (!pathname || pathname === "/" || pathname === "") return "home";
+  const base = pathname.replace(/\/+$/, "") || "/";
+  return PATH_TO_PG[base] || "home";
+}
+
 export default function NectarApp() {
   const { t, locale, setLocale } = useI18n();
   const confirm = useConfirm();
-  const [pg, setPg] = useState("home");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pg = useMemo(() => pathToPg(location.pathname), [location.pathname]);
+  const goto = useCallback(
+    (path) => {
+      if (location.pathname !== path) navigate(path);
+    },
+    [navigate, location.pathname],
+  );
   const bundleInit = useMemo(
     () => ({
       works: DW,
@@ -109,7 +140,33 @@ export default function NectarApp() {
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
   const [loginPwd, setLoginPwd] = useState("");
   const [loginErr, setLoginErr] = useState(false);
-  const [voted, setVd] = useState({});
+  /**
+   * 裝置級「已投」記錄：持久化到 localStorage，避免重整後重投。
+   * - key 僅存 voteOption.id → true 的 map
+   * - 換裝置／清 cookies／無痕視窗仍能再投，這不是防刷票機制，
+   *   僅防誠實訪客刷新後重複投同一選項
+   * - admin 重設全票時會連同清掉本地記錄（見 onResetVotes）
+   */
+  const [voted, setVd] = useState(() => {
+    try {
+      if (typeof window === "undefined") return {};
+      const raw = localStorage.getItem("nectar_voted_v1");
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? parsed
+        : {};
+    } catch {
+      return {};
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("nectar_voted_v1", JSON.stringify(voted));
+    } catch {
+      /* quota 滿就吞掉，不阻斷投票流程 */
+    }
+  }, [voted]);
   const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
   const [newlyAddedCourseId, setNewlyAddedCourseId] = useState(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -129,6 +186,17 @@ export default function NectarApp() {
     else root.classList.remove("home-scroll-snap");
     return () => root.classList.remove("home-scroll-snap");
   }, [pg]);
+
+  /**
+   * Route-change side effects：
+   *  - scroll 回頁首（instant，避免使用者切頁後還在上一頁位置）
+   *  - 收合行動選單、關閉 DetailLightbox，避免浮層殘留
+   */
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    setMobileNavOpen(false);
+    setDt(null);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -204,7 +272,11 @@ export default function NectarApp() {
   };
   const doWi = () => {
     if (!wiIn.trim()) return;
-    setWishes((p) => [...p, { id: Date.now().toString(), text: wiIn.trim() }]);
+    setWishes((p) => {
+      const next = [...p, { id: Date.now().toString(), text: wiIn.trim() }];
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
     setWiIn("");
   };
   const deleteWish = async (id) => {
@@ -216,14 +288,23 @@ export default function NectarApp() {
       tone: "danger",
     });
     if (!ok) return;
-    setWishes((p) => p.filter((w) => w.id !== id));
+    setWishes((p) => {
+      const next = p.filter((w) => w.id !== id);
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
   };
   const doVoteImg = async (id, file) => {
     if (!file) return;
     try {
       const prev = votes.find((x) => x.id === id)?.image || "";
       const ref = await fileToImageRef(file);
-      setVotes((p) => p.map((x) => (x.id === id ? { ...x, image: ref } : x)));
+      setVotes((p) => {
+        const next = p.map((x) => (x.id === id ? { ...x, image: ref } : x));
+        /** 上傳是 admin 明確動作，若等 280ms debounce 再寫回，admin 馬上重整／切頁會遺失 */
+        queueMicrotask(() => void forceFlushBundle(SK.w));
+        return next;
+      });
       if (prev && prev !== ref) void deleteImageRefs([prev]);
     } catch (e) {
       console.error(e);
@@ -231,12 +312,20 @@ export default function NectarApp() {
     }
   };
   const saveVoteNames = (id, { name, en }) => {
-    setVotes((p) => p.map((x) => (x.id === id ? { ...x, name, en } : x)));
+    setVotes((p) => {
+      const next = p.map((x) => (x.id === id ? { ...x, name, en } : x));
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
   };
   const toggleVoteHidden = (id) => {
-    setVotes((p) =>
-      p.map((x) => (x.id === id ? { ...x, hidden: !x.hidden } : x)),
-    );
+    setVotes((p) => {
+      const next = p.map((x) =>
+        x.id === id ? { ...x, hidden: !x.hidden } : x,
+      );
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
   };
   const deleteVoteOption = async (id) => {
     const ok = await confirm({
@@ -248,7 +337,11 @@ export default function NectarApp() {
     });
     if (!ok) return;
     const orphan = votes.find((x) => x.id === id)?.image || "";
-    setVotes((p) => p.filter((x) => x.id !== id));
+    setVotes((p) => {
+      const next = p.filter((x) => x.id !== id);
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
     setVd((p) => {
       const n = { ...p };
       delete n[id];
@@ -259,18 +352,22 @@ export default function NectarApp() {
   const addVoteOption = () => {
     /** 預設 hidden=true，強制 admin 填入名稱／圖片後才會對訪客顯示 */
     const id = Date.now().toString();
-    setVotes((p) => [
-      ...p,
-      {
-        id,
-        name: "",
-        en: "",
-        emoji: "✿",
-        votes: 0,
-        image: "",
-        hidden: true,
-      },
-    ]);
+    setVotes((p) => {
+      const next = [
+        ...p,
+        {
+          id,
+          name: "",
+          en: "",
+          emoji: "✿",
+          votes: 0,
+          image: "",
+          hidden: true,
+        },
+      ];
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
     setNewlyAddedVoteId(id);
     window.setTimeout(() => {
       setNewlyAddedVoteId((cur) => (cur === id ? null : cur));
@@ -280,21 +377,33 @@ export default function NectarApp() {
   /* ─── 課程影像集（課程 Gallery）CRUD ─── */
   const addCourse = () => {
     const id = `c${Date.now()}`;
-    setCourses((p) => [...p, { id, name: "", en: "", image: "" }]);
+    setCourses((p) => {
+      const next = [...p, { id, name: "", en: "", image: "" }];
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
     setNewlyAddedCourseId(id);
     window.setTimeout(() => {
       setNewlyAddedCourseId((cur) => (cur === id ? null : cur));
     }, 2200);
   };
   const saveCourseNames = (id, { name, en }) => {
-    setCourses((p) => p.map((x) => (x.id === id ? { ...x, name, en } : x)));
+    setCourses((p) => {
+      const next = p.map((x) => (x.id === id ? { ...x, name, en } : x));
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
   };
   const uploadCourseImage = async (id, file) => {
     if (!file) return;
     try {
       const prev = courses.find((x) => x.id === id)?.image || "";
       const ref = await fileToImageRef(file);
-      setCourses((p) => p.map((x) => (x.id === id ? { ...x, image: ref } : x)));
+      setCourses((p) => {
+        const next = p.map((x) => (x.id === id ? { ...x, image: ref } : x));
+        queueMicrotask(() => void forceFlushBundle(SK.w));
+        return next;
+      });
       if (prev && prev !== ref) void deleteImageRefs([prev]);
     } catch (e) {
       console.error(e);
@@ -311,7 +420,11 @@ export default function NectarApp() {
     });
     if (!ok) return;
     const orphan = courses.find((x) => x.id === id)?.image || "";
-    setCourses((p) => p.filter((x) => x.id !== id));
+    setCourses((p) => {
+      const next = p.filter((x) => x.id !== id);
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
     if (orphan) void deleteImageRefs([orphan]);
   };
   const doSv = (w) => {
@@ -497,9 +610,12 @@ export default function NectarApp() {
             className="nav-brand-hit"
             onClick={() => {
               setMobileNavOpen(false);
-              setPg("home");
               setDt(null);
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              if (location.pathname === "/") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                navigate("/");
+              }
             }}
             style={{
               fontFamily: "'Instrument Serif',serif",
@@ -522,21 +638,21 @@ export default function NectarApp() {
             <button
               type="button"
               className={`nb ${pg === "about" ? "on" : ""}`}
-              onClick={() => setPg("about")}
+              onClick={() => goto("/about")}
             >
               {t("navAbout")}
             </button>
             <button
               type="button"
               className={`nb ${pg === "gallery" ? "on" : ""}`}
-              onClick={() => setPg("gallery")}
+              onClick={() => goto("/gallery")}
             >
               {t("navGallery")}
             </button>
             <button
               type="button"
               className={`nb ${pg === "vote" ? "on" : ""}`}
-              onClick={() => setPg("vote")}
+              onClick={() => goto("/vote")}
             >
               {t("navVote")}
             </button>
@@ -613,30 +729,21 @@ export default function NectarApp() {
           <button
             type="button"
             className="nav-overlay-link"
-            onClick={() => {
-              setPg("about");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => goto("/about")}
           >
             {t("navAbout")}
           </button>
           <button
             type="button"
             className="nav-overlay-link"
-            onClick={() => {
-              setPg("gallery");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => goto("/gallery")}
           >
             {t("navGallery")}
           </button>
           <button
             type="button"
             className="nav-overlay-link"
-            onClick={() => {
-              setPg("vote");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => goto("/vote")}
           >
             {t("navVote")}
           </button>
@@ -728,84 +835,97 @@ export default function NectarApp() {
         </button>
       )}
 
-      {pg === "home" && (
-        <HomePage
-          works={works}
-          admin={adminAuthed}
-          onOpenEditor={(w) => {
-            setEd(w);
-            setMo(true);
-          }}
-          onDeleteWork={doDl}
-          onUploadCover={doUp}
-          onOpenDetail={setDt}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              works={works}
+              admin={adminAuthed}
+              onOpenEditor={(w) => {
+                setEd(w);
+                setMo(true);
+              }}
+              onDeleteWork={doDl}
+              onUploadCover={doUp}
+              onOpenDetail={setDt}
+            />
+          }
         />
-      )}
-
-      {pg === "about" && (
-        <AboutPage
-          socialIg={socialIg}
-          contactMail={contactMail}
-          artist={artist}
-          admin={adminAuthed}
-          onUploadPortrait={doArtistPortrait}
-          onUploadSignature={doArtistSignature}
-          onRemovePortrait={removeArtistPortrait}
-          onRemoveSignature={removeArtistSignature}
+        <Route
+          path="/about"
+          element={
+            <AboutPage
+              socialIg={socialIg}
+              contactMail={contactMail}
+              artist={artist}
+              admin={adminAuthed}
+              onUploadPortrait={doArtistPortrait}
+              onUploadSignature={doArtistSignature}
+              onRemovePortrait={removeArtistPortrait}
+              onRemoveSignature={removeArtistSignature}
+            />
+          }
         />
-      )}
-
-      {pg === "gallery" && (
-        <GalleryPage
-          works={works}
-          courses={courses}
-          admin={adminAuthed}
-          onOpenDetail={setDt}
-          onAddCourse={addCourse}
-          onSaveCourseNames={saveCourseNames}
-          onUploadCourseImage={uploadCourseImage}
-          onDeleteCourse={deleteCourse}
-          onAddArtwork={() => {
-            setEd({ ...EMPTY_WORK });
-            setMo(true);
-          }}
-          newlyAddedCourseId={newlyAddedCourseId}
+        <Route
+          path="/gallery"
+          element={
+            <GalleryPage
+              works={works}
+              courses={courses}
+              admin={adminAuthed}
+              onOpenDetail={setDt}
+              onAddCourse={addCourse}
+              onSaveCourseNames={saveCourseNames}
+              onUploadCourseImage={uploadCourseImage}
+              onDeleteCourse={deleteCourse}
+              onAddArtwork={() => {
+                setEd({ ...EMPTY_WORK });
+                setMo(true);
+              }}
+              newlyAddedCourseId={newlyAddedCourseId}
+            />
+          }
         />
-      )}
-
-      {pg === "vote" && (
-        <VotePage
-          votes={votes}
-          wishes={wishes}
-          voted={voted}
-          voteFor={doV}
-          onVoteImg={doVoteImg}
-          onSaveNames={saveVoteNames}
-          onToggleHidden={toggleVoteHidden}
-          onDeleteOption={deleteVoteOption}
-          onAddOption={addVoteOption}
-          newlyAddedVoteId={newlyAddedVoteId}
-          onResetVotes={async () => {
-            const ok = await confirm({
-              title: t("confirmTitleDestructive"),
-              message: t("wishResetConfirm"),
-              confirmLabel: t("confirmReset"),
-              cancelLabel: t("confirmCancel"),
-              tone: "danger",
-            });
-            if (!ok) return;
-            setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
-            setVd({});
-          }}
-          wiIn={wiIn}
-          onWiInChange={setWiIn}
-          onSubmitWish={doWi}
-          onDeleteWish={deleteWish}
-          headerIn={ho}
-          cardsIn={co}
-          admin={adminAuthed}
+        <Route
+          path="/vote"
+          element={
+            <VotePage
+              votes={votes}
+              wishes={wishes}
+              voted={voted}
+              voteFor={doV}
+              onVoteImg={doVoteImg}
+              onSaveNames={saveVoteNames}
+              onToggleHidden={toggleVoteHidden}
+              onDeleteOption={deleteVoteOption}
+              onAddOption={addVoteOption}
+              newlyAddedVoteId={newlyAddedVoteId}
+              onResetVotes={async () => {
+                const ok = await confirm({
+                  title: t("confirmTitleDestructive"),
+                  message: t("wishResetConfirm"),
+                  confirmLabel: t("confirmReset"),
+                  cancelLabel: t("confirmCancel"),
+                  tone: "danger",
+                });
+                if (!ok) return;
+                setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
+                setVd({});
+              }}
+              wiIn={wiIn}
+              onWiInChange={setWiIn}
+              onSubmitWish={doWi}
+              onDeleteWish={deleteWish}
+              headerIn={ho}
+              cardsIn={co}
+              admin={adminAuthed}
+            />
+          }
         />
-      )}
+        {/* 404：任何未知路徑一律 301-like 導回首頁，避免死連結 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
       {/* Detail Lightbox */}
       {detail && (

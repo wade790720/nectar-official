@@ -41,6 +41,18 @@ const messages = {
     navExitAdmin: "Sign out",
     langEn: "EN",
     langZh: "CN",
+    metaHomeTitle: "Nectar Artistry · Handcrafted Crystal Flowers from Taiwan",
+    metaHomeDesc:
+      "A quiet study of preserved bloom — composed in studio, measured, cut, and sealed by hand. Private commissions and brand collaborations.",
+    metaAboutTitle: "About the Artist · Nectar Artistry",
+    metaAboutDesc:
+      "A designer's eye meets crystal-flower craft — devoted to both the making and the teaching of it. Meet the artist behind Nectar Artistry.",
+    metaGalleryTitle: "Gallery · Nectar Artistry",
+    metaGalleryDesc:
+      "An archive of works and courses from Nectar Artistry — crystal florals composed, cured, and photographed with intent.",
+    metaVoteTitle: "Classroom Vote · Nectar Artistry",
+    metaVoteDesc:
+      "Readers choose the next work to enter the collection. A quiet poll of preferences, open to everyone.",
     workViewDetails: "View details →",
     workSoldOut: "Sold out",
     workSpecKicker: "Specifications",
@@ -247,6 +259,18 @@ const messages = {
     navExitAdmin: "登出",
     langEn: "英文",
     langZh: "繁中",
+    metaHomeTitle: "Nectar Artistry · 花蜜水晶花工藝",
+    metaHomeDesc:
+      "在寂靜中留住一次盛放。每件作品皆於工房完成，量測、裁切、封存由手而成。開放私人訂製與品牌合作。",
+    metaAboutTitle: "關於藝術家 · Nectar Artistry",
+    metaAboutDesc:
+      "設計的眼光，遇見水晶花的工藝。專注於作品本身，也持續傳授與分享。",
+    metaGalleryTitle: "畫廊 · Nectar Artistry",
+    metaGalleryDesc:
+      "Nectar Artistry 的作品與課程影像集——水晶花的構圖、成型與攝影，皆出自同一份專注。",
+    metaVoteTitle: "作品票選 · Nectar Artistry",
+    metaVoteDesc:
+      "由讀者票選下一件進入典藏的作品——一次安靜、開放給所有人的喜好調查。",
     workViewDetails: "查看詳情 →",
     workSoldOut: "已售罄",
     workSpecKicker: "規格",
