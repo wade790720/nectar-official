@@ -676,7 +676,7 @@ export default function NectarApp() {
       style={{
         background: "#080706",
         color: "#F5F0EB",
-        fontFamily: "'Noto Serif TC','Instrument Serif',Georgia,serif",
+        fontFamily: "var(--font-serif-zh)",
       }}
     >
       {/* NAV — quiet, hairline-bottomed, lets the work breathe above it */}
@@ -1123,7 +1123,7 @@ export default function NectarApp() {
                     cursor: "pointer",
                     fontSize: 13,
                     color: "rgba(245,240,235,0.75)",
-                    fontFamily: "'Noto Serif TC',serif",
+                    fontFamily: "var(--font-serif-zh)",
                   }}
                 >
                   <input

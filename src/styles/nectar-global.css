@@ -139,7 +139,7 @@ a.nb {
   background: rgba(255, 255, 255, 0.03);
   color: #f5f0eb;
   font-size: 16px;
-  font-family: "Noto Serif TC", serif;
+  font-family: var(--font-serif-zh);
   transition: all 0.3s;
 
   backdrop-filter: blur(4px);

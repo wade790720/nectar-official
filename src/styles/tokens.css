@@ -27,7 +27,7 @@
 
   /* ── Typography ─────────────────────────────────── */
   --font-serif-en: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
-  --font-serif-zh: "Noto Serif TC", "Instrument Serif", Georgia, serif;
+  --font-serif-zh: "PingFang TC", "Hiragino Mincho ProN", "Noto Serif CJK TC", "MingLiU", "PMingLiU", "Instrument Serif", Georgia, serif;
   --font-stack: var(--font-serif-zh);
 
   /* Editorial scale — jump from hair-thin overline to display */
