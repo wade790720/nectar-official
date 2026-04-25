@@ -903,6 +903,11 @@ export default function NectarApp() {
               admin={adminAuthed}
               onOpenDetail={setDt}
               onMoveWork={moveWork}
+              onEditWork={(w) => {
+                setEd(w);
+                setMo(true);
+              }}
+              onDeleteWork={doDl}
               onAddCourse={addCourse}
               onSaveCourseNames={saveCourseNames}
               onUploadCourseImage={uploadCourseImage}

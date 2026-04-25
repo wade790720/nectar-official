@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n.jsx";
 import { GR } from "../config/content.js";
-import { Cam, Plus, X } from "../components/icons/Icons.jsx";
+import { Cam, Edit, Plus, Trash, X } from "../components/icons/Icons.jsx";
 import { usePageMeta } from "../hooks/usePageMeta.js";
 
 /**
@@ -21,6 +21,8 @@ export function GalleryPage({
   admin = false,
   onOpenDetail,
   onMoveWork,
+  onEditWork,
+  onDeleteWork,
   onAddCourse,
   onSaveCourseNames,
   onUploadCourseImage,
@@ -69,6 +71,10 @@ export function GalleryPage({
                 locale={locale}
                 admin={admin}
                 onOpen={() => onOpenDetail && onOpenDetail(w)}
+                onEdit={admin && onEditWork ? () => onEditWork(w) : undefined}
+                onDelete={
+                  admin && onDeleteWork ? () => onDeleteWork(w.id) : undefined
+                }
                 onMoveUp={
                   admin && onMoveWork && i > 0
                     ? () => onMoveWork(w.id, -1)
@@ -147,6 +153,8 @@ function WorkTile({
   admin = false,
   index = 0,
   onOpen,
+  onEdit,
+  onDelete,
   onMoveUp,
   onMoveDown,
 }) {
@@ -157,6 +165,7 @@ function WorkTile({
   const gradient = GR[work.cat] || GR["鮮花"];
   const hasImg = Boolean(work.image);
   const showReorder = admin && (onMoveUp || onMoveDown);
+  const showWorkTools = admin && (onEdit || onDelete);
 
   return (
     <li className={`gl-tile ${showReorder ? "gl-tile--reorder" : ""}`}>
@@ -195,6 +204,34 @@ function WorkTile({
           <span className="gl-reorder-idx" aria-hidden="true">
             {String(index + 1).padStart(2, "0")}
           </span>
+        </div>
+      ) : null}
+      {showWorkTools ? (
+        <div className="gl-work-tools" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="gl-work-tool"
+            aria-label={t("modalEdit")}
+            title={t("modalEdit")}
+            onClick={(e) => {
+              e.preventDefault();
+              onEdit?.();
+            }}
+          >
+            <Edit s={14} />
+          </button>
+          <button
+            type="button"
+            className="gl-work-tool is-danger"
+            aria-label={t("confirmDelete")}
+            title={t("confirmDelete")}
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete?.();
+            }}
+          >
+            <Trash s={14} />
+          </button>
         </div>
       ) : null}
       <button
