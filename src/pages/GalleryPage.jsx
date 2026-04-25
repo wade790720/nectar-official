@@ -121,9 +121,7 @@ export function GalleryPage({
 
 function WorkTile({ work, locale, onOpen }) {
   const title =
-    locale === "en"
-      ? work.en || work.title || ""
-      : work.title || work.en || "";
+    locale === "en" ? work.en || work.title || "" : work.title || work.en || "";
   const cat = locale === "en" ? work.catEn || work.cat || "" : work.cat || "";
   const gradient = GR[work.cat] || GR["鮮花"];
   const hasImg = Boolean(work.image);
@@ -139,9 +137,7 @@ function WorkTile({ work, locale, onOpen }) {
         <div
           className={`gl-cover ${hasImg ? "" : "is-empty"}`}
           style={{
-            backgroundImage: hasImg
-              ? `url(${work.image})`
-              : gradient,
+            backgroundImage: hasImg ? `url(${work.image})` : gradient,
           }}
         >
           {!hasImg && <span className="gl-cover-empty">—</span>}
@@ -248,9 +244,7 @@ function CourseTile({
         <div className="gl-cover-overlay" aria-hidden="true">
           <Cam s={22} />
           <span>
-            {hasImg
-              ? t("galleryCourseReplace")
-              : t("galleryCourseUpload")}
+            {hasImg ? t("galleryCourseReplace") : t("galleryCourseUpload")}
           </span>
         </div>
         <input

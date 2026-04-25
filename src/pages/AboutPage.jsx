@@ -187,9 +187,7 @@ export function AboutPage({
             <p className="ab-body">{t("aboutArtistBody1")}</p>
             <p className="ab-body">{t("aboutArtistBody2")}</p>
             <p className="ab-body">{t("aboutArtistBody3")}</p>
-            <p className="ab-body ab-artist-closing">
-              {t("aboutArtistBody4")}
-            </p>
+            <p className="ab-body ab-artist-closing">{t("aboutArtistBody4")}</p>
 
             {admin && (
               <p className="ab-artist-hint">{t("aboutArtistPortraitHint")}</p>

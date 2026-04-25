@@ -1,14 +1,39 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
+const DM = "dm";
+const MAX_DANMU = 10;
+const ADD_MS = 3200;
+
+/**
+ * 橫向飄字（願望池隨機顯示）。舊版在 `its` 上綁了每秒級的 setTimeout/Effect，
+ * 與 2.4s 的 setInterval 重疊，容易造成頻繁重渲染與卡頓。
+ * 改為單一 interval + 以 animation 結束時才移除一筆，減少排程與狀態抖動。
+ */
 export function Danmaku({ wishes }) {
   const [its, setIts] = useState([]);
   const c = useRef(0);
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
   useEffect(() => {
-    if (!wishes.length) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const removeId = useCallback((id) => {
+    setIts((p) => p.filter((x) => x.id !== id));
+  }, []);
+
+  useEffect(() => {
+    if (!wishes.length || reducedMotion) return;
     const iv = setInterval(() => {
       const w = wishes[Math.floor(Math.random() * wishes.length)];
       setIts((p) => [
-        ...p.slice(-22),
+        ...p.slice(-(MAX_DANMU - 1)),
         {
           id: c.current++,
           text: w.text,
@@ -17,28 +42,29 @@ export function Danmaku({ wishes }) {
           sz: Math.random() > 0.7 ? 16 : 13,
         },
       ]);
-    }, 2400);
+    }, ADD_MS);
     return () => clearInterval(iv);
-  }, [wishes]);
-  useEffect(() => {
-    if (its.length) {
-      const t = setTimeout(() => setIts((p) => p.slice(1)), 17000);
-      return () => clearTimeout(t);
-    }
-  }, [its]);
+  }, [wishes, reducedMotion]);
+
+  if (reducedMotion) return null;
+
   return (
     <div
+      className="danmaku-root"
       style={{
         position: "fixed",
         inset: 0,
         overflow: "hidden",
         pointerEvents: "none",
         zIndex: 5,
+        contain: "paint",
+        isolation: "isolate",
       }}
     >
       {its.map((d) => (
         <div
           key={d.id}
+          className="danmaku-line"
           style={{
             position: "absolute",
             top: `${d.top}%`,
@@ -52,6 +78,9 @@ export function Danmaku({ wishes }) {
             fontFamily: "'Instrument Serif',serif",
             fontStyle: "italic",
             animation: `dm ${d.dur}s linear forwards`,
+          }}
+          onAnimationEnd={(e) => {
+            if (e.animationName === DM) removeId(d.id);
           }}
         >
           ✿ {d.text}

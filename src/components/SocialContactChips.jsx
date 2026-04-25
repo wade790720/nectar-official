@@ -1,4 +1,10 @@
-export function SocialContactChips({ socialIg, socialFb, contactMail, t, compact }) {
+export function SocialContactChips({
+  socialIg,
+  socialFb,
+  contactMail,
+  t,
+  compact,
+}) {
   const gap = compact ? 10 : 14;
   const minW = compact ? 92 : 108;
   const pad = compact ? "10px 16px" : "11px 22px";

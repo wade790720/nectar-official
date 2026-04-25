@@ -13,7 +13,10 @@ const LS = {
     try {
       localStorage.setItem(k, v);
     } catch (e) {
-      console.warn("[nectar-official] localStorage 寫入失敗：", e?.message || e);
+      console.warn(
+        "[nectar-official] localStorage 寫入失敗：",
+        e?.message || e,
+      );
     }
   },
 };
@@ -194,7 +197,10 @@ function getInitBundle(k, initial) {
       }
       return await loadCloudBundleFromApi(initial);
     } catch (e) {
-      console.warn("[nectar-official] 讀取雲端失敗，使用預設：", e?.message || e);
+      console.warn(
+        "[nectar-official] 讀取雲端失敗，使用預設：",
+        e?.message || e,
+      );
       return { ...initial };
     } finally {
       loadPromise = null;
@@ -412,7 +418,7 @@ export function useP(k, initial, options = {}) {
         return n;
       });
     },
-    [k, cloud]
+    [k, cloud],
   );
   return [s, set];
 }

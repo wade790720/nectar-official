@@ -10,7 +10,8 @@ function j(body, s = 200) {
 const EMPTY_ARTIST = { portrait: "", signature: "" };
 
 function normalizeArtist(a) {
-  if (!a || typeof a !== "object" || Array.isArray(a)) return { ...EMPTY_ARTIST };
+  if (!a || typeof a !== "object" || Array.isArray(a))
+    return { ...EMPTY_ARTIST };
   return {
     portrait: typeof a.portrait === "string" ? a.portrait : "",
     signature: typeof a.signature === "string" ? a.signature : "",

@@ -294,9 +294,7 @@ export default function NectarApp() {
     try {
       const prev = courses.find((x) => x.id === id)?.image || "";
       const ref = await fileToImageRef(file);
-      setCourses((p) =>
-        p.map((x) => (x.id === id ? { ...x, image: ref } : x)),
-      );
+      setCourses((p) => p.map((x) => (x.id === id ? { ...x, image: ref } : x)));
       if (prev && prev !== ref) void deleteImageRefs([prev]);
     } catch (e) {
       console.error(e);
@@ -1024,11 +1022,7 @@ export default function NectarApp() {
                             : "";
                           const ref = await fileToImageRef(f);
                           setEd((p) => ({ ...p, image: ref }));
-                          if (
-                            prevEd &&
-                            prevEd !== ref &&
-                            prevEd !== origRef
-                          ) {
+                          if (prevEd && prevEd !== ref && prevEd !== origRef) {
                             void deleteImageRefs([prevEd]);
                           }
                         } catch (err) {

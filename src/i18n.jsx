@@ -98,16 +98,14 @@ const messages = {
     wishEmpty: "Be the first to whisper.",
     wishReset: "Reset all votes",
     wishDeleteTitle: "Delete wish",
-    wishDeleteConfirm:
-      "Delete this wish from the pool? This cannot be undone.",
+    wishDeleteConfirm: "Delete this wish from the pool? This cannot be undone.",
     wishDeleteLabel: "Delete wish",
     galleryKicker: "Gallery",
     galleryTitle: "The Gallery",
     gallerySub: "A catalogue of works and courses — held still for browsing.",
     gallerySectionWorks: "Works",
     gallerySectionCourses: "Courses",
-    galleryCoursesEmpty:
-      "No courses yet. Add one to begin the course journal.",
+    galleryCoursesEmpty: "No courses yet. Add one to begin the course journal.",
     galleryAddCourse: "Add course",
     galleryAddArtwork: "Add artwork",
     galleryCourseNameZh: "Chinese name",
@@ -288,7 +286,8 @@ const messages = {
     voteRemoveOption: "移除",
     workDeleteConfirm:
       "確定要刪除這幅作品嗎？所有相關照片都會一併移除，且無法復原。",
-    wishResetConfirm: "確定要將所有票數歸零嗎？目前的投票紀錄將一併清除，且無法復原。",
+    wishResetConfirm:
+      "確定要將所有票數歸零嗎？目前的投票紀錄將一併清除，且無法復原。",
     voteRemoveOptionConfirm:
       "確定要從投票移除此選項嗎？該選項票數將一併刪除且無法復原。",
     confirmTitleDestructive: "確認",

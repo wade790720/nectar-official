@@ -93,9 +93,7 @@ export function VoteAdminRow({
         </label>
         <div className="vp-edit-fields">
           {item.hidden ? (
-            <span className="vp-edit-hidden-badge">
-              {t("voteHiddenBadge")}
-            </span>
+            <span className="vp-edit-hidden-badge">{t("voteHiddenBadge")}</span>
           ) : null}
           <label className="vp-edit-label">{t("voteNameZh")}</label>
           <input
@@ -127,9 +125,7 @@ export function VoteAdminRow({
             <span className="vp-edit-toggle-dot" />
           </span>
           <span
-            className={`vp-edit-toggle-label ${
-              visible ? "is-on" : "is-off"
-            }`}
+            className={`vp-edit-toggle-label ${visible ? "is-on" : "is-off"}`}
           >
             {visible ? t("voteVisibilityOn") : t("voteVisibilityOff")}
           </span>

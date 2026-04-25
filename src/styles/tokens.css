@@ -26,8 +26,8 @@
   --accent-whisper: rgba(201, 169, 110, 0.12);
 
   /* ── Typography ─────────────────────────────────── */
-  --font-serif-en: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
-  --font-serif-zh: 'Noto Serif TC', 'Instrument Serif', Georgia, serif;
+  --font-serif-en: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+  --font-serif-zh: "Noto Serif TC", "Instrument Serif", Georgia, serif;
   --font-stack: var(--font-serif-zh);
 
   /* Editorial scale — jump from hair-thin overline to display */

@@ -17,7 +17,8 @@ function j(body, s = 200) {
   });
 }
 
-const KEY_RE = /^\/api\/file\/(images\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp|gif))$/;
+const KEY_RE =
+  /^\/api\/file\/(images\/[A-Za-z0-9-]+\.(?:jpg|jpeg|png|webp|gif))$/;
 
 function extractOwnKey(url, origin) {
   if (!url || typeof url !== "string") return null;
@@ -50,9 +51,7 @@ export async function onRequestPost({ request, env }) {
   const urls = Array.isArray(body?.urls) ? body.urls : [];
   const origin = new URL(request.url).origin;
   const keys = [
-    ...new Set(
-      urls.map((u) => extractOwnKey(u, origin)).filter(Boolean),
-    ),
+    ...new Set(urls.map((u) => extractOwnKey(u, origin)).filter(Boolean)),
   ];
 
   let deleted = 0;

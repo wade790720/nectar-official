@@ -139,9 +139,7 @@ export function Detail({
                       type="button"
                       className="dl-chev dl-chev--prev"
                       onClick={() =>
-                        setIdx(
-                          (i) => (i - 1 + allImgs.length) % allImgs.length,
-                        )
+                        setIdx((i) => (i - 1 + allImgs.length) % allImgs.length)
                       }
                       aria-label="Previous image"
                     >
@@ -150,9 +148,7 @@ export function Detail({
                     <button
                       type="button"
                       className="dl-chev dl-chev--next"
-                      onClick={() =>
-                        setIdx((i) => (i + 1) % allImgs.length)
-                      }
+                      onClick={() => setIdx((i) => (i + 1) % allImgs.length)}
                       aria-label="Next image"
                     >
                       <Arr s={18} d="right" />
@@ -183,10 +179,7 @@ export function Detail({
             {hasMultiple && (
               <div className="dl-thumbs">
                 {allImgs.map((img, i) => (
-                  <div
-                    key={`${img}-${i}`}
-                    style={{ position: "relative" }}
-                  >
+                  <div key={`${img}-${i}`} style={{ position: "relative" }}>
                     <button
                       type="button"
                       className={`dl-thumb ${i === idx ? "is-on" : ""}`}
@@ -218,10 +211,7 @@ export function Detail({
                   </div>
                 ))}
                 {admin && (
-                  <label
-                    className="dl-thumb-add"
-                    title={t("detailAddAngles")}
-                  >
+                  <label className="dl-thumb-add" title={t("detailAddAngles")}>
                     <Plus s={16} />
                     <input
                       type="file"

@@ -73,7 +73,12 @@ export function VotePage({
         <section className="vp-leading">
           <div className="vp-leading-plate">
             {sorted[0].image ? (
-              <img src={sorted[0].image} alt="" />
+              <img
+                src={sorted[0].image}
+                alt=""
+                decoding="async"
+                fetchPriority="high"
+              />
             ) : (
               <span className="vp-leading-emoji" aria-hidden="true">
                 {sorted[0].emoji}
@@ -105,14 +110,16 @@ export function VotePage({
         {sorted.map((f, i) => {
           const altName = locale === "en" ? f.name : f.en;
           const ratio = mx > 0 ? f.votes / mx : 0;
+          /* 勿再對每列用 i*40ms 的 opacity delay：捲到下方列時多數仍全透明，像整塊黑空 */
           return (
             <li
               key={f.id}
               className={`vp-row ${voted[f.id] ? "is-voted" : ""}`}
               style={{
                 opacity: cardsIn ? 1 : 0,
-                transform: cardsIn ? "translateY(0)" : "translateY(8px)",
-                transition: `opacity 0.7s var(--ease-out-curve) ${i * 40}ms, transform 0.7s var(--ease-out-curve) ${i * 40}ms`,
+                transform: cardsIn ? "translateY(0)" : "translateY(6px)",
+                transition:
+                  "opacity 0.42s var(--ease-out-curve), transform 0.42s var(--ease-out-curve)",
               }}
             >
               <button
@@ -125,7 +132,13 @@ export function VotePage({
                 </span>
                 <span className="vp-row-thumb">
                   {f.image ? (
-                    <img src={f.image} alt="" />
+                    <img
+                      src={f.image}
+                      alt=""
+                      loading={i < 6 ? "eager" : "lazy"}
+                      decoding="async"
+                      fetchPriority={i < 2 ? "high" : "low"}
+                    />
                   ) : (
                     <span className="vp-row-emoji" aria-hidden="true">
                       {f.emoji}
@@ -219,11 +232,7 @@ export function VotePage({
             enterKeyHint="send"
             autoComplete="off"
           />
-          <button
-            type="button"
-            className="vp-wish-send"
-            onClick={onSubmitWish}
-          >
+          <button type="button" className="vp-wish-send" onClick={onSubmitWish}>
             <span>{t("wishSend")}</span>
             <span aria-hidden="true">
               <Arr s={16} d="right" />
@@ -232,9 +241,7 @@ export function VotePage({
         </div>
 
         {wishes.length > 0 ? (
-          <ul
-            className={`vp-wish-list ${admin ? "is-admin" : ""}`}
-          >
+          <ul className={`vp-wish-list ${admin ? "is-admin" : ""}`}>
             {(admin ? wishes : wishes.slice(-30)).map((w) => (
               <li key={w.id} className="vp-wish-item">
                 <span className="vp-wish-item-text">{w.text}</span>

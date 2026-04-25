@@ -25,7 +25,11 @@ export async function onRequestPost({ request, env }) {
   }
   const name = (file.name || "upload").toLowerCase();
   const last = name.includes(".") ? name.split(".").pop() : "jpg";
-  const ext = ["jpg", "jpeg", "png", "webp", "gif"].includes(last) ? (last === "jpeg" ? "jpg" : last) : "jpg";
+  const ext = ["jpg", "jpeg", "png", "webp", "gif"].includes(last)
+    ? last === "jpeg"
+      ? "jpg"
+      : last
+    : "jpg";
   const key = `images/${crypto.randomUUID()}.${ext}`;
   await env.BUCKET.put(key, await file.arrayBuffer(), {
     httpMetadata: { contentType: ct },
