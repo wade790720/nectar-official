@@ -20,6 +20,7 @@ export function GalleryPage({
   courses = [],
   admin = false,
   onOpenDetail,
+  onMoveWork,
   onAddCourse,
   onSaveCourseNames,
   onUploadCourseImage,
@@ -52,17 +53,32 @@ export function GalleryPage({
           <span className="gl-section-n">§ 01</span>
           <h2 className="gl-section-title">{t("gallerySectionWorks")}</h2>
         </div>
+        {admin && works.length > 0 ? (
+          <p className="gl-order-hint">{t("galleryOrderHint")}</p>
+        ) : null}
 
         {works.length === 0 && !admin ? (
           <p className="gl-empty">{t("galleryWorksEmpty")}</p>
         ) : (
           <ul className="gl-grid" role="list">
-            {works.map((w) => (
+            {works.map((w, i) => (
               <WorkTile
                 key={w.id}
                 work={w}
+                index={i}
                 locale={locale}
+                admin={admin}
                 onOpen={() => onOpenDetail && onOpenDetail(w)}
+                onMoveUp={
+                  admin && onMoveWork && i > 0
+                    ? () => onMoveWork(w.id, -1)
+                    : undefined
+                }
+                onMoveDown={
+                  admin && onMoveWork && i < works.length - 1
+                    ? () => onMoveWork(w.id, 1)
+                    : undefined
+                }
               />
             ))}
             {admin && (
@@ -125,15 +141,62 @@ export function GalleryPage({
 
 /* ─── Work tile (read-only; opens DetailLightbox) ─────────────────────── */
 
-function WorkTile({ work, locale, onOpen }) {
+function WorkTile({
+  work,
+  locale,
+  admin = false,
+  index = 0,
+  onOpen,
+  onMoveUp,
+  onMoveDown,
+}) {
+  const { t } = useI18n();
   const title =
     locale === "en" ? work.en || work.title || "" : work.title || work.en || "";
   const cat = locale === "en" ? work.catEn || work.cat || "" : work.cat || "";
   const gradient = GR[work.cat] || GR["鮮花"];
   const hasImg = Boolean(work.image);
+  const showReorder = admin && (onMoveUp || onMoveDown);
 
   return (
-    <li className="gl-tile">
+    <li className={`gl-tile ${showReorder ? "gl-tile--reorder" : ""}`}>
+      {showReorder ? (
+        <div
+          className="gl-reorder"
+          aria-label={t("galleryReorderHint")}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="gl-reorder-btn"
+            disabled={!onMoveUp}
+            title={t("galleryMoveUp")}
+            aria-label={t("galleryMoveUp")}
+            onClick={(e) => {
+              e.preventDefault();
+              onMoveUp?.();
+            }}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            className="gl-reorder-btn"
+            disabled={!onMoveDown}
+            title={t("galleryMoveDown")}
+            aria-label={t("galleryMoveDown")}
+            onClick={(e) => {
+              e.preventDefault();
+              onMoveDown?.();
+            }}
+          >
+            ↓
+          </button>
+          <span className="gl-reorder-idx" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        </div>
+      ) : null}
       <button
         type="button"
         className="gl-tile-btn"

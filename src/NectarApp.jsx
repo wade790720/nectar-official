@@ -492,22 +492,49 @@ export default function NectarApp() {
       window.alert((e && e.message) || "主圖上傳失敗");
     }
   };
+  /**
+   * 圖庫一次可多檔。舊版在迴圈內多次 setW + await，React 佇列的 updater 之間
+   * 讀到舊的 gallery，導致只保留最後一張。改為上傳完**一次**寫入，並同步
+   * lightbox 的 detail，否則彈窗內 work 是舊物件，不重整看不到新圖。
+   */
   const doGal = async (wid, files) => {
-    for (const f of files) {
+    const fileArr = [...(files || [])].filter(Boolean);
+    if (fileArr.length === 0) return;
+    const refs = [];
+    for (const f of fileArr) {
       try {
-        const ref = await fileToImageRef(f);
-        setW((p) => {
-          const next = p.map((w) =>
-            w.id === wid ? { ...w, gallery: [...(w.gallery || []), ref] } : w,
-          );
-          void forceFlushWorks(SK.w, next);
-          return next;
-        });
+        refs.push(await fileToImageRef(f));
       } catch (e) {
         console.error(e);
         window.alert((e && e.message) || "圖庫上傳失敗");
+        throw e;
       }
     }
+    setW((p) => {
+      const next = p.map((w) =>
+        w.id === wid
+          ? { ...w, gallery: [...(w.gallery || []), ...refs] }
+          : w,
+      );
+      queueMicrotask(() => void forceFlushWorks(SK.w, next));
+      return next;
+    });
+    setDt((d) => {
+      if (!d || d.id !== wid) return d;
+      return { ...d, gallery: [...(d.gallery || []), ...refs] };
+    });
+  };
+  const moveWork = (id, direction) => {
+    setW((p) => {
+      const i = p.findIndex((w) => w.id === id);
+      if (i < 0) return p;
+      const j = i + direction;
+      if (j < 0 || j >= p.length) return p;
+      const next = [...p];
+      [next[i], next[j]] = [next[j], next[i]];
+      queueMicrotask(() => void forceFlushWorks(SK.w, next));
+      return next;
+    });
   };
   const doRmGal = (wid, thumbIdx) => {
     const w = works.find((x) => x.id === wid);
@@ -875,6 +902,7 @@ export default function NectarApp() {
               courses={courses}
               admin={adminAuthed}
               onOpenDetail={setDt}
+              onMoveWork={moveWork}
               onAddCourse={addCourse}
               onSaveCourseNames={saveCourseNames}
               onUploadCourseImage={uploadCourseImage}

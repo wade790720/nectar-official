@@ -39,6 +39,8 @@ export function Detail({
   const confirm = useConfirm();
   const [idx, setIdx] = useState(0);
   const [ready, setReady] = useState(false);
+  /** 圖庫上傳：'loading' | ok:n */
+  const [uploadNote, setUploadNote] = useState(null);
 
   const allImgs = useMemo(() => {
     const a = [];
@@ -77,6 +79,22 @@ export function Detail({
     const id = requestAnimationFrame(() => setReady(true));
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+    setUploadNote(null);
+  }, [work.id]);
+
+  const runUploadGallery = async (fileList) => {
+    if (!fileList?.length || !onUploadGallery) return;
+    setUploadNote("loading");
+    try {
+      await onUploadGallery(work.id, [...fileList]);
+      setUploadNote(`ok:${fileList.length}`);
+      window.setTimeout(() => setUploadNote(null), 2200);
+    } catch {
+      setUploadNote(null);
+    }
+  };
 
   useEffect(() => {
     const onKey = (e) => {
@@ -219,8 +237,9 @@ export function Detail({
                       multiple
                       style={{ display: "none" }}
                       onChange={(e) => {
-                        if (e.target.files)
-                          onUploadGallery(work.id, [...e.target.files]);
+                        const f = e.target.files;
+                        if (f) void runUploadGallery(f);
+                        e.target.value = "";
                       }}
                     />
                   </label>
@@ -258,12 +277,28 @@ export function Detail({
                     multiple
                     style={{ display: "none" }}
                     onChange={(e) => {
-                      if (e.target.files)
-                        onUploadGallery(work.id, [...e.target.files]);
+                      const f = e.target.files;
+                      if (f) void runUploadGallery(f);
+                      e.target.value = "";
                     }}
                   />
                 </label>
               </div>
+            )}
+
+            {admin && uploadNote && (
+              <p
+                className={`dl-gal-status ${uploadNote === "loading" ? "is-busy" : "is-ok"}`}
+                role="status"
+                aria-live="polite"
+              >
+                {uploadNote === "loading"
+                  ? t("detailUploading")
+                  : t("detailUploadAdded").replace(
+                      "{n}",
+                      String((uploadNote.split(":")[1] || "0").trim()),
+                    )}
+              </p>
             )}
 
             {admin && (

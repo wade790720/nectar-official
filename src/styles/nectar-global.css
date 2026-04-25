@@ -1344,6 +1344,22 @@ textarea.fi {
   color: rgba(252, 165, 165, 1);
 }
 
+.dl-gal-status {
+  margin: 10px 0 0;
+  font-family: var(--font-serif-en);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+}
+
+.dl-gal-status.is-busy {
+  color: var(--accent-300);
+  font-style: italic;
+}
+
+.dl-gal-status.is-ok {
+  color: rgba(167, 209, 167, 0.88);
+}
+
 .dl-tip {
   max-width: 48ch;
   color: var(--paper-500);
@@ -3374,6 +3390,17 @@ textarea.fi {
   padding: var(--sp-12) 0;
 }
 
+.gl-order-hint {
+  margin: 0 0 var(--sp-8);
+  max-width: 56ch;
+  font-family: var(--font-serif-en);
+  font-style: italic;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--paper-500);
+  line-height: 1.55;
+}
+
 /* ── Grid ─────────────────────────────────────────── */
 .gl-grid {
   list-style: none;
@@ -3401,6 +3428,69 @@ textarea.fi {
 .gl-tile {
   position: relative;
   list-style: none;
+}
+
+.gl-tile--reorder {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+}
+
+.gl-tile--reorder .gl-tile-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.gl-reorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 4px 6px 4px 2px;
+  margin-right: 4px;
+  border-right: 1px solid rgba(201, 169, 110, 0.18);
+}
+
+.gl-reorder-btn {
+  width: 30px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(201, 169, 110, 0.28);
+  background: rgba(8, 7, 6, 0.5);
+  color: var(--accent-200);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    border-color var(--dur-short) var(--ease-editorial),
+    color var(--dur-short) var(--ease-editorial),
+    background var(--dur-short) var(--ease-editorial);
+}
+
+.gl-reorder-btn:hover:not(:disabled) {
+  border-color: var(--accent-300);
+  color: var(--accent-100);
+  background: rgba(201, 169, 110, 0.08);
+}
+
+.gl-reorder-btn:disabled {
+  opacity: 0.22;
+  cursor: default;
+}
+
+.gl-reorder-idx {
+  margin-top: 2px;
+  font-family: var(--font-serif-en);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--paper-500);
 }
 
 .gl-tile-btn,
