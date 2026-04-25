@@ -260,11 +260,14 @@ async function flushSaveBundle(worksKey) {
   }
   if (memCloudData === null) return;
   const authed = Boolean(getAdminToken());
-  /** 訪客只送 votes／wishes；後端會以 R2 為準合併票數，避免舊分頁覆寫選項／圖片 */
+  /**
+   * 訪客僅回寫 wishes。
+   * votes 改走 /api/vote 的原子 delta 更新，避免「整包絕對值覆蓋」在併發下掉票。
+   */
   const payload =
     authed || !memCloudData
       ? memCloudData
-      : { votes: memCloudData.votes, wishes: memCloudData.wishes };
+      : { wishes: memCloudData.wishes };
   const body = JSON.stringify(payload);
   try {
     const r = await fetch(apiPath("/api/data"), {
@@ -325,6 +328,24 @@ export async function fileToImageRef(file) {
   }
   const { url } = await r.json();
   return url;
+}
+
+/**
+ * 訪客投票專用：以 delta（+1 / -1）原子更新單一選項票數，避免併發掉票。
+ * 回傳最新票數，供前端與 UI 對齊。
+ */
+export async function voteDelta(id, delta) {
+  const r = await fetch(apiPath("/api/vote"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, delta }),
+    keepalive: true,
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error(t || `vote ${r.status}`);
+  }
+  return r.json();
 }
 
 /**

@@ -14,6 +14,7 @@ import {
   setAdminToken,
   clearAdminSession,
   apiPath,
+  voteDelta,
   forceFlushWorks,
   forceFlushBundle,
 } from "./persist.js";
@@ -253,9 +254,10 @@ export default function NectarApp() {
     setTimeout(() => setCo(true), 250);
   }, [pg]);
 
-  const doV = (id) => {
+  const doV = async (id) => {
     /** Toggle: first click casts the vote, a second click retracts it. */
     const already = !!voted[id];
+    const delta = already ? -1 : 1;
     setVotes((p) =>
       p.map((f) => {
         if (f.id !== id) return f;
@@ -269,7 +271,60 @@ export default function NectarApp() {
       else n[id] = true;
       return n;
     });
+    try {
+      const res = await voteDelta(id, delta);
+      const confirmed = Number(res?.votes);
+      if (Number.isFinite(confirmed)) {
+        setVotes((p) =>
+          p.map((f) => (f.id === id ? { ...f, votes: confirmed } : f)),
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      // rollback optimistic update
+      setVotes((p) =>
+        p.map((f) => {
+          if (f.id !== id) return f;
+          const next = already ? f.votes + 1 : f.votes - 1;
+          return { ...f, votes: Math.max(0, next) };
+        }),
+      );
+      setVd((p) => {
+        const n = { ...p };
+        if (already) n[id] = true;
+        else delete n[id];
+        return n;
+      });
+      window.alert((e && e.message) || "投票儲存失敗，請稍後再試");
+    }
   };
+  useEffect(() => {
+    /**
+     * 對齊本機 voted 與雲端票數：
+     * - 該 option 已不存在 → 移除本機標記
+     * - 該 option 票數為 0（常見於 admin 重設後）→ 移除本機標記
+     *   避免畫面出現「VOTED 但 0 票」的矛盾狀態。
+     */
+    setVd((prev) => {
+      const entries = Object.entries(prev || {});
+      if (entries.length === 0) return prev;
+      const voteById = new Map(
+        (Array.isArray(votes) ? votes : []).map((v) => [String(v.id), v]),
+      );
+      let changed = false;
+      const next = {};
+      for (const [id, flag] of entries) {
+        if (!flag) continue;
+        const hit = voteById.get(String(id));
+        if (!hit || Number(hit.votes) <= 0) {
+          changed = true;
+          continue;
+        }
+        next[id] = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [votes]);
   const doWi = () => {
     if (!wiIn.trim()) return;
     setWishes((p) => {
@@ -943,7 +998,11 @@ export default function NectarApp() {
                   tone: "danger",
                 });
                 if (!ok) return;
-                setVotes((p) => p.map((x) => ({ ...x, votes: 0 })));
+                setVotes((p) => {
+                  const next = p.map((x) => ({ ...x, votes: 0 }));
+                  queueMicrotask(() => void forceFlushBundle(SK.w));
+                  return next;
+                });
                 setVd({});
               }}
               wiIn={wiIn}
