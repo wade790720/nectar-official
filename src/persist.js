@@ -260,6 +260,7 @@ async function flushSaveBundle(worksKey) {
   }
   if (memCloudData === null) return;
   const authed = Boolean(getAdminToken());
+  /** 訪客只送 votes／wishes；後端會以 R2 為準合併票數，避免舊分頁覆寫選項／圖片 */
   const payload =
     authed || !memCloudData
       ? memCloudData

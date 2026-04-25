@@ -19,6 +19,30 @@ function normalizeArtist(a) {
 }
 
 /** 與前端一致：舊檔僅 { works }、或誤存成純陣列 */
+/**
+ * 訪客寫入時，禁止用其 JSON 的整份 `votes` 覆蓋 R2，否則常見情況是：
+ * - 管理員剛「新增選項 / 更換圖片」，訪客分頁仍握有舊陣列，一投票就把伺服器
+ *   的選項或新圖 URL 沖回舊的或整段遺失。
+ * 以 existing（伺服器）為權威結構，只從客戶端合併 **票數**（依 id 對齊）。
+ */
+function mergeVisitorVoteCounts(existingVotes, bodyVotes) {
+  if (!Array.isArray(bodyVotes) || !Array.isArray(existingVotes)) {
+    return Array.isArray(existingVotes) ? existingVotes : [];
+  }
+  const byId = new Map();
+  for (const v of bodyVotes) {
+    if (v && v.id != null) byId.set(String(v.id), v);
+  }
+  return existingVotes.map((ex) => {
+    if (!ex || ex.id == null) return ex;
+    const cl = byId.get(String(ex.id));
+    if (!cl || typeof cl.votes !== "number" || !Number.isFinite(cl.votes)) {
+      return ex;
+    }
+    return { ...ex, votes: Math.max(0, Math.floor(cl.votes)) };
+  });
+}
+
 function normalizeStored(parsed) {
   if (Array.isArray(parsed)) {
     return {
@@ -146,7 +170,7 @@ export async function onRequestPut({ request, env }) {
       works: existing.works,
       votes: hasVotes
         ? Array.isArray(body.votes)
-          ? body.votes
+          ? mergeVisitorVoteCounts(existing.votes, body.votes)
           : existing.votes
         : existing.votes,
       wishes: hasWishes
