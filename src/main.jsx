@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { I18nProvider } from "./i18n.jsx";
 import { ConfirmProvider } from "./components/ConfirmDialog.jsx";
-import "./index.css";
 import "./styles/tokens.css";
 import "./styles/nectar-global.css";
 

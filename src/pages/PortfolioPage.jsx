@@ -3,7 +3,7 @@ import { HeroSlide } from "../components/HeroSlide.jsx";
 import { WS } from "../components/WorkSlide.jsx";
 import { Plus } from "../components/icons/Icons.jsx";
 
-const EMPTY_WORK = {
+export const EMPTY_WORK = {
   title: "",
   en: "",
   price: 0,
@@ -36,6 +36,7 @@ export function PortfolioPage({
   onOpenDetail,
 }) {
   const { t } = useI18n();
+  const featuredWorks = works.slice(0, 6);
 
   return (
     <div>
@@ -63,12 +64,12 @@ export function PortfolioPage({
       )}
 
       <HeroSlide />
-      {works.map((w, i) => (
+      {featuredWorks.map((w, i) => (
         <WS
           key={w.id}
           work={w}
           index={i}
-          total={works.length}
+          total={featuredWorks.length}
           admin={admin}
           onEdit={onOpenEditor}
           onDelete={onDeleteWork}

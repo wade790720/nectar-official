@@ -23,7 +23,7 @@ import { Detail } from "./components/DetailLightbox.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
 import { Cam } from "./components/icons/Icons.jsx";
 import { useConfirm } from "./components/ConfirmDialog.jsx";
-import { PortfolioPage } from "./pages/PortfolioPage.jsx";
+import { EMPTY_WORK, PortfolioPage } from "./pages/PortfolioPage.jsx";
 import { VotePage } from "./pages/VotePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
 import { GalleryPage } from "./pages/GalleryPage.jsx";
@@ -108,6 +108,7 @@ export default function App() {
   const [voted, setVd] = useState({});
   const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
   const [newlyAddedCourseId, setNewlyAddedCourseId] = useState(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [ho, setHo] = useState(false);
   const [co, setCo] = useState(false);
   const socialIg = normalizeSocialUrl(
@@ -124,6 +125,20 @@ export default function App() {
     else root.classList.remove("portfolio-scroll-snap");
     return () => root.classList.remove("portfolio-scroll-snap");
   }, [pg]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [mobileNavOpen]);
 
   useEffect(() => {
     const raw = window.location.hash.replace(/^#\/?/, "");
@@ -479,6 +494,7 @@ export default function App() {
             type="button"
             className="nav-brand-hit"
             onClick={() => {
+              setMobileNavOpen(false);
               setPg("portfolio");
               setDt(null);
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -507,13 +523,6 @@ export default function App() {
               onClick={() => setPg("about")}
             >
               {t("navAbout")}
-            </button>
-            <button
-              type="button"
-              className={`nb ${pg === "portfolio" ? "on" : ""}`}
-              onClick={() => setPg("portfolio")}
-            >
-              {t("navCollection")}
             </button>
             <button
               type="button"
@@ -581,8 +590,88 @@ export default function App() {
               </button>
             </div>
           </div>
+          <button
+            type="button"
+            className={`nav-menu-btn ${mobileNavOpen ? "is-open" : ""}`}
+            aria-label={mobileNavOpen ? t("navCloseMenu") : t("navOpenMenu")}
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((v) => !v)}
+          >
+            <span className="nav-menu-line" />
+            <span className="nav-menu-line" />
+          </button>
         </div>
       </nav>
+
+      <div
+        className={`nav-overlay ${mobileNavOpen ? "is-open" : ""}`}
+        aria-hidden={!mobileNavOpen}
+      >
+        <div className="nav-overlay-panel">
+          <button
+            type="button"
+            className="nav-overlay-link"
+            onClick={() => {
+              setPg("about");
+              setMobileNavOpen(false);
+            }}
+          >
+            {t("navAbout")}
+          </button>
+          <button
+            type="button"
+            className="nav-overlay-link"
+            onClick={() => {
+              setPg("gallery");
+              setMobileNavOpen(false);
+            }}
+          >
+            {t("navGallery")}
+          </button>
+          <button
+            type="button"
+            className="nav-overlay-link"
+            onClick={() => {
+              setPg("vote");
+              setMobileNavOpen(false);
+            }}
+          >
+            {t("navVote")}
+          </button>
+          <a
+            className="nav-overlay-link nav-overlay-ext"
+            href="https://yellow510.kaik.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <span>{t("navCourse")}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <div className="nav-overlay-lang">
+            <span className="nav-overlay-lang-label">{t("navLanguage")}</span>
+            <div className="nav-overlay-lang-btns">
+              <button
+                type="button"
+                className={`nav-overlay-lang-btn ${locale === "en" ? "is-active" : ""}`}
+                onClick={() => setLocale("en")}
+              >
+                {t("langEn")}
+              </button>
+              <span className="nav-overlay-lang-sep" aria-hidden="true">
+                /
+              </span>
+              <button
+                type="button"
+                className={`nav-overlay-lang-btn ${locale === "zh-TW" ? "is-active" : ""}`}
+                onClick={() => setLocale("zh-TW")}
+              >
+                {t("langZh")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* 訪客不可見：右下角隱藏區開啟後台登入；已登入則顯示登出 */}
       {!adminAuthed ? (
@@ -674,6 +763,10 @@ export default function App() {
           onSaveCourseNames={saveCourseNames}
           onUploadCourseImage={uploadCourseImage}
           onDeleteCourse={deleteCourse}
+          onAddArtwork={() => {
+            setEd({ ...EMPTY_WORK });
+            setMo(true);
+          }}
           newlyAddedCourseId={newlyAddedCourseId}
         />
       )}

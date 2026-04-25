@@ -452,6 +452,48 @@ textarea.fi {
   scroll-snap-stop: always;
 }
 
+/*
+ * 右下角呼吸光暈（純 CSS pseudo-element）：
+ * - 光源聚焦於 SCROLL 所在位置 (88% 92%)，是視覺錨點也是引導點
+ * - alpha 在 0.07 → 0.14 之間變化，克制但更有存在感
+ * - 光範圍放大到 58% × 48%，邊界更糊，影響面積更大
+ * - 8s 週期、非同步於 SCROLL pulse，避免形成機械節奏
+ */
+.hero-slide::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    58% 48% at 88% 92%,
+    rgba(201, 169, 110, 0.14) 0%,
+    rgba(201, 169, 110, 0.07) 32%,
+    transparent 68%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  content: '';
+  animation: hero-glow-breathe 8s var(--ease-editorial) infinite;
+}
+
+@keyframes hero-glow-breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.07);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide::before {
+    animation: none;
+    opacity: 0.82;
+  }
+}
+
 @supports (height: 100svh) {
   .hero-slide {
     min-height: 100svh;
@@ -463,6 +505,7 @@ textarea.fi {
   position: absolute;
   display: grid;
   pointer-events: none;
+  z-index: 1;
 
   inset: calc(var(--nav-h) + var(--frame-inset-y)) var(--frame-inset)
   var(--frame-inset-y);
@@ -528,33 +571,60 @@ textarea.fi {
 .hero-scroll {
   display: flex;
   align-items: center;
-  color: var(--paper-300);
+  color: rgba(250, 247, 242, 0.82);
   text-transform: uppercase;
-  letter-spacing: var(--tr-widest);
+  letter-spacing: 0.36em;
   font-style: italic;
-  font-size: var(--fs-micro);
+  font-size: 11px;
   font-family: var(--font-serif-en);
-  opacity: 0.6;
-  animation: hero-breath 3.6s ease-in-out infinite;
+  opacity: 0.9;
+  text-shadow: 0 0 18px rgba(201, 169, 110, 0.16);
+  animation: hero-scroll-pulse 2.8s var(--ease-editorial) infinite;
 
-  gap: 10px;
+  gap: 12px;
 }
 
 .hero-scroll-line {
-  width: 42px;
+  position: relative;
+  width: 58px;
   height: 1px;
-  background: var(--accent-hair);
+  overflow: hidden;
+  background: rgba(201, 169, 110, 0.26);
 }
 
-@keyframes hero-breath {
+.hero-scroll-line::after {
+  position: absolute;
+  inset: 0;
+  width: 22px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(250, 247, 242, 0.78),
+    transparent
+  );
+  content: '';
+  animation: hero-scroll-line 2.8s var(--ease-editorial) infinite;
+}
+
+@keyframes hero-scroll-pulse {
   0%, 100% {
-    opacity: 0.38;
+    opacity: 0.58;
     transform: translateY(0);
   }
 
   50% {
-    opacity: 0.8;
-    transform: translateY(3px);
+    opacity: 1;
+    transform: translateY(5px);
+  }
+}
+
+@keyframes hero-scroll-line {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(320%);
   }
 }
 
@@ -609,28 +679,272 @@ textarea.fi {
   gap: 32px;
 }
 
+.nav-menu-btn {
+  display: none;
+}
+
+/*
+ * 漢堡：純 ghost 風格，不加框不加底。
+ * 視覺結構：兩條等長 hairline，間距 7px，合計觸控區 44×44。
+ * 開啟 → 兩條線位移到中線後旋轉精準 ±45°，收成乾淨的 ✕。
+ */
+.nav-menu-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245, 240, 235, 0.78);
+  cursor: pointer;
+  transition: color var(--dur-short) var(--ease-editorial);
+}
+
+.nav-menu-btn:hover,
+.nav-menu-btn:focus-visible {
+  color: var(--accent-400);
+  outline: none;
+}
+
+.nav-menu-line {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: center;
+  /*
+   * 關閉態（預設）：transform 先走、top 延遲 0.2s 再走。
+   * 意義：關閉時兩線先「旋轉回水平」，再「分開」→ 不糊在一起。
+   */
+  transition:
+    transform 0.3s var(--ease-editorial) 0s,
+    top 0.24s var(--ease-editorial) 0.2s;
+}
+
+.nav-menu-line:first-child {
+  top: 18px;
+}
+
+.nav-menu-line:last-child {
+  top: 25px;
+}
+
+/*
+ * 開啟態：top 先走、transform 延遲 0.2s 再走。
+ * 意義：開啟時兩線先「聚攏到中線」，再「旋轉成 X」→ 兩段分明。
+ */
+.nav-menu-btn.is-open .nav-menu-line {
+  transition:
+    top 0.24s var(--ease-editorial) 0s,
+    transform 0.3s var(--ease-editorial) 0.2s;
+}
+
+.nav-menu-btn.is-open .nav-menu-line:first-child {
+  top: 21px;
+  transform: rotate(45deg);
+}
+
+.nav-menu-btn.is-open .nav-menu-line:last-child {
+  top: 21px;
+  transform: rotate(-45deg);
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: none;
+  pointer-events: none;
+}
+
+.nav-overlay-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 32px)
+    var(--frame-inset) calc(48px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(
+      90% 70% at 50% 22%,
+      rgba(201, 169, 110, 0.08),
+      transparent 58%
+    ),
+    rgba(6, 5, 4, 0.94);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.985);
+  transform-origin: 50% 0;
+  /*
+   * Panel 降落：opacity 先行、transform 稍慢，配合 backdrop-filter 漸進
+   * 形成幕布感。用 ease-out-curve 結尾更絲滑。
+   */
+  transition:
+    opacity 0.42s var(--ease-out-curve),
+    transform 0.52s var(--ease-out-curve),
+    backdrop-filter 0.42s var(--ease-editorial);
+  backdrop-filter: blur(0) saturate(1);
+  -webkit-backdrop-filter: blur(0) saturate(1);
+}
+
+.nav-overlay.is-open .nav-overlay-panel {
+  backdrop-filter: blur(18px) saturate(1.04);
+  -webkit-backdrop-filter: blur(18px) saturate(1.04);
+}
+
+.nav-overlay-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.08);
+  background: transparent;
+  color: var(--paper-50);
+  text-align: left;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  font-style: italic;
+  font-size: clamp(34px, 12vw, 58px);
+  font-family: var(--font-serif-en);
+  line-height: 1;
+  cursor: pointer;
+  /*
+   * 關閉態：所有項目同時淡出（delay=0），避免 stagger 反向拖沓。
+   */
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s var(--ease-out-curve),
+    transform 0.5s var(--ease-out-curve);
+}
+
+/*
+ * 開啟時每個 link 依序入場（stagger）。關閉時 is-open 消失、
+ * delay 自動歸零 → 所有元素同步淡出。單向 stagger，雙向絲滑。
+ */
+.nav-overlay.is-open .nav-overlay-link,
+.nav-overlay.is-open .nav-overlay-lang {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-overlay.is-open .nav-overlay-link:nth-child(1) {
+  transition-delay: 0.12s;
+}
+.nav-overlay.is-open .nav-overlay-link:nth-child(2) {
+  transition-delay: 0.18s;
+}
+.nav-overlay.is-open .nav-overlay-link:nth-child(3) {
+  transition-delay: 0.24s;
+}
+.nav-overlay.is-open .nav-overlay-link:nth-child(4) {
+  transition-delay: 0.3s;
+}
+.nav-overlay.is-open .nav-overlay-lang {
+  transition-delay: 0.38s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-overlay-panel,
+  .nav-overlay-link,
+  .nav-overlay-lang,
+  .nav-menu-line {
+    transition-duration: 0.12s !important;
+    transition-delay: 0s !important;
+  }
+
+  .nav-overlay-panel {
+    transform: none;
+  }
+
+  .nav-overlay-link,
+  .nav-overlay-lang {
+    transform: none;
+  }
+}
+
+.nav-overlay-ext span:last-child {
+  color: var(--accent-400);
+  font-size: 0.45em;
+}
+
+/*
+ * Overlay 底部 Language 切換：排版克制，靠近底邊緣，與主選單清楚分層。
+ * - label 用小字 tracking 語意（Language），建立區塊身份
+ * - 按鈕本身是 ghost text，不加框，active 用顏色 + 底線辨識
+ */
+.nav-overlay-lang {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(250, 247, 242, 0.08);
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s var(--ease-out-curve),
+    transform 0.5s var(--ease-out-curve);
+}
+
+.nav-overlay-lang-label {
+  color: rgba(250, 247, 242, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 10px;
+  font-family: var(--font-serif-en);
+  font-style: italic;
+}
+
+.nav-overlay-lang-btns {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.nav-overlay-lang-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(250, 247, 242, 0.4);
+  letter-spacing: 0.16em;
+  font-size: 15px;
+  font-family: var(--font-serif-en);
+  font-style: italic;
+  cursor: pointer;
+  transition: color var(--dur-short) var(--ease-editorial);
+}
+
+.nav-overlay-lang-btn.is-active {
+  color: var(--accent-400);
+}
+
+.nav-overlay-lang-btn:hover {
+  color: var(--paper-50);
+}
+
+.nav-overlay-lang-btn.is-active:hover {
+  color: var(--accent-400);
+}
+
+.nav-overlay-lang-sep {
+  color: rgba(250, 247, 242, 0.18);
+  font-size: 14px;
+  font-family: var(--font-serif-en);
+}
+
 @media (max-width: 640px) {
   .nav-links {
-    gap: 12px;
+    display: none;
   }
 
-  .nav-links .nb {
+  .nav-menu-btn {
     display: inline-flex;
     align-items: center;
-    padding: 10px 0;
-    min-height: 44px;
-    font-size: 12px;
-  }
-
-  .nav-lang-btns {
-    gap: 6px !important;
-  }
-
-  .nav-lang-btns button {
-    min-width: 40px;
-    min-height: 36px;
-
-    touch-action: manipulation;
+    justify-content: center;
   }
 
   .nav-brand-hit {
@@ -638,6 +952,19 @@ textarea.fi {
     align-items: center;
     padding: 4px 0;
     min-height: 44px;
+  }
+
+  .nav-overlay {
+    display: block;
+  }
+
+  .nav-overlay.is-open {
+    pointer-events: auto;
+  }
+
+  .nav-overlay.is-open .nav-overlay-panel {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

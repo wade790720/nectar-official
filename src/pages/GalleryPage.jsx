@@ -23,6 +23,7 @@ export function GalleryPage({
   onSaveCourseNames,
   onUploadCourseImage,
   onDeleteCourse,
+  onAddArtwork,
   newlyAddedCourseId = null,
 }) {
   const { t, locale } = useI18n();
@@ -46,7 +47,7 @@ export function GalleryPage({
           <h2 className="gl-section-title">{t("gallerySectionWorks")}</h2>
         </div>
 
-        {works.length === 0 ? (
+        {works.length === 0 && !admin ? (
           <p className="gl-empty">{t("galleryWorksEmpty")}</p>
         ) : (
           <ul className="gl-grid" role="list">
@@ -58,6 +59,18 @@ export function GalleryPage({
                 onOpen={() => onOpenDetail && onOpenDetail(w)}
               />
             ))}
+            {admin && (
+              <li className="gl-tile gl-tile-add">
+                <button
+                  type="button"
+                  className="gl-add-btn"
+                  onClick={onAddArtwork}
+                >
+                  <Plus s={22} />
+                  <span>{t("galleryAddArtwork")}</span>
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </section>
