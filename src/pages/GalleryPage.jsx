@@ -150,10 +150,10 @@ function WorkTile({
   onMoveUp,
   onMoveDown,
 }) {
-  const { t } = useI18n();
+  const { t, workPriceLabel } = useI18n();
   const title =
     locale === "en" ? work.en || work.title || "" : work.title || work.en || "";
-  const cat = locale === "en" ? work.catEn || work.cat || "" : work.cat || "";
+  const priceLabel = workPriceLabel(work);
   const gradient = GR[work.cat] || GR["鮮花"];
   const hasImg = Boolean(work.image);
   const showReorder = admin && (onMoveUp || onMoveDown);
@@ -213,7 +213,7 @@ function WorkTile({
         </div>
         <div className="gl-caption">
           <span className="gl-caption-title">{title}</span>
-          {cat && <span className="gl-caption-meta">{cat}</span>}
+          {priceLabel && <span className="gl-caption-meta">{priceLabel}</span>}
         </div>
       </button>
     </li>

@@ -3575,10 +3575,31 @@ textarea.fi {
 
 .gl-caption-meta {
   flex-shrink: 0;
-  font-size: var(--fs-micro);
-  letter-spacing: var(--tr-wider);
-  text-transform: uppercase;
-  color: var(--paper-500);
+  font-family: var(--font-serif-en);
+  font-size: var(--fs-caption);
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--accent-300);
+  text-shadow:
+    0 1px 12px rgba(0, 0, 0, 0.4),
+    0 0 2px rgba(201, 169, 110, 0.3);
+  animation: gl-price-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes gl-price-breathe {
+  0%,
+  100% {
+    opacity: 0.88;
+    text-shadow:
+      0 1px 12px rgba(0, 0, 0, 0.4),
+      0 0 2px rgba(201, 169, 110, 0.28);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 1px 14px rgba(0, 0, 0, 0.45),
+      0 0 18px rgba(201, 169, 110, 0.5);
+  }
 }
 
 /* ── Course admin: hover-to-upload cover ──────────── */
