@@ -2,7 +2,6 @@
  * Nectar — 全站樣式（字型、版面、投票／光箱／作品集 scroll-snap 等）
  * 由 Vite 打包；可在此檔直接改 CSS，勿再放進 JS 字串。
  */
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap");
 
 * {
   box-sizing: border-box;

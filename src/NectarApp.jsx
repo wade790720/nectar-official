@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import {
   Routes,
   Route,
@@ -27,14 +27,15 @@ import {
   removeWorkImageAtThumbIndex,
 } from "./utils/workGallery.js";
 import { SocialContactChips } from "./components/SocialContactChips.jsx";
-import { Detail } from "./components/DetailLightbox.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
 import { Cam } from "./components/icons/Icons.jsx";
 import { useConfirm } from "./components/ConfirmDialog.jsx";
-import { EMPTY_WORK, HomePage } from "./pages/HomePage.jsx";
-import { VotePage } from "./pages/VotePage.jsx";
-import { AboutPage } from "./pages/AboutPage.jsx";
-import { GalleryPage } from "./pages/GalleryPage.jsx";
+import { EMPTY_WORK } from "./pages/HomePage.jsx";
+const HomePage = lazy(() => import("./pages/HomePage.jsx").then((m) => ({ default: m.HomePage })));
+const VotePage = lazy(() => import("./pages/VotePage.jsx").then((m) => ({ default: m.VotePage })));
+const AboutPage = lazy(() => import("./pages/AboutPage.jsx").then((m) => ({ default: m.AboutPage })));
+const GalleryPage = lazy(() => import("./pages/GalleryPage.jsx").then((m) => ({ default: m.GalleryPage })));
+const Detail = lazy(() => import("./components/DetailLightbox.jsx").then((m) => ({ default: m.Detail })));
 
 /**
  * NectarApp — site shell: persisted bundle, navigation, admin tools, and routing.
@@ -924,6 +925,7 @@ export default function NectarApp() {
         </button>
       )}
 
+      <Suspense fallback={null}>
       <Routes>
         <Route
           path="/"
@@ -1025,8 +1027,10 @@ export default function NectarApp() {
         {/* 404：任何未知路徑一律 301-like 導回首頁，避免死連結 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
 
       {/* Detail Lightbox */}
+      <Suspense fallback={null}>
       {detail && (
         <Detail
           work={detail}
@@ -1039,6 +1043,7 @@ export default function NectarApp() {
           contactMail={contactMail}
         />
       )}
+      </Suspense>
 
       {/* Edit Modal */}
       {modal && ed && (
