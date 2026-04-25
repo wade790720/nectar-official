@@ -20,7 +20,7 @@ html {
          * 導覽列為 fixed 疊在內容上，每張全幅應對齊視窗 y=0；加 padding 會讓「往下」停點看起來永遠少一截。
          * scroll-behavior: smooth 與 snap 同時作用時，部分瀏覽器上下滑終點不一致，此處改 auto。
          */
-html.portfolio-scroll-snap {
+html.home-scroll-snap {
   scroll-snap-type: y mandatory;
   scroll-padding-bottom: env(safe-area-inset-bottom, 0px);
   scroll-behavior: auto;
@@ -648,7 +648,7 @@ textarea.fi {
   }
 }
 
-.portfolio-end {
+.home-end {
   min-height: 30vh;
 
   scroll-snap-align: start;

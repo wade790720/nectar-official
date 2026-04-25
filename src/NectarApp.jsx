@@ -23,15 +23,19 @@ import { Detail } from "./components/DetailLightbox.jsx";
 import { Fld, FldArea, lb } from "./components/FormFields.jsx";
 import { Cam } from "./components/icons/Icons.jsx";
 import { useConfirm } from "./components/ConfirmDialog.jsx";
-import { EMPTY_WORK, PortfolioPage } from "./pages/PortfolioPage.jsx";
+import { EMPTY_WORK, HomePage } from "./pages/HomePage.jsx";
 import { VotePage } from "./pages/VotePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
 import { GalleryPage } from "./pages/GalleryPage.jsx";
 
-export default function App() {
+/**
+ * NectarApp — site shell: persisted bundle, navigation, admin tools, and routing.
+ * Pages: home → HomePage, about → AboutPage, gallery → GalleryPage, vote → VotePage.
+ */
+export default function NectarApp() {
   const { t, locale, setLocale } = useI18n();
   const confirm = useConfirm();
-  const [pg, setPg] = useState("portfolio");
+  const [pg, setPg] = useState("home");
   const bundleInit = useMemo(
     () => ({
       works: DW,
@@ -121,9 +125,9 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (pg === "portfolio") root.classList.add("portfolio-scroll-snap");
-    else root.classList.remove("portfolio-scroll-snap");
-    return () => root.classList.remove("portfolio-scroll-snap");
+    if (pg === "home") root.classList.add("home-scroll-snap");
+    else root.classList.remove("home-scroll-snap");
+    return () => root.classList.remove("home-scroll-snap");
   }, [pg]);
 
   useEffect(() => {
@@ -495,7 +499,7 @@ export default function App() {
             className="nav-brand-hit"
             onClick={() => {
               setMobileNavOpen(false);
-              setPg("portfolio");
+              setPg("home");
               setDt(null);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
@@ -726,8 +730,8 @@ export default function App() {
         </button>
       )}
 
-      {pg === "portfolio" && (
-        <PortfolioPage
+      {pg === "home" && (
+        <HomePage
           works={works}
           admin={adminAuthed}
           onOpenEditor={(w) => {

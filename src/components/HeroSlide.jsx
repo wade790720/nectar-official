@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "../i18n.jsx";
 
 /**
- * Hero — the cover page of the portfolio book.
+ * Hero — the cover page of the home journey.
  * Editorial composition: top eyebrow, huge quiet display line, bottom tagline + scroll mark.
  * No imagery, no buttons — negative space is the subject.
  */

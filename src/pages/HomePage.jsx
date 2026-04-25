@@ -22,12 +22,12 @@ export const EMPTY_WORK = {
 };
 
 /**
- * PortfolioPage — the vertical reading journey:
+ * HomePage — the vertical reading journey (site landing):
  *   Hero (frontispiece) → WorkSlides → end marker.
  *
- * Purely presentational; state lives in App (Portfolio.jsx).
+ * Purely presentational; state lives in NectarApp.jsx.
  */
-export function PortfolioPage({
+export function HomePage({
   works,
   admin,
   onOpenEditor,
@@ -79,7 +79,7 @@ export function PortfolioPage({
       ))}
 
       <div
-        className="portfolio-end"
+        className="home-end"
         style={{
           display: "flex",
           alignItems: "center",

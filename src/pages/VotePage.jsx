@@ -14,7 +14,7 @@ import { Arr, X } from "../components/icons/Icons.jsx";
  *   ④ Admin editor (hidden unless signed in)
  *   ⑤ Wish pool (input + flowing italic quotes)
  *
- * Purely presentational; state lives in App (Portfolio.jsx).
+ * Purely presentational; state lives in NectarApp.jsx.
  */
 export function VotePage({
   votes,

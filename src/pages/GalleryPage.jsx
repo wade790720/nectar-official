@@ -7,12 +7,12 @@ import { Cam, Plus, X } from "../components/icons/Icons.jsx";
  * GalleryPage — an editorial catalogue of works and courses.
  *
  *   ① Masthead            kicker + display line + lead
- *   ② § 01 Works         4:5 tile grid, synced with Portfolio data.
- *                         Tap a tile to open DetailLightbox (same as Portfolio).
+ *   ② § 01 Works         4:5 tile grid, same works as Home.
+ *                         Tap a tile to open DetailLightbox (same as Home).
  *   ③ § 02 Courses       4:5 tile grid of courses (image + name only).
  *                         Admin: inline add / rename / replace image / delete.
  *
- * Purely presentational; state lives in App (Portfolio.jsx).
+ * Purely presentational; state lives in NectarApp.jsx.
  */
 export function GalleryPage({
   works = [],

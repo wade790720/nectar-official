@@ -1,2 +1,4 @@
-import Portfolio from "./Portfolio";
-export default function App() { return <Portfolio />; }
+import NectarApp from "./NectarApp.jsx";
+export default function App() {
+  return <NectarApp />;
+}
