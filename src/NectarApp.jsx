@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   Routes,
   Route,
@@ -170,6 +170,7 @@ export default function NectarApp() {
   }, [voted]);
   const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
   const [newlyAddedCourseId, setNewlyAddedCourseId] = useState(null);
+  const votingLocksRef = useRef(new Set());
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [ho, setHo] = useState(false);
   const [co, setCo] = useState(false);
@@ -255,6 +256,10 @@ export default function NectarApp() {
   }, [pg]);
 
   const doV = async (id) => {
+    const key = String(id);
+    // 行動端可能出現極短時間重複觸發 click，對同選項加互斥鎖避免重複加票
+    if (votingLocksRef.current.has(key)) return;
+    votingLocksRef.current.add(key);
     /** Toggle: first click casts the vote, a second click retracts it. */
     const already = !!voted[id];
     const delta = already ? -1 : 1;
@@ -296,8 +301,41 @@ export default function NectarApp() {
         return n;
       });
       window.alert((e && e.message) || "投票儲存失敗，請稍後再試");
+    } finally {
+      votingLocksRef.current.delete(key);
     }
   };
+  /**
+   * Vote 頁跨裝置同步：
+   * - /api/vote 解決的是「原子加票」(不掉票)
+   * - 但不會主動推播給其他裝置，因此需要在 Vote 頁短輪詢拉新資料
+   */
+  useEffect(() => {
+    if (pg !== "vote") return;
+    let stop = false;
+    const syncVotes = async () => {
+      try {
+        const r = await fetch(apiPath("/api/data"), {
+          method: "GET",
+          cache: "no-store",
+        });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (stop || !Array.isArray(data?.votes)) return;
+        setVotes(data.votes);
+      } catch {
+        /* ignore: poll best-effort */
+      }
+    };
+    void syncVotes(); // 進頁先同步一次
+    const id = window.setInterval(() => {
+      void syncVotes();
+    }, 2500);
+    return () => {
+      stop = true;
+      window.clearInterval(id);
+    };
+  }, [pg, setVotes]);
   useEffect(() => {
     /**
      * 對齊本機 voted 與雲端票數：
