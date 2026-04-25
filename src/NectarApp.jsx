@@ -925,109 +925,111 @@ export default function NectarApp() {
         </button>
       )}
 
-      <Suspense fallback={null}>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <HomePage
-              works={works}
-              admin={adminAuthed}
-              onOpenEditor={(w) => {
-                setEd(w);
-                setMo(true);
-              }}
-              onDeleteWork={doDl}
-              onUploadCover={doUp}
-              onOpenDetail={setDt}
-            />
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <AboutPage
-              socialIg={socialIg}
-              contactMail={contactMail}
-              artist={artist}
-              admin={adminAuthed}
-              onUploadPortrait={doArtistPortrait}
-              onUploadSignature={doArtistSignature}
-              onRemovePortrait={removeArtistPortrait}
-              onRemoveSignature={removeArtistSignature}
-            />
-          }
-        />
-        <Route
-          path="/gallery"
-          element={
-            <GalleryPage
-              works={works}
-              courses={courses}
-              admin={adminAuthed}
-              onOpenDetail={setDt}
-              onMoveWork={moveWork}
-              onEditWork={(w) => {
-                setEd(w);
-                setMo(true);
-              }}
-              onDeleteWork={doDl}
-              onAddCourse={addCourse}
-              onSaveCourseNames={saveCourseNames}
-              onUploadCourseImage={uploadCourseImage}
-              onDeleteCourse={deleteCourse}
-              onAddArtwork={() => {
-                setEd({ ...EMPTY_WORK });
-                setMo(true);
-              }}
-              newlyAddedCourseId={newlyAddedCourseId}
-            />
-          }
-        />
-        <Route
-          path="/vote"
-          element={
-            <VotePage
-              votes={votes}
-              wishes={wishes}
-              voted={voted}
-              voteFor={doV}
-              onVoteImg={doVoteImg}
-              onSaveNames={saveVoteNames}
-              onToggleHidden={toggleVoteHidden}
-              onDeleteOption={deleteVoteOption}
-              onAddOption={addVoteOption}
-              newlyAddedVoteId={newlyAddedVoteId}
-              onResetVotes={async () => {
-                const ok = await confirm({
-                  title: t("confirmTitleDestructive"),
-                  message: t("wishResetConfirm"),
-                  confirmLabel: t("confirmReset"),
-                  cancelLabel: t("confirmCancel"),
-                  tone: "danger",
-                });
-                if (!ok) return;
-                setVotes((p) => {
-                  const next = p.map((x) => ({ ...x, votes: 0 }));
-                  queueMicrotask(() => void forceFlushBundle(SK.w));
-                  return next;
-                });
-                setVd({});
-              }}
-              wiIn={wiIn}
-              onWiInChange={setWiIn}
-              onSubmitWish={doWi}
-              onDeleteWish={deleteWish}
-              headerIn={ho}
-              cardsIn={co}
-              admin={adminAuthed}
-            />
-          }
-        />
-        {/* 404：任何未知路徑一律 301-like 導回首頁，避免死連結 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      </Suspense>
+      <main>
+        <Suspense fallback={null}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                works={works}
+                admin={adminAuthed}
+                onOpenEditor={(w) => {
+                  setEd(w);
+                  setMo(true);
+                }}
+                onDeleteWork={doDl}
+                onUploadCover={doUp}
+                onOpenDetail={setDt}
+              />
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <AboutPage
+                socialIg={socialIg}
+                contactMail={contactMail}
+                artist={artist}
+                admin={adminAuthed}
+                onUploadPortrait={doArtistPortrait}
+                onUploadSignature={doArtistSignature}
+                onRemovePortrait={removeArtistPortrait}
+                onRemoveSignature={removeArtistSignature}
+              />
+            }
+          />
+          <Route
+            path="/gallery"
+            element={
+              <GalleryPage
+                works={works}
+                courses={courses}
+                admin={adminAuthed}
+                onOpenDetail={setDt}
+                onMoveWork={moveWork}
+                onEditWork={(w) => {
+                  setEd(w);
+                  setMo(true);
+                }}
+                onDeleteWork={doDl}
+                onAddCourse={addCourse}
+                onSaveCourseNames={saveCourseNames}
+                onUploadCourseImage={uploadCourseImage}
+                onDeleteCourse={deleteCourse}
+                onAddArtwork={() => {
+                  setEd({ ...EMPTY_WORK });
+                  setMo(true);
+                }}
+                newlyAddedCourseId={newlyAddedCourseId}
+              />
+            }
+          />
+          <Route
+            path="/vote"
+            element={
+              <VotePage
+                votes={votes}
+                wishes={wishes}
+                voted={voted}
+                voteFor={doV}
+                onVoteImg={doVoteImg}
+                onSaveNames={saveVoteNames}
+                onToggleHidden={toggleVoteHidden}
+                onDeleteOption={deleteVoteOption}
+                onAddOption={addVoteOption}
+                newlyAddedVoteId={newlyAddedVoteId}
+                onResetVotes={async () => {
+                  const ok = await confirm({
+                    title: t("confirmTitleDestructive"),
+                    message: t("wishResetConfirm"),
+                    confirmLabel: t("confirmReset"),
+                    cancelLabel: t("confirmCancel"),
+                    tone: "danger",
+                  });
+                  if (!ok) return;
+                  setVotes((p) => {
+                    const next = p.map((x) => ({ ...x, votes: 0 }));
+                    queueMicrotask(() => void forceFlushBundle(SK.w));
+                    return next;
+                  });
+                  setVd({});
+                }}
+                wiIn={wiIn}
+                onWiInChange={setWiIn}
+                onSubmitWish={doWi}
+                onDeleteWish={deleteWish}
+                headerIn={ho}
+                cardsIn={co}
+                admin={adminAuthed}
+              />
+            }
+          />
+          {/* 404：任何未知路徑一律 301-like 導回首頁，避免死連結 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        </Suspense>
+      </main>
 
       {/* Detail Lightbox */}
       <Suspense fallback={null}>
