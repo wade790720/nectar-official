@@ -305,37 +305,6 @@ export default function NectarApp() {
       votingLocksRef.current.delete(key);
     }
   };
-  /**
-   * Vote 頁跨裝置同步：
-   * - /api/vote 解決的是「原子加票」(不掉票)
-   * - 但不會主動推播給其他裝置，因此需要在 Vote 頁短輪詢拉新資料
-   */
-  useEffect(() => {
-    if (pg !== "vote") return;
-    let stop = false;
-    const syncVotes = async () => {
-      try {
-        const r = await fetch(apiPath("/api/data"), {
-          method: "GET",
-          cache: "no-store",
-        });
-        if (!r.ok) return;
-        const data = await r.json();
-        if (stop || !Array.isArray(data?.votes)) return;
-        setVotes(data.votes);
-      } catch {
-        /* ignore: poll best-effort */
-      }
-    };
-    void syncVotes(); // 進頁先同步一次
-    const id = window.setInterval(() => {
-      void syncVotes();
-    }, 2500);
-    return () => {
-      stop = true;
-      window.clearInterval(id);
-    };
-  }, [pg, setVotes]);
   useEffect(() => {
     /**
      * 對齊本機 voted 與雲端票數：

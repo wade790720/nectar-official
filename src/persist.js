@@ -211,6 +211,7 @@ function getInitBundle(k, initial) {
 
 let saveT = 0;
 const SAVE_DEBOUNCE_MS = 280;
+let lastVisitorWishesBody = "";
 
 function scheduleSaveBundle(k) {
   clearTimeout(saveT);
@@ -269,6 +270,10 @@ async function flushSaveBundle(worksKey) {
       ? memCloudData
       : { wishes: memCloudData.wishes };
   const body = JSON.stringify(payload);
+  if (!authed) {
+    // 訪客模式下，投票已改走 /api/vote。若 wishes 無變更，直接略過 PUT /api/data。
+    if (body === lastVisitorWishesBody) return;
+  }
   try {
     const r = await fetch(apiPath("/api/data"), {
       method: "PUT",
@@ -288,7 +293,9 @@ async function flushSaveBundle(worksKey) {
       notifySaveFailed(
         `儲存失敗（HTTP ${r.status}）。${t ? t.slice(0, 240) : "請檢查 Network 與 Functions 日誌。"}`,
       );
+      return;
     }
+    if (!authed) lastVisitorWishesBody = body;
   } catch (e) {
     console.warn("[nectar-official] 儲存失敗：", e?.message || e);
     notifySaveFailed(
