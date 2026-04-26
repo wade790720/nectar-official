@@ -20,7 +20,6 @@ import { usePageMeta } from "../hooks/usePageMeta.js";
 export function VotePage({
   votes,
   wishes,
-  voted,
   voteFor,
   onVoteImg,
   onSaveNames,
@@ -120,7 +119,7 @@ export function VotePage({
           return (
             <li
               key={f.id}
-              className={`vp-row ${voted[f.id] ? "is-voted" : ""}`}
+              className="vp-row"
               style={{
                 opacity: cardsIn ? 1 : 0,
                 transform: cardsIn ? "translateY(0)" : "translateY(6px)",
@@ -170,7 +169,6 @@ export function VotePage({
                   <span className="vp-row-votes-label">
                     {t("voteRowViewers")}
                   </span>
-                  <span className="vp-row-tick">{t("voteVoted")}</span>
                 </span>
               </button>
             </li>

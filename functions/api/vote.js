@@ -54,11 +54,7 @@ export async function onRequestPost({ request, env }) {
     return j({ error: "Bad JSON" }, 400);
   }
   const id = body?.id != null ? String(body.id) : "";
-  const delta = Number(body?.delta);
   if (!id) return j({ error: "id is required" }, 400);
-  if (![1, -1].includes(delta)) {
-    return j({ error: "delta must be 1 or -1" }, 400);
-  }
 
   let existing = {
     works: [],
@@ -79,8 +75,7 @@ export async function onRequestPost({ request, env }) {
   let nextVoteCount = null;
   const votes = (existing.votes || []).map((v) => {
     if (!v || String(v.id) !== id) return v;
-    const cur = Number(v.votes) || 0;
-    const next = Math.max(0, Math.floor(cur + delta));
+    const next = Math.max(0, Math.floor((Number(v.votes) || 0) + 1));
     nextVoteCount = next;
     return { ...v, votes: next };
   });

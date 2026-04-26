@@ -342,14 +342,13 @@ export async function fileToImageRef(file) {
 }
 
 /**
- * 訪客投票專用：以 delta（+1 / -1）原子更新單一選項票數，避免併發掉票。
- * 回傳最新票數，供前端與 UI 對齊。
+ * 訪客投票專用：原子 +1 單一選項票數，回傳最新票數供 UI 對齊。
  */
-export async function voteDelta(id, delta) {
+export async function voteDelta(id) {
   const r = await fetch(apiPath("/api/vote"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, delta }),
+    body: JSON.stringify({ id }),
     keepalive: true,
   });
   if (!r.ok) {

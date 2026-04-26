@@ -142,33 +142,6 @@ export default function NectarApp() {
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
   const [loginPwd, setLoginPwd] = useState("");
   const [loginErr, setLoginErr] = useState(false);
-  /**
-   * 裝置級「已投」記錄：持久化到 localStorage，避免重整後重投。
-   * - key 僅存 voteOption.id → true 的 map
-   * - 換裝置／清 cookies／無痕視窗仍能再投，這不是防刷票機制，
-   *   僅防誠實訪客刷新後重複投同一選項
-   * - admin 重設全票時會連同清掉本地記錄（見 onResetVotes）
-   */
-  const [voted, setVd] = useState(() => {
-    try {
-      if (typeof window === "undefined") return {};
-      const raw = localStorage.getItem("nectar_voted_v1");
-      if (!raw) return {};
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
-        ? parsed
-        : {};
-    } catch {
-      return {};
-    }
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem("nectar_voted_v1", JSON.stringify(voted));
-    } catch {
-      /* quota 滿就吞掉，不阻斷投票流程 */
-    }
-  }, [voted]);
   const [newlyAddedVoteId, setNewlyAddedVoteId] = useState(null);
   const [newlyAddedCourseId, setNewlyAddedCourseId] = useState(null);
   const votingLocksRef = useRef(new Set());
@@ -258,27 +231,15 @@ export default function NectarApp() {
 
   const doV = async (id) => {
     const key = String(id);
-    // 行動端可能出現極短時間重複觸發 click，對同選項加互斥鎖避免重複加票
+    // 防止同一按鈕在請求未完成前重複觸發（行動端雙擊保護）
     if (votingLocksRef.current.has(key)) return;
     votingLocksRef.current.add(key);
-    /** Toggle: first click casts the vote, a second click retracts it. */
-    const already = !!voted[id];
-    const delta = already ? -1 : 1;
+    // 樂觀 +1
     setVotes((p) =>
-      p.map((f) => {
-        if (f.id !== id) return f;
-        const next = already ? f.votes - 1 : f.votes + 1;
-        return { ...f, votes: Math.max(0, next) };
-      }),
+      p.map((f) => (f.id !== id ? f : { ...f, votes: f.votes + 1 })),
     );
-    setVd((p) => {
-      const n = { ...p };
-      if (already) delete n[id];
-      else n[id] = true;
-      return n;
-    });
     try {
-      const res = await voteDelta(id, delta);
+      const res = await voteDelta(id);
       const confirmed = Number(res?.votes);
       if (Number.isFinite(confirmed)) {
         setVotes((p) =>
@@ -287,52 +248,17 @@ export default function NectarApp() {
       }
     } catch (e) {
       console.error(e);
-      // rollback optimistic update
+      // 還原樂觀更新
       setVotes((p) =>
-        p.map((f) => {
-          if (f.id !== id) return f;
-          const next = already ? f.votes + 1 : f.votes - 1;
-          return { ...f, votes: Math.max(0, next) };
-        }),
+        p.map((f) =>
+          f.id !== id ? f : { ...f, votes: Math.max(0, f.votes - 1) },
+        ),
       );
-      setVd((p) => {
-        const n = { ...p };
-        if (already) n[id] = true;
-        else delete n[id];
-        return n;
-      });
       window.alert((e && e.message) || "投票儲存失敗，請稍後再試");
     } finally {
       votingLocksRef.current.delete(key);
     }
   };
-  useEffect(() => {
-    /**
-     * 對齊本機 voted 與雲端票數：
-     * - 該 option 已不存在 → 移除本機標記
-     * - 該 option 票數為 0（常見於 admin 重設後）→ 移除本機標記
-     *   避免畫面出現「VOTED 但 0 票」的矛盾狀態。
-     */
-    setVd((prev) => {
-      const entries = Object.entries(prev || {});
-      if (entries.length === 0) return prev;
-      const voteById = new Map(
-        (Array.isArray(votes) ? votes : []).map((v) => [String(v.id), v]),
-      );
-      let changed = false;
-      const next = {};
-      for (const [id, flag] of entries) {
-        if (!flag) continue;
-        const hit = voteById.get(String(id));
-        if (!hit || Number(hit.votes) <= 0) {
-          changed = true;
-          continue;
-        }
-        next[id] = true;
-      }
-      return changed ? next : prev;
-    });
-  }, [votes]);
   const doWi = () => {
     if (!wiIn.trim()) return;
     setWishes((p) => {
@@ -404,11 +330,6 @@ export default function NectarApp() {
       const next = p.filter((x) => x.id !== id);
       queueMicrotask(() => void forceFlushBundle(SK.w));
       return next;
-    });
-    setVd((p) => {
-      const n = { ...p };
-      delete n[id];
-      return n;
     });
     if (orphan) void deleteImageRefs([orphan]);
   };
@@ -991,7 +912,6 @@ export default function NectarApp() {
               <VotePage
                 votes={votes}
                 wishes={wishes}
-                voted={voted}
                 voteFor={doV}
                 onVoteImg={doVoteImg}
                 onSaveNames={saveVoteNames}
@@ -1013,7 +933,6 @@ export default function NectarApp() {
                     queueMicrotask(() => void forceFlushBundle(SK.w));
                     return next;
                   });
-                  setVd({});
                 }}
                 wiIn={wiIn}
                 onWiInChange={setWiIn}
