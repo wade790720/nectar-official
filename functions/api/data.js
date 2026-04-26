@@ -116,12 +116,14 @@ export async function onRequestPut({ request, env }) {
     artist: { ...EMPTY_ARTIST },
     courses: [],
   };
+  let prevRawText = null;
   const prev = await env.BUCKET.get(DATA);
   if (prev) {
     try {
-      existing = normalizeStored(JSON.parse(await prev.text()));
+      prevRawText = await prev.text();
+      existing = normalizeStored(JSON.parse(prevRawText));
     } catch {
-      /* ignore */
+      prevRawText = null;
     }
   }
 
@@ -181,6 +183,14 @@ export async function onRequestPut({ request, env }) {
       artist: existing.artist,
       courses: existing.courses,
     };
+  }
+
+  if (authenticated && prevRawText) {
+    try {
+      await env.BUCKET.put("data-prev.json", prevRawText, {
+        httpMetadata: { contentType: "application/json" },
+      });
+    } catch { /* 備份失敗不中斷主流程 */ }
   }
 
   await env.BUCKET.put(DATA, JSON.stringify(merged), {
