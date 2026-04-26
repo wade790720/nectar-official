@@ -211,9 +211,11 @@ function getInitBundle(k, initial) {
 
 let saveT = 0;
 const SAVE_DEBOUNCE_MS = 280;
+let hasPendingChanges = false;
 let lastVisitorWishesBody = "";
 
 function scheduleSaveBundle(k) {
+  hasPendingChanges = true;
   clearTimeout(saveT);
   saveT = setTimeout(() => {
     void flushSaveBundle(k);
@@ -254,6 +256,7 @@ async function flushSaveBundle(worksKey) {
     try {
       const r = LOCAL_STORE.set(worksKey, JSON.stringify(memCloudData));
       if (r && typeof r.catch === "function") r.catch(() => {});
+      hasPendingChanges = false;
     } catch {
       /* ignore */
     }
@@ -296,6 +299,7 @@ async function flushSaveBundle(worksKey) {
       return;
     }
     if (!authed) lastVisitorWishesBody = body;
+    hasPendingChanges = false;
   } catch (e) {
     console.warn("[nectar-official] 儲存失敗：", e?.message || e);
     notifySaveFailed(
@@ -416,6 +420,7 @@ export function useP(k, initial, options = {}) {
   useEffect(() => {
     if (!cloud || typeof window === "undefined" || !isRemoteSync()) return;
     const flush = () => {
+      if (!hasPendingChanges) return;
       clearTimeout(saveT);
       void flushSaveBundle(k);
     };
