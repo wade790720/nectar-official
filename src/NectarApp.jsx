@@ -240,11 +240,8 @@ export default function NectarApp() {
     );
     try {
       const res = await voteDelta(id);
-      const confirmed = Number(res?.votes);
-      if (Number.isFinite(confirmed)) {
-        setVotes((p) =>
-          p.map((f) => (f.id === id ? { ...f, votes: confirmed } : f)),
-        );
+      if (Array.isArray(res?.votes)) {
+        setVotes(res.votes);
       }
     } catch (e) {
       console.error(e);

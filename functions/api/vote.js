@@ -85,5 +85,5 @@ export async function onRequestPost({ request, env }) {
   await env.BUCKET.put(DATA, JSON.stringify(merged), {
     httpMetadata: { contentType: "application/json" },
   });
-  return j({ ok: true, id, votes: nextVoteCount });
+  return j({ ok: true, votes });
 }
