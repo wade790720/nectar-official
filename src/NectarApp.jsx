@@ -35,6 +35,7 @@ const HomePage = lazy(() => import("./pages/HomePage.jsx").then((m) => ({ defaul
 const VotePage = lazy(() => import("./pages/VotePage.jsx").then((m) => ({ default: m.VotePage })));
 const AboutPage = lazy(() => import("./pages/AboutPage.jsx").then((m) => ({ default: m.AboutPage })));
 const GalleryPage = lazy(() => import("./pages/GalleryPage.jsx").then((m) => ({ default: m.GalleryPage })));
+const CoursePage = lazy(() => import("./pages/CoursePage.jsx").then((m) => ({ default: m.CoursePage })));
 const Detail = lazy(() => import("./components/DetailLightbox.jsx").then((m) => ({ default: m.Detail })));
 
 /**
@@ -50,6 +51,7 @@ const PATH_TO_PG = {
   "/about": "about",
   "/gallery": "gallery",
   "/vote": "vote",
+  "/course": "course",
 };
 function pathToPg(pathname) {
   if (!pathname || pathname === "/" || pathname === "") return "home";
@@ -76,6 +78,7 @@ export default function NectarApp() {
       wishes: [],
       artist: { portrait: "", signature: "" },
       courses: DC,
+      coursePage: { tainanSchedule: "" },
     }),
     [],
   );
@@ -88,6 +91,7 @@ export default function NectarApp() {
     () => (Array.isArray(bundle.courses) ? bundle.courses : []),
     [bundle.courses],
   );
+  const coursePage = bundle.coursePage || { tainanSchedule: "" };
   const setW = useCallback(
     (u) =>
       setBundle((d) => ({
@@ -134,6 +138,17 @@ export default function NectarApp() {
       }),
     [setBundle],
   );
+  const setCoursePage = useCallback(
+    (u) =>
+      setBundle((d) => {
+        const prev = d.coursePage || { tainanSchedule: "" };
+        return {
+          ...d,
+          coursePage: typeof u === "function" ? u(prev) : u,
+        };
+      }),
+    [setBundle],
+  );
   const [ed, setEd] = useState(null);
   const [modal, setMo] = useState(false);
   const [detail, setDt] = useState(null);
@@ -155,6 +170,17 @@ export default function NectarApp() {
     import.meta.env.VITE_SOCIAL_FACEBOOK || "",
   );
   const contactMail = (import.meta.env.VITE_CONTACT_EMAIL || "").trim();
+  const courseTaipeiUrl = (
+    import.meta.env.VITE_COURSE_TAIPEI_URL ||
+    "https://course.lustreyellow.com/courses/lycoris"
+  ).trim();
+  const courseTaichungUrl = (
+    import.meta.env.VITE_COURSE_TAICHUNG_URL ||
+    "https://course.lustreyellow.com/courses/taichung-lycoris"
+  ).trim();
+  const courseMainUrl = (
+    import.meta.env.VITE_COURSE_MAIN_URL || "https://course.lustreyellow.com/"
+  ).trim();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -407,6 +433,13 @@ export default function NectarApp() {
       return next;
     });
     if (orphan) void deleteImageRefs([orphan]);
+  };
+  const saveTainanSchedule = (text) => {
+    setCoursePage((p) => {
+      const next = { ...p, tainanSchedule: String(text || "") };
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      return next;
+    });
   };
   const doSv = (w) => {
     const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
@@ -664,17 +697,13 @@ export default function NectarApp() {
             >
               {t("navVote")}
             </button>
-            <a
-              className="nb nb-ext"
-              href="https://yellow510.kaik.io/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              className={`nb ${pg === "course" ? "on" : ""}`}
+              onClick={() => goto("/course")}
             >
               <span>{t("navCourse")}</span>
-              <span className="nb-ext-arr" aria-hidden="true">
-                ↗
-              </span>
-            </a>
+            </button>
             <div
               className="nav-lang-btns"
               style={{ display: "flex", gap: 8, alignItems: "center" }}
@@ -755,16 +784,13 @@ export default function NectarApp() {
           >
             {t("navVote")}
           </button>
-          <a
-            className="nav-overlay-link nav-overlay-ext"
-            href="https://yellow510.kaik.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileNavOpen(false)}
+          <button
+            type="button"
+            className="nav-overlay-link"
+            onClick={() => goto("/course")}
           >
             <span>{t("navCourse")}</span>
-            <span aria-hidden="true">↗</span>
-          </a>
+          </button>
           <div className="nav-overlay-lang">
             <span className="nav-overlay-lang-label">{t("navLanguage")}</span>
             <div className="nav-overlay-lang-btns">
@@ -938,6 +964,20 @@ export default function NectarApp() {
                 headerIn={ho}
                 cardsIn={co}
                 admin={adminAuthed}
+                onGoCourse={() => goto("/course")}
+              />
+            }
+          />
+          <Route
+            path="/course"
+            element={
+              <CoursePage
+                admin={adminAuthed}
+                tainanSchedule={coursePage.tainanSchedule || ""}
+                onSaveTainanSchedule={saveTainanSchedule}
+                taipeiUrl={courseTaipeiUrl}
+                taichungUrl={courseTaichungUrl}
+                mainUrl={courseMainUrl}
               />
             }
           />

@@ -129,9 +129,19 @@ function normalizeArtist(a, fallback) {
   };
 }
 
+function normalizeCoursePage(v, fallback) {
+  const fb = fallback || { tainanSchedule: "" };
+  if (!v || typeof v !== "object" || Array.isArray(v)) return { ...fb };
+  return {
+    tainanSchedule:
+      typeof v.tainanSchedule === "string" ? v.tainanSchedule : fb.tainanSchedule,
+  };
+}
+
 function normalizeBundle(parsed, fallback) {
   const fbArtist = fallback.artist || { portrait: "", signature: "" };
   const fbCourses = Array.isArray(fallback.courses) ? fallback.courses : [];
+  const fbCoursePage = fallback.coursePage || { tainanSchedule: "" };
   if (Array.isArray(parsed)) {
     return {
       works: parsed,
@@ -139,10 +149,16 @@ function normalizeBundle(parsed, fallback) {
       wishes: fallback.wishes,
       artist: { ...fbArtist },
       courses: [...fbCourses],
+      coursePage: { ...fbCoursePage },
     };
   }
   if (!parsed || typeof parsed !== "object") {
-    return { ...fallback, artist: { ...fbArtist }, courses: [...fbCourses] };
+    return {
+      ...fallback,
+      artist: { ...fbArtist },
+      courses: [...fbCourses],
+      coursePage: { ...fbCoursePage },
+    };
   }
   return {
     works: Array.isArray(parsed.works) ? parsed.works : fallback.works,
@@ -150,6 +166,7 @@ function normalizeBundle(parsed, fallback) {
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : fallback.wishes,
     artist: normalizeArtist(parsed.artist, fbArtist),
     courses: Array.isArray(parsed.courses) ? parsed.courses : fbCourses,
+    coursePage: normalizeCoursePage(parsed.coursePage, fbCoursePage),
   };
 }
 

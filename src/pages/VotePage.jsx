@@ -35,6 +35,7 @@ export function VotePage({
   headerIn,
   cardsIn,
   admin,
+  onGoCourse,
 }) {
   const { t, locale, flowerName } = useI18n();
   usePageMeta({
@@ -72,6 +73,11 @@ export function VotePage({
         </div>
         <h2 className="vp-title">{t("voteTitle")}</h2>
         <p className="vp-sub">{t("voteSub")}</p>
+        <div style={{ marginTop: 14 }}>
+          <button type="button" className="vp-admin-add" onClick={onGoCourse}>
+            {t("voteGotoCourse")}
+          </button>
+        </div>
       </header>
 
       {sorted[0]?.votes > 0 && (

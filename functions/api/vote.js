@@ -1,5 +1,6 @@
 const DATA = "data.json";
 const EMPTY_ARTIST = { portrait: "", signature: "" };
+const EMPTY_COURSE_PAGE = { tainanSchedule: "" };
 
 function j(body, s = 200) {
   return new Response(typeof body === "string" ? body : JSON.stringify(body), {
@@ -17,6 +18,15 @@ function normalizeArtist(a) {
   };
 }
 
+function normalizeCoursePage(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v))
+    return { ...EMPTY_COURSE_PAGE };
+  return {
+    tainanSchedule:
+      typeof v.tainanSchedule === "string" ? v.tainanSchedule : "",
+  };
+}
+
 function normalizeStored(parsed) {
   if (Array.isArray(parsed)) {
     return {
@@ -25,6 +35,7 @@ function normalizeStored(parsed) {
       wishes: [],
       artist: { ...EMPTY_ARTIST },
       courses: [],
+      coursePage: { ...EMPTY_COURSE_PAGE },
     };
   }
   if (!parsed || typeof parsed !== "object") {
@@ -34,6 +45,7 @@ function normalizeStored(parsed) {
       wishes: [],
       artist: { ...EMPTY_ARTIST },
       courses: [],
+      coursePage: { ...EMPTY_COURSE_PAGE },
     };
   }
   return {
@@ -42,6 +54,7 @@ function normalizeStored(parsed) {
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : [],
     artist: normalizeArtist(parsed.artist),
     courses: Array.isArray(parsed.courses) ? parsed.courses : [],
+    coursePage: normalizeCoursePage(parsed.coursePage),
   };
 }
 
@@ -62,6 +75,7 @@ export async function onRequestPost({ request, env }) {
     wishes: [],
     artist: { ...EMPTY_ARTIST },
     courses: [],
+    coursePage: { ...EMPTY_COURSE_PAGE },
   };
   const prev = await env.BUCKET.get(DATA);
   if (prev) {

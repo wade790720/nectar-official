@@ -8,6 +8,7 @@ function j(body, s = 200) {
 }
 
 const EMPTY_ARTIST = { portrait: "", signature: "" };
+const EMPTY_COURSE_PAGE = { tainanSchedule: "" };
 
 function normalizeArtist(a) {
   if (!a || typeof a !== "object" || Array.isArray(a))
@@ -15,6 +16,15 @@ function normalizeArtist(a) {
   return {
     portrait: typeof a.portrait === "string" ? a.portrait : "",
     signature: typeof a.signature === "string" ? a.signature : "",
+  };
+}
+
+function normalizeCoursePage(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v))
+    return { ...EMPTY_COURSE_PAGE };
+  return {
+    tainanSchedule:
+      typeof v.tainanSchedule === "string" ? v.tainanSchedule : "",
   };
 }
 
@@ -51,6 +61,7 @@ function normalizeStored(parsed) {
       wishes: [],
       artist: { ...EMPTY_ARTIST },
       courses: [],
+      coursePage: { ...EMPTY_COURSE_PAGE },
     };
   }
   if (!parsed || typeof parsed !== "object") {
@@ -60,6 +71,7 @@ function normalizeStored(parsed) {
       wishes: [],
       artist: { ...EMPTY_ARTIST },
       courses: [],
+      coursePage: { ...EMPTY_COURSE_PAGE },
     };
   }
   return {
@@ -68,6 +80,7 @@ function normalizeStored(parsed) {
     wishes: Array.isArray(parsed.wishes) ? parsed.wishes : [],
     artist: normalizeArtist(parsed.artist),
     courses: Array.isArray(parsed.courses) ? parsed.courses : [],
+    coursePage: normalizeCoursePage(parsed.coursePage),
   };
 }
 
@@ -115,6 +128,7 @@ export async function onRequestPut({ request, env }) {
     wishes: [],
     artist: { ...EMPTY_ARTIST },
     courses: [],
+    coursePage: { ...EMPTY_COURSE_PAGE },
   };
   let prevRawText = null;
   const prev = await env.BUCKET.get(DATA);
@@ -153,13 +167,17 @@ export async function onRequestPut({ request, env }) {
           ? body.courses
           : existing.courses
         : existing.courses,
+      coursePage: Object.prototype.hasOwnProperty.call(body, "coursePage")
+        ? normalizeCoursePage(body.coursePage)
+        : existing.coursePage,
     };
   } else {
     /** 訪客可更新投票／許願；不可改 works/artist/courses（避免未授權竄改作品、師資、課程資訊） */
     if (
       Object.prototype.hasOwnProperty.call(body, "works") ||
       Object.prototype.hasOwnProperty.call(body, "artist") ||
-      Object.prototype.hasOwnProperty.call(body, "courses")
+      Object.prototype.hasOwnProperty.call(body, "courses") ||
+      Object.prototype.hasOwnProperty.call(body, "coursePage")
     ) {
       return j({ error: "Unauthorized" }, 401);
     }
@@ -182,6 +200,7 @@ export async function onRequestPut({ request, env }) {
         : existing.wishes,
       artist: existing.artist,
       courses: existing.courses,
+      coursePage: existing.coursePage,
     };
   }
 

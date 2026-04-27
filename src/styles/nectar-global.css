@@ -3829,3 +3829,185 @@ html[lang="zh-TW"] .hero-display {
   border-color: var(--accent-400);
   color: var(--paper-50);
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Course page — city registration board.
+   ────────────────────────────────────────────────────────────── */
+.cp-page {
+  padding-bottom: var(--sp-24);
+}
+
+.cp-mast {
+  max-width: 980px;
+}
+
+.cp-display {
+  font-size: clamp(36px, 6vw, 88px);
+}
+
+.cp-lead {
+  max-width: 64ch;
+}
+
+.cp-main-link {
+  margin-top: var(--sp-6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--accent-hair);
+  color: var(--paper-100);
+  text-decoration: none;
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  transition:
+    border-color var(--dur-short) var(--ease-editorial),
+    color var(--dur-short) var(--ease-editorial),
+    background var(--dur-short) var(--ease-editorial);
+}
+
+.cp-main-link:hover {
+  border-color: var(--accent-300);
+  color: var(--paper-50);
+  background: rgba(201, 169, 110, 0.06);
+}
+
+.cp-grid {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 1.8vw, 24px);
+}
+
+.cp-card {
+  min-height: 250px;
+  display: grid;
+  align-content: start;
+  gap: var(--sp-5);
+  border: 1px solid rgba(250, 247, 242, 0.1);
+  background: linear-gradient(
+    180deg,
+    rgba(8, 7, 6, 0.78) 0%,
+    rgba(8, 7, 6, 0.48) 100%
+  );
+  padding: clamp(16px, 2vw, 24px);
+}
+
+.cp-city {
+  margin: 0;
+  font-family: var(--font-serif-en);
+  font-size: clamp(30px, 4.6vw, 52px);
+  font-weight: 400;
+  letter-spacing: var(--tr-tight);
+  line-height: var(--lh-headline);
+  color: var(--paper-50);
+}
+
+.cp-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--accent-300);
+  color: var(--accent-400);
+  text-decoration: none;
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-short) var(--ease-editorial),
+    color var(--dur-short) var(--ease-editorial),
+    background var(--dur-short) var(--ease-editorial);
+}
+
+.cp-link:hover {
+  border-color: var(--accent-400);
+  color: var(--paper-50);
+  background: rgba(201, 169, 110, 0.1);
+}
+
+.cp-link-pending {
+  color: var(--paper-500);
+  font-size: var(--fs-caption);
+  letter-spacing: 0.04em;
+}
+
+.cp-card--tainan {
+  grid-column: 1 / -1;
+  min-height: 340px;
+  grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
+  align-items: start;
+  gap: var(--sp-8);
+}
+
+.cp-tainan-head {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-3);
+  padding-right: var(--sp-4);
+  border-right: 1px solid rgba(201, 169, 110, 0.2);
+}
+
+.cp-tainan-body {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-4);
+}
+
+.cp-date-kicker {
+  font-size: var(--fs-overline);
+  letter-spacing: var(--tr-widest);
+  text-transform: uppercase;
+  color: var(--accent-400);
+}
+
+.cp-schedule {
+  white-space: pre-line;
+  min-height: 190px;
+  color: var(--paper-100);
+  line-height: var(--lh-subtitle);
+  font-size: var(--fs-lead);
+}
+
+.cp-save {
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--accent-300);
+  color: var(--accent-400);
+  background: rgba(201, 169, 110, 0.08);
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+@media (max-width: 960px) {
+  .cp-grid {
+    grid-template-columns: 1fr;
+  }
+  .cp-card {
+    min-height: auto;
+  }
+  .cp-card--tainan {
+    grid-column: auto;
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+  }
+  .cp-tainan-head {
+    border-right: 0;
+    padding-right: 0;
+  }
+  .cp-schedule {
+    min-height: 128px;
+    font-size: var(--fs-body);
+  }
+}
