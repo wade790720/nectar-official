@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
 
 const LANG_KEY = "nectar_locale";
@@ -479,6 +480,10 @@ export function I18nProvider({ children }) {
       /* ignore */
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const t = useCallback(
     (key) => messages[locale]?.[key] ?? messages.en[key] ?? key,

@@ -549,6 +549,10 @@ textarea.fi {
   line-height: var(--lh-display);
 }
 
+html[lang="zh-TW"] .hero-display {
+  font-family: var(--font-serif-zh);
+}
+
 .hero-display em {
   color: var(--accent-400);
   font-weight: 400;
