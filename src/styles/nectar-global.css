@@ -3321,16 +3321,19 @@ html[lang="zh-TW"] .hero-display {
 .gl-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-3);
+  gap: 14px;
   font-size: var(--fs-overline);
   letter-spacing: var(--tr-widest);
   text-transform: uppercase;
-  color: var(--paper-500);
+  color: var(--paper-300);
+  font-style: italic;
+  font-family: var(--font-serif-en);
+  opacity: 0.72;
 }
 
 .gl-eyebrow-rule {
   display: inline-block;
-  width: 32px;
+  width: 44px;
   height: 1px;
   background: var(--accent-hair);
 }
@@ -3835,10 +3838,11 @@ html[lang="zh-TW"] .hero-display {
    ────────────────────────────────────────────────────────────── */
 .cp-page {
   padding-bottom: var(--sp-24);
+  --cp-shell: 980px;
 }
 
 .cp-mast {
-  max-width: 980px;
+  max-width: var(--cp-shell);
 }
 
 .cp-display {
@@ -3875,7 +3879,7 @@ html[lang="zh-TW"] .hero-display {
 }
 
 .cp-grid {
-  max-width: 1080px;
+  max-width: var(--cp-shell);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
