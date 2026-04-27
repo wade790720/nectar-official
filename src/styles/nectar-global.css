@@ -3854,32 +3854,6 @@ html[lang='zh-TW'] .hero-display {
   line-height: var(--lh-headline);
 }
 
-.cp-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 14px;
-  min-height: 38px;
-  max-width: 100%;
-  width: fit-content;
-  border: 1px solid var(--accent-300);
-  color: var(--accent-400);
-  text-decoration: none;
-  text-transform: uppercase;
-  white-space: nowrap;
-  letter-spacing: var(--tr-wide);
-  font-size: var(--fs-caption);
-  transition: border-color var(--dur-short) var(--ease-editorial),
-  color var(--dur-short) var(--ease-editorial),
-  background var(--dur-short) var(--ease-editorial);
-}
-
-.cp-link:hover {
-  border-color: var(--accent-400);
-  background: rgba(201, 169, 110, 0.1);
-  color: var(--paper-50);
-}
-
 .cp-link-pending {
   color: var(--paper-500);
   letter-spacing: 0.04em;
@@ -3911,32 +3885,12 @@ html[lang='zh-TW'] .hero-display {
   gap: var(--sp-4);
 }
 
-.cp-date-kicker {
-  color: var(--accent-400);
-  text-transform: uppercase;
-  letter-spacing: var(--tr-widest);
-  font-size: var(--fs-overline);
-}
-
 .cp-schedule {
   min-height: 190px;
   color: var(--paper-100);
   white-space: pre-line;
   font-size: var(--fs-lead);
   line-height: var(--lh-subtitle);
-}
-
-.cp-save {
-  padding: 0 14px;
-  min-height: 38px;
-  width: fit-content;
-  border: 1px solid var(--accent-300);
-  background: rgba(201, 169, 110, 0.08);
-  color: var(--accent-400);
-  text-transform: uppercase;
-  letter-spacing: var(--tr-wide);
-  font-size: var(--fs-caption);
-  cursor: pointer;
 }
 
 @media (max-width: 960px) {

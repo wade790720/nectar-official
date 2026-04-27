@@ -149,7 +149,6 @@ const messages = {
     courseTainan: "Tainan",
     courseGoLink: "Open registration",
     courseLinkPending: "Link not set yet",
-    courseDateTitle: "Class dates",
     courseDatePlaceholder:
       "e.g.\nMay 18 (Sun) 14:00-17:00 Beginner class\nJune 2 (Mon) 19:00-21:30 Evening session",
     courseDateSave: "Save schedule",
@@ -389,7 +388,6 @@ const messages = {
     courseTainan: "台南",
     courseGoLink: "開啟報名連結",
     courseLinkPending: "連結尚未設定",
-    courseDateTitle: "開課日期",
     courseDatePlaceholder:
       "例如：\n5/18（日）14:00-17:00 初階班\n6/2（一）19:00-21:30 晚間班",
     courseDateSave: "儲存日期",

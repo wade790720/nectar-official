@@ -55,7 +55,13 @@ export function CoursePage({
           <article key={c.key} className="cp-card">
             <h3 className="cp-city">{c.title}</h3>
             {c.href ? (
-              <a href={c.href} target="_blank" rel="noopener noreferrer" className="cp-link">
+              <a
+                href={c.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="vp-admin-add"
+                style={{ width: "fit-content", textDecoration: "none" }}
+              >
                 {t("courseGoLink")}
               </a>
             ) : (
@@ -67,7 +73,6 @@ export function CoursePage({
         <article className="cp-card cp-card--tainan">
           <div className="cp-tainan-head">
             <h3 className="cp-city">{t("courseTainan")}</h3>
-            <div className="cp-date-kicker">{t("courseDateTitle")}</div>
           </div>
           <div className="cp-tainan-body">
             {admin ? (
@@ -81,7 +86,8 @@ export function CoursePage({
                 />
                 <button
                   type="button"
-                  className="cp-save"
+                className="vp-admin-add"
+                style={{ width: "fit-content" }}
                   onClick={() => onSaveTainanSchedule?.(draft)}
                 >
                   {t("courseDateSave")}
