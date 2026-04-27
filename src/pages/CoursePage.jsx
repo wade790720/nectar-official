@@ -30,19 +30,20 @@ export function CoursePage({
 
   return (
     <section className="gl-page cp-page">
-      <header className="gl-mast cp-mast">
-        <div className="gl-eyebrow">
-          <span className="gl-eyebrow-rule" aria-hidden="true" />
+      <header className="vp-head gl-mast cp-mast">
+        <div className="vp-eyebrow">
+          <span className="vp-eyebrow-rule" aria-hidden="true" />
           {t("courseKicker")}
         </div>
-        <h2 className="gl-display cp-display">{t("courseTitle")}</h2>
-        <p className="gl-lead cp-lead">{t("courseSub")}</p>
+        <h2 className="vp-title">{t("courseTitle")}</h2>
+        <p className="vp-sub">{t("courseSub")}</p>
         {mainUrl ? (
           <a
             href={mainUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="cp-main-link"
+            className="vp-admin-add"
+            style={{ width: "fit-content", textDecoration: "none" }}
           >
             {t("courseMainSite")}
           </a>

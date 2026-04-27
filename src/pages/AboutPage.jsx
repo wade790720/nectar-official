@@ -22,7 +22,7 @@ export function AboutPage({
   onRemovePortrait,
   onRemoveSignature,
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   usePageMeta({
     title: t("metaAboutTitle"),
     description: t("metaAboutDesc"),
@@ -43,7 +43,7 @@ export function AboutPage({
   const signature = artist?.signature || "";
 
   return (
-    <div className="ab-page">
+    <div className={`ab-page ${locale === "en" ? "ab-page--en" : "ab-page--zh"}`}>
       {/* ── Masthead ─────────────────────────── */}
       <header className="ab-mast">
         <div className="ab-eyebrow">
