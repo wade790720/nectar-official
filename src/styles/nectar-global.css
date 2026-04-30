@@ -3596,12 +3596,12 @@ html[lang='zh-TW'] .hero-display {
 
 .gl-caption-meta {
   flex-shrink: 0;
-  color: var(--accent-300);
+  color: rgb(201 169 110);
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4),
   0 0 2px rgba(201, 169, 110, 0.3);
   letter-spacing: 0.04em;
   font-style: italic;
-  font-size: var(--fs-caption);
+  font-size: var(--fs-body);
   font-family: var(--font-serif-en);
   animation: gl-price-breathe 3.6s ease-in-out infinite;
 }
