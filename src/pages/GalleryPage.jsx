@@ -206,53 +206,58 @@ function WorkTile({
           </span>
         </div>
       ) : null}
-      {showWorkTools ? (
-        <div className="gl-work-tools" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="gl-work-tool"
-            aria-label={t("modalEdit")}
-            title={t("modalEdit")}
-            onClick={(e) => {
-              e.preventDefault();
-              onEdit?.();
-            }}
-          >
-            <Edit s={14} />
-          </button>
-          <button
-            type="button"
-            className="gl-work-tool is-danger"
-            aria-label={t("confirmDelete")}
-            title={t("confirmDelete")}
-            onClick={(e) => {
-              e.preventDefault();
-              onDelete?.();
-            }}
-          >
-            <Trash s={14} />
-          </button>
-        </div>
-      ) : null}
-      <button
-        type="button"
-        className="gl-tile-btn"
-        onClick={onOpen}
-        aria-label={title}
-      >
-        <div
-          className={`gl-cover ${hasImg ? "" : "is-empty"}`}
-          style={{
-            backgroundImage: hasImg ? `url(${work.image})` : gradient,
-          }}
+      {/* Shell keeps edit/delete anchored to the image card column (not stretched grid Li). */}
+      <div className="gl-tile-card-shell">
+        {showWorkTools ? (
+          <div className="gl-work-tools" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="gl-work-tool"
+              aria-label={t("modalEdit")}
+              title={t("modalEdit")}
+              onClick={(e) => {
+                e.preventDefault();
+                onEdit?.();
+              }}
+            >
+              <Edit s={14} />
+            </button>
+            <button
+              type="button"
+              className="gl-work-tool is-danger"
+              aria-label={t("confirmDelete")}
+              title={t("confirmDelete")}
+              onClick={(e) => {
+                e.preventDefault();
+                onDelete?.();
+              }}
+            >
+              <Trash s={14} />
+            </button>
+          </div>
+        ) : null}
+        <button
+          type="button"
+          className="gl-tile-btn"
+          onClick={onOpen}
+          aria-label={title}
         >
-          {!hasImg && <span className="gl-cover-empty">—</span>}
-        </div>
-        <div className="gl-caption">
-          <span className="gl-caption-title">{title}</span>
-          {priceLabel && <span className="gl-caption-meta">{priceLabel}</span>}
-        </div>
-      </button>
+          <div
+            className={`gl-cover ${hasImg ? "" : "is-empty"}`}
+            style={{
+              backgroundImage: hasImg ? `url(${work.image})` : gradient,
+            }}
+          >
+            {!hasImg && <span className="gl-cover-empty">—</span>}
+          </div>
+          <div className="gl-caption">
+            <span className="gl-caption-title">{title}</span>
+            {priceLabel && (
+              <span className="gl-caption-meta">{priceLabel}</span>
+            )}
+          </div>
+        </button>
+      </div>
     </li>
   );
 }
