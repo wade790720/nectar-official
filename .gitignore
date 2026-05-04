@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Wrangler local dev state
+.wrangler/
+
 # 環境變數（含管理密鑰）
 .env
 .env.*.local

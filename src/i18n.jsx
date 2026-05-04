@@ -147,6 +147,9 @@ const messages = {
     courseTaipei: "Taipei",
     courseTaichung: "Taichung",
     courseTainan: "Tainan",
+    courseCitySubTaipei: "台北",
+    courseCitySubTaichung: "台中",
+    courseCitySubTainan: "台南",
     courseGoLink: "Open registration",
     courseLinkPending: "Link not set yet",
     courseDatePlaceholder:
@@ -386,6 +389,9 @@ const messages = {
     courseTaipei: "台北",
     courseTaichung: "台中",
     courseTainan: "台南",
+    courseCitySubTaipei: "",
+    courseCitySubTaichung: "",
+    courseCitySubTainan: "",
     courseGoLink: "開啟報名連結",
     courseLinkPending: "連結尚未設定",
     courseDatePlaceholder:

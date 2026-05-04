@@ -3414,9 +3414,7 @@ html[lang='zh-TW'] .hero-display {
 
 .gl-tile-card-shell {
   position: relative;
-
   flex: 1;
-
   min-width: 0;
 }
 
@@ -3853,6 +3851,9 @@ html[lang='zh-TW'] .hero-display {
 }
 
 .cp-city {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
   margin: 0;
   color: var(--paper-50);
   letter-spacing: var(--tr-tight);
@@ -3860,12 +3861,211 @@ html[lang='zh-TW'] .hero-display {
   font-size: clamp(30px, 4.6vw, 52px);
   font-family: var(--font-serif-en);
   line-height: var(--lh-headline);
+
+  gap: 0.2em;
+}
+
+.cp-city-primary {
+  display: block;
+}
+
+.cp-city-sub {
+  display: block;
+  margin: 0;
+  padding: 0 0 0 0.08em;
+  color: var(--paper-500);
+  letter-spacing: 0.14em;
+  font-weight: 400;
+  font-size: clamp(13px, 1.85vw, 17px);
+  font-family: var(--font-serif-zh);
+  line-height: 1.35;
 }
 
 .cp-link-pending {
   color: var(--paper-500);
   letter-spacing: 0.04em;
   font-size: var(--fs-caption);
+}
+
+/* ── Course: OG bookmark link cards ───────────────── */
+.cp-bookmark {
+  display: block;
+  max-width: 100%;
+  border: 1px solid rgba(201, 169, 110, 0.22);
+  border-radius: 2px;
+  background: rgba(6, 5, 4, 0.45);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--dur-short) var(--ease-editorial),
+  background var(--dur-short) var(--ease-editorial),
+  box-shadow var(--dur-short) var(--ease-editorial);
+
+          backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cp-bookmark:hover {
+  border-color: var(--accent-400);
+  background: rgba(10, 9, 7, 0.62);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.cp-bookmark-inner {
+  display: grid;
+  align-items: stretch;
+  min-height: 0;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+}
+
+.cp-bookmark-thumb {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 120px;
+  max-height: min(42vw, 220px);
+  border-right: none;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.12);
+  background: var(--ink-700);
+}
+
+/* OG 圖多為橫幅或 1:1；cover 會硬裁。contain 顯示完整構圖，留白處用深色底。 */
+.cp-bookmark-thumb img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+.cp-bookmark-skeleton {
+  position: absolute;
+  display: block;
+  background: linear-gradient(
+  110deg,
+  rgba(250, 247, 242, 0.04) 0%,
+  rgba(201, 169, 110, 0.09) 48%,
+  rgba(250, 247, 242, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: cp-bm-shimmer 1.35s ease-in-out infinite;
+
+  inset: 0;
+}
+
+.cp-bookmark-thumb-fallback {
+  position: absolute;
+  display: block;
+  background: linear-gradient(
+  145deg,
+  rgba(201, 169, 110, 0.12) 0%,
+  rgba(8, 7, 6, 0.85) 55%,
+  rgba(201, 169, 110, 0.08) 100%
+  );
+
+  inset: 0;
+}
+
+.cp-bookmark-thumb-fallback::after {
+  position: absolute;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  border-radius: 1px;
+  background: rgba(6, 5, 4, 0.35);
+  content: '';
+
+  inset: 28% 22%;
+}
+
+@keyframes cp-bm-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.cp-bookmark-body {
+  display: grid;
+  align-content: center;
+  padding: clamp(12px, 2vw, 18px);
+
+  gap: 6px;
+}
+
+.cp-bookmark-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  color: var(--paper-50);
+  letter-spacing: 0.02em;
+  font-size: clamp(15px, 2.1vw, 18px);
+  font-family: var(--font-serif-en);
+  line-height: 1.35;
+
+  -webkit-line-clamp: 2;
+}
+
+.cp-bookmark-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  margin: 0;
+  max-height: 3.1em;
+  color: var(--paper-500);
+  letter-spacing: 0.03em;
+  font-style: italic;
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+
+  -webkit-line-clamp: 2;
+}
+
+.cp-bookmark-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-top: 2px;
+
+  gap: 8px 12px;
+}
+
+.cp-bookmark-domain {
+  color: var(--paper-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--fs-micro);
+  font-family: var(--font-serif-en);
+}
+
+.cp-bookmark-cta {
+  margin-left: auto;
+  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.35);
+  color: var(--accent-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+}
+
+@media (max-width: 560px) {
+  .cp-bookmark-thumb {
+    max-height: min(52vw, 180px);
+  }
+
+  .cp-bookmark-body {
+    padding: 10px 12px;
+  }
 }
 
 .cp-card--tainan {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { CourseOgBookmark } from "../components/CourseOgBookmark.jsx";
 import { useI18n } from "../i18n.jsx";
 import { usePageMeta } from "../hooks/usePageMeta.js";
 
@@ -24,8 +25,18 @@ export function CoursePage({
   }, [tainanSchedule]);
 
   const cards = [
-    { key: "tp", title: t("courseTaipei"), href: taipeiUrl },
-    { key: "tc", title: t("courseTaichung"), href: taichungUrl },
+    {
+      key: "tp",
+      titleKey: "courseTaipei",
+      subKey: "courseCitySubTaipei",
+      href: taipeiUrl,
+    },
+    {
+      key: "tc",
+      titleKey: "courseTaichung",
+      subKey: "courseCitySubTaichung",
+      href: taichungUrl,
+    },
   ];
 
   return (
@@ -53,17 +64,16 @@ export function CoursePage({
       <div className="cp-grid">
         {cards.map((c) => (
           <article key={c.key} className="cp-card">
-            <h3 className="cp-city">{c.title}</h3>
+            <h3 className="cp-city">
+              <span className="cp-city-primary">{t(c.titleKey)}</span>
+              {t(c.subKey) ? (
+                <span className="cp-city-sub" lang="zh-TW">
+                  {t(c.subKey)}
+                </span>
+              ) : null}
+            </h3>
             {c.href ? (
-              <a
-                href={c.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="vp-admin-add"
-                style={{ width: "fit-content", textDecoration: "none" }}
-              >
-                {t("courseGoLink")}
-              </a>
+              <CourseOgBookmark href={c.href} ctaLabel={t("courseGoLink")} />
             ) : (
               <span className="cp-link-pending">{t("courseLinkPending")}</span>
             )}
@@ -72,7 +82,14 @@ export function CoursePage({
 
         <article className="cp-card cp-card--tainan">
           <div className="cp-tainan-head">
-            <h3 className="cp-city">{t("courseTainan")}</h3>
+            <h3 className="cp-city">
+              <span className="cp-city-primary">{t("courseTainan")}</span>
+              {t("courseCitySubTainan") ? (
+                <span className="cp-city-sub" lang="zh-TW">
+                  {t("courseCitySubTainan")}
+                </span>
+              ) : null}
+            </h3>
           </div>
           <div className="cp-tainan-body">
             {admin ? (
