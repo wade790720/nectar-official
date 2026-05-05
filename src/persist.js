@@ -130,18 +130,25 @@ function normalizeArtist(a, fallback) {
 }
 
 function normalizeCoursePage(v, fallback) {
-  const fb = fallback || { tainanSchedule: "" };
+  const fb = fallback || { tainanSchedule: "", licenseCoverImage: "" };
   if (!v || typeof v !== "object" || Array.isArray(v)) return { ...fb };
   return {
     tainanSchedule:
       typeof v.tainanSchedule === "string" ? v.tainanSchedule : fb.tainanSchedule,
+    licenseCoverImage:
+      typeof v.licenseCoverImage === "string"
+        ? v.licenseCoverImage
+        : fb.licenseCoverImage || "",
   };
 }
 
 function normalizeBundle(parsed, fallback) {
   const fbArtist = fallback.artist || { portrait: "", signature: "" };
   const fbCourses = Array.isArray(fallback.courses) ? fallback.courses : [];
-  const fbCoursePage = fallback.coursePage || { tainanSchedule: "" };
+  const fbCoursePage = fallback.coursePage || {
+    tainanSchedule: "",
+    licenseCoverImage: "",
+  };
   if (Array.isArray(parsed)) {
     return {
       works: parsed,

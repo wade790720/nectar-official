@@ -1,6 +1,6 @@
 const DATA = "data.json";
 const EMPTY_ARTIST = { portrait: "", signature: "" };
-const EMPTY_COURSE_PAGE = { tainanSchedule: "" };
+const EMPTY_COURSE_PAGE = { tainanSchedule: "", licenseCoverImage: "" };
 
 function j(body, s = 200) {
   return new Response(typeof body === "string" ? body : JSON.stringify(body), {
@@ -24,6 +24,8 @@ function normalizeCoursePage(v) {
   return {
     tainanSchedule:
       typeof v.tainanSchedule === "string" ? v.tainanSchedule : "",
+    licenseCoverImage:
+      typeof v.licenseCoverImage === "string" ? v.licenseCoverImage : "",
   };
 }
 

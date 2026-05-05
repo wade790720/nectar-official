@@ -8,7 +8,7 @@ function j(body, s = 200) {
 }
 
 const EMPTY_ARTIST = { portrait: "", signature: "" };
-const EMPTY_COURSE_PAGE = { tainanSchedule: "" };
+const EMPTY_COURSE_PAGE = { tainanSchedule: "", licenseCoverImage: "" };
 
 function normalizeArtist(a) {
   if (!a || typeof a !== "object" || Array.isArray(a))
@@ -25,6 +25,8 @@ function normalizeCoursePage(v) {
   return {
     tainanSchedule:
       typeof v.tainanSchedule === "string" ? v.tainanSchedule : "",
+    licenseCoverImage:
+      typeof v.licenseCoverImage === "string" ? v.licenseCoverImage : "",
   };
 }
 

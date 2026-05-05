@@ -78,7 +78,7 @@ export default function NectarApp() {
       wishes: [],
       artist: { portrait: "", signature: "" },
       courses: DC,
-      coursePage: { tainanSchedule: "" },
+      coursePage: { tainanSchedule: "", licenseCoverImage: "" },
     }),
     [],
   );
@@ -91,7 +91,10 @@ export default function NectarApp() {
     () => (Array.isArray(bundle.courses) ? bundle.courses : []),
     [bundle.courses],
   );
-  const coursePage = bundle.coursePage || { tainanSchedule: "" };
+  const coursePage = bundle.coursePage || {
+    tainanSchedule: "",
+    licenseCoverImage: "",
+  };
   const setW = useCallback(
     (u) =>
       setBundle((d) => ({
@@ -141,7 +144,10 @@ export default function NectarApp() {
   const setCoursePage = useCallback(
     (u) =>
       setBundle((d) => {
-        const prev = d.coursePage || { tainanSchedule: "" };
+        const prev = d.coursePage || {
+          tainanSchedule: "",
+          licenseCoverImage: "",
+        };
         return {
           ...d,
           coursePage: typeof u === "function" ? u(prev) : u,
@@ -440,6 +446,19 @@ export default function NectarApp() {
       queueMicrotask(() => void forceFlushBundle(SK.w));
       return next;
     });
+  };
+  const uploadLicenseCoverImage = async (file) => {
+    if (!file) return;
+    try {
+      const prev = (coursePage.licenseCoverImage || "").trim();
+      const ref = await fileToImageRef(file);
+      setCoursePage((p) => ({ ...p, licenseCoverImage: ref }));
+      queueMicrotask(() => void forceFlushBundle(SK.w));
+      if (prev && prev !== ref) void deleteImageRefs([prev]);
+    } catch (e) {
+      console.error(e);
+      window.alert((e && e.message) || "圖片上傳失敗");
+    }
   };
   const doSv = (w) => {
     const prevWork = w.id ? works.find((x) => x.id === w.id) : null;
@@ -969,6 +988,8 @@ export default function NectarApp() {
                 admin={adminAuthed}
                 tainanSchedule={coursePage.tainanSchedule || ""}
                 onSaveTainanSchedule={saveTainanSchedule}
+                licenseCoverImage={coursePage.licenseCoverImage || ""}
+                onUploadLicenseCover={uploadLicenseCoverImage}
                 taipeiUrl={courseTaipeiUrl}
                 taichungUrl={courseTaichungUrl}
                 mainUrl={courseMainUrl}

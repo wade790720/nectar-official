@@ -155,6 +155,8 @@ const messages = {
     courseDatePlaceholder:
       "e.g.\nMay 18 (Sun) 14:00-17:00 Beginner class\nJune 2 (Mon) 19:00-21:30 Evening session",
     courseDateSave: "Save schedule",
+    courseJournalSectionTitle: "Courses & certifications",
+    courseJournalTabLicense: "License",
     courseBottomTitle: "Contact & Social",
     detailAddAngles: "Add more angles",
     detailUploading: "Uploading…",
@@ -362,7 +364,7 @@ const messages = {
     galleryTitle: "畫廊",
     gallerySub: "藝術品與課程影像的目錄——靜靜地，供你慢慢翻閱。",
     gallerySectionWorks: "藝術品",
-    gallerySectionCourses: "課程",
+    gallerySectionCourses: "單品課",
     galleryCoursesEmpty: "尚無課程。新增一堂課，開始課程日誌。",
     galleryAddCourse: "新增課程",
     galleryAddArtwork: "新增藝術品",
@@ -397,6 +399,8 @@ const messages = {
     courseDatePlaceholder:
       "例如：\n5/18（日）14:00-17:00 初階班\n6/2（一）19:00-21:30 晚間班",
     courseDateSave: "儲存日期",
+    courseJournalSectionTitle: "課程與證照",
+    courseJournalTabLicense: "證照課",
     courseBottomTitle: "聯絡與社群",
     detailAddAngles: "新增更多角度",
     detailUploading: "上傳中…",

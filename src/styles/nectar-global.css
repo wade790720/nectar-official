@@ -3824,6 +3824,239 @@ html[lang='zh-TW'] .hero-display {
   max-width: var(--cp-shell);
 }
 
+.cp-journal-tablist {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: var(--sp-4) var(--sp-12);
+  margin: var(--sp-2) 0 var(--sp-10);
+}
+
+.cp-journal-tab {
+  padding: var(--sp-4) 0 calc(var(--sp-4) + 2px);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--paper-400);
+  letter-spacing: 0.05em;
+  font-size: var(--fs-lead);
+  font-family: var(--font-serif-en);
+  line-height: 1.35;
+  cursor: pointer;
+
+  transition: color var(--dur-short) var(--ease-editorial),
+    border-color var(--dur-short) var(--ease-editorial);
+}
+
+html[lang='zh-TW'] .cp-course-journal .cp-journal-tab {
+  font-family: var(--font-serif-zh);
+}
+
+html[lang='en'] .cp-course-journal .cp-journal-tab {
+  letter-spacing: var(--tr-wide);
+  font-family: var(--font-serif-en);
+  text-transform: uppercase;
+}
+
+.cp-journal-tab:hover {
+  color: var(--paper-100);
+}
+
+.cp-journal-tab.is-active {
+  border-bottom-color: var(--accent-400);
+  color: var(--paper-50);
+}
+
+.cp-journal-panel:not([hidden]) {
+  outline: none;
+}
+
+/* License tab — prose + optional cover */
+.cp-license-article {
+  overflow: hidden;
+  margin: var(--sp-2) auto 0;
+  width: 100%;
+  max-width: none;
+  border: 1px solid rgba(201, 169, 110, 0.18);
+  border-radius: 2px;
+  background: linear-gradient(
+    165deg,
+    rgba(8, 7, 6, 0.82) 0%,
+    rgba(12, 11, 9, 0.52) 100%
+  );
+}
+
+.cp-license-cover-wrap {
+  overflow: hidden;
+  width: 100%;
+  max-height: min(380px, 52vw);
+  background: var(--ink-800);
+}
+
+.cp-license-cover {
+  display: block;
+  width: 100%;
+  height: min(380px, 52vw);
+  object-fit: cover;
+  object-position: center;
+}
+
+.cp-license-cover-upload {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: min(380px, 52vw);
+  background: var(--ink-800);
+}
+
+.cp-license-cover-upload.is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cp-license-inner {
+  padding: clamp(14px, 2.4vw, 28px) clamp(10px, 2vw, 20px)
+    clamp(18px, 2.8vw, 28px);
+}
+
+.cp-license-header {
+  margin-bottom: clamp(var(--sp-8), 3vw, var(--sp-12));
+}
+
+.cp-license-eyebrow {
+  margin: 0 0 var(--sp-4);
+  color: var(--accent-400);
+  letter-spacing: var(--tr-wide);
+  font-size: var(--fs-overline);
+  font-family: var(--font-serif-en);
+}
+
+.cp-license-title-line {
+  margin: 0 0 var(--sp-3);
+  color: var(--paper-200);
+  letter-spacing: 0.08em;
+  font-size: var(--fs-caption);
+  font-family: var(--font-serif-zh);
+}
+
+.cp-license-article--en .cp-license-title-line {
+  font-family: var(--font-serif-en);
+}
+
+.cp-license-headline {
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+  margin: 0 0 clamp(var(--sp-6), 2vw, var(--sp-8));
+  color: var(--paper-50);
+  letter-spacing: var(--tr-tight);
+  font-weight: 400;
+  font-size: clamp(22px, 3.2vw, 34px);
+  line-height: 1.28;
+}
+
+.cp-license-article--zh .cp-license-headline,
+.cp-license-article--zh .cp-license-subhead {
+  font-family: var(--font-serif-zh);
+}
+
+.cp-license-article--en .cp-license-headline,
+.cp-license-article--en .cp-license-subhead {
+  font-family: var(--font-serif-en);
+}
+
+.cp-license-columns {
+  display: grid;
+  gap: clamp(var(--sp-8), 3vw, var(--sp-12))
+    clamp(var(--sp-8), 3.8vw, 48px);
+}
+
+@media (min-width: 860px) {
+  .cp-license-columns {
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.cp-license-col--notes {
+  min-width: 0;
+}
+
+.cp-license-bullets {
+  padding-left: 1.15em;
+  margin: 0;
+  color: var(--paper-200);
+  letter-spacing: 0.03em;
+  font-size: var(--fs-lead);
+  line-height: 1.65;
+}
+
+.cp-license-bullets li + li {
+  margin-top: var(--sp-5);
+}
+
+.cp-license-col--levels {
+  min-width: 0;
+  padding: clamp(12px, 1.8vw, 22px);
+  border-radius: 2px;
+  border: 1px solid rgba(201, 169, 110, 0.14);
+  background: rgba(6, 5, 4, 0.35);
+}
+
+.cp-license-subhead {
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+  border: none;
+  color: var(--paper-50);
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  font-size: var(--fs-lead);
+  line-height: 1.35;
+}
+
+.cp-license-levels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cp-license-levels li {
+  display: grid;
+  grid-template-columns: minmax(4.25em, auto) minmax(0, 1fr);
+  gap: var(--sp-5);
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.06);
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+}
+
+.cp-license-levels li:last-child {
+  border-bottom: none;
+}
+
+.cp-license-level-name {
+  color: var(--accent-400);
+}
+
+.cp-license-level-desc {
+  color: var(--paper-300);
+}
+
+.cp-license-closing {
+  margin: var(--sp-8) 0 0;
+  color: var(--paper-400);
+  letter-spacing: 0.03em;
+  font-size: var(--fs-body);
+  font-style: italic;
+  line-height: 1.65;
+}
+
+@media (max-width: 520px) {
+  .cp-license-levels li {
+    grid-template-columns: 1fr;
+    gap: var(--sp-2);
+  }
+}
 
 .cp-mast {
   max-width: var(--cp-shell);
