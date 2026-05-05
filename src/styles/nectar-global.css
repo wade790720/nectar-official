@@ -3818,6 +3818,13 @@ html[lang='zh-TW'] .hero-display {
   --cp-shell: 980px;
 }
 
+.cp-course-journal {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: var(--cp-shell);
+}
+
+
 .cp-mast {
   max-width: var(--cp-shell);
 }

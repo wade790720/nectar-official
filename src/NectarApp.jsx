@@ -908,7 +908,6 @@ export default function NectarApp() {
             element={
               <GalleryPage
                 works={works}
-                courses={courses}
                 admin={adminAuthed}
                 onOpenDetail={setDt}
                 onMoveWork={moveWork}
@@ -917,15 +916,10 @@ export default function NectarApp() {
                   setMo(true);
                 }}
                 onDeleteWork={doDl}
-                onAddCourse={addCourse}
-                onSaveCourseNames={saveCourseNames}
-                onUploadCourseImage={uploadCourseImage}
-                onDeleteCourse={deleteCourse}
                 onAddArtwork={() => {
                   setEd({ ...EMPTY_WORK });
                   setMo(true);
                 }}
-                newlyAddedCourseId={newlyAddedCourseId}
               />
             }
           />
@@ -978,6 +972,12 @@ export default function NectarApp() {
                 taipeiUrl={courseTaipeiUrl}
                 taichungUrl={courseTaichungUrl}
                 mainUrl={courseMainUrl}
+                courses={courses}
+                onAddCourse={addCourse}
+                onSaveCourseNames={saveCourseNames}
+                onUploadCourseImage={uploadCourseImage}
+                onDeleteCourse={deleteCourse}
+                newlyAddedCourseId={newlyAddedCourseId}
               />
             }
           />
