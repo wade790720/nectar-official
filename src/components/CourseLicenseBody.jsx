@@ -127,11 +127,23 @@ export function CourseLicenseBody({
           <p className="cp-license-eyebrow">{data.madokaEyebrow}</p>
           <p className="cp-license-title-line">{data.madokaTitleLine}</p>
           <h3 id="cp-license-madoka-headline" className="cp-license-headline">
-            {data.madokaHeadline}
+            {locale === "zh-TW" && /^\s*Madoka\s+/i.test(data.madokaHeadline) ? (
+              <>
+                <span className="cp-license-headline-wordmark" lang="en">
+                  Madoka
+                </span>{" "}
+                {data.madokaHeadline.replace(/^\s*Madoka\s+/i, "")}
+              </>
+            ) : (
+              data.madokaHeadline
+            )}
           </h3>
         </header>
         {data.madokaRule ? (
           <p className="cp-license-madoka-sub">{data.madokaRule}</p>
+        ) : null}
+        {data.levelsIntro ? (
+          <p className="cp-license-levels-intro">{data.levelsIntro}</p>
         ) : null}
         <ul className="cp-license-levels" aria-label={data.madokaHeadline}>
           {data.levels.map((row) => (

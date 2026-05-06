@@ -3822,14 +3822,21 @@ html[lang='zh-TW'] .hero-display {
   margin-right: auto;
   margin-left: auto;
   max-width: var(--cp-shell);
+  border-top-color: var(--accent-hair);
+}
+
+.cp-course-journal .gl-section-head {
+  margin-bottom: var(--sp-8);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--accent-hair);
 }
 
 .cp-journal-tablist {
   display: flex;
   flex-wrap: wrap;
+  margin: var(--sp-2) 0 var(--sp-10);
 
   gap: var(--sp-4) var(--sp-12);
-  margin: var(--sp-2) 0 var(--sp-10);
 }
 
 .cp-journal-tab {
@@ -3843,9 +3850,8 @@ html[lang='zh-TW'] .hero-display {
   font-family: var(--font-serif-en);
   line-height: 1.35;
   cursor: pointer;
-
   transition: color var(--dur-short) var(--ease-editorial),
-    border-color var(--dur-short) var(--ease-editorial);
+  border-color var(--dur-short) var(--ease-editorial);
 }
 
 html[lang='zh-TW'] .cp-course-journal .cp-journal-tab {
@@ -3853,9 +3859,33 @@ html[lang='zh-TW'] .cp-course-journal .cp-journal-tab {
 }
 
 html[lang='en'] .cp-course-journal .cp-journal-tab {
+  text-transform: uppercase;
   letter-spacing: var(--tr-wide);
   font-family: var(--font-serif-en);
-  text-transform: uppercase;
+}
+
+.cp-journal-tab:not(.is-active) {
+  animation: cp-journal-tab-hint 3.4s ease-in-out infinite;
+}
+
+@keyframes cp-journal-tab-hint {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+.cp-journal-tab:hover, .cp-journal-tab:focus-visible {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-journal-tab {
+    animation: none !important;
+  }
 }
 
 .cp-journal-tab:hover {
@@ -3865,6 +3895,7 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 .cp-journal-tab.is-active {
   border-bottom-color: var(--accent-400);
   color: var(--paper-50);
+  animation: none;
 }
 
 .cp-journal-panel:not([hidden]) {
@@ -3875,34 +3906,34 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 .cp-license-article {
   overflow: hidden;
   margin: var(--sp-2) auto 0;
-  width: 100%;
   max-width: none;
+  width: 100%;
   border: 1px solid rgba(201, 169, 110, 0.18);
   border-radius: 2px;
   background: linear-gradient(
-    165deg,
-    rgba(8, 7, 6, 0.82) 0%,
-    rgba(12, 11, 9, 0.52) 100%
+  165deg,
+  rgba(8, 7, 6, 0.82) 0%,
+  rgba(12, 11, 9, 0.52) 100%
   );
 }
 
 .cp-license-cover-wrap {
   display: flex;
   overflow: hidden;
-  flex-shrink: 0;
   align-items: center;
+  flex-shrink: 0;
   justify-content: center;
-  width: 100%;
   min-height: min(420px, 58vw);
-  padding: var(--sp-3) 0;
+  width: 100%;
   background: var(--ink-800);
 }
 
 .cp-license-cover {
   display: block;
+  max-height: min(680px, 85vw);
   width: 100%;
   height: auto;
-  max-height: min(680px, 85vw);
+
   object-fit: contain;
   object-position: center center;
 }
@@ -3911,12 +3942,11 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   position: relative;
   display: flex;
   overflow: hidden;
-  flex-shrink: 0;
   align-items: center;
+  flex-shrink: 0;
   justify-content: center;
-  width: 100%;
   min-height: min(420px, 58vw);
-  padding: var(--sp-3) 0;
+  width: 100%;
   background: var(--ink-800);
 }
 
@@ -3929,7 +3959,7 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 
 .cp-license-inner {
   padding: clamp(14px, 2.4vw, 28px) clamp(10px, 2vw, 20px)
-    clamp(18px, 2.8vw, 28px);
+  clamp(18px, 2.8vw, 28px);
 }
 
 .cp-license-header {
@@ -3957,9 +3987,9 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 }
 
 .cp-license-headline {
+  margin: 0 0 clamp(var(--sp-6), 2vw, var(--sp-8));
   padding-bottom: var(--sp-6);
   border-bottom: 1px solid rgba(201, 169, 110, 0.2);
-  margin: 0 0 clamp(var(--sp-6), 2vw, var(--sp-8));
   color: var(--paper-50);
   letter-spacing: var(--tr-tight);
   font-weight: 400;
@@ -3967,13 +3997,11 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   line-height: 1.28;
 }
 
-.cp-license-article--zh .cp-license-headline,
-.cp-license-article--zh .cp-license-subhead {
+.cp-license-article--zh .cp-license-headline, .cp-license-article--zh .cp-license-subhead {
   font-family: var(--font-serif-zh);
 }
 
-.cp-license-article--en .cp-license-headline,
-.cp-license-article--en .cp-license-subhead {
+.cp-license-article--en .cp-license-headline, .cp-license-article--en .cp-license-subhead {
   font-family: var(--font-serif-en);
 }
 
@@ -3982,13 +4010,18 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 }
 
 .cp-license-section--madoka {
+  overflow: hidden;
   margin-top: clamp(var(--sp-8), 2.8vw, var(--sp-12));
+  padding: clamp(14px, 2.4vw, 28px) clamp(10px, 2vw, 20px)
+  clamp(18px, 2.8vw, 28px);
   min-width: 0;
-  padding: clamp(12px, 1.8vw, 22px) clamp(10px, 2vw, 20px)
-    clamp(14px, 2vw, 22px);
+  border: 1px solid rgba(201, 169, 110, 0.18);
   border-radius: 2px;
-  border: 1px solid rgba(201, 169, 110, 0.14);
-  background: rgba(6, 5, 4, 0.35);
+  background: linear-gradient(
+  165deg,
+  rgba(8, 7, 6, 0.82) 0%,
+  rgba(12, 11, 9, 0.52) 100%
+  );
 }
 
 .cp-license-madoka-sub {
@@ -4008,9 +4041,29 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   margin-bottom: 0;
 }
 
+.cp-license-levels-intro {
+  margin: 0 0 var(--sp-6);
+  color: var(--paper-300);
+  letter-spacing: 0.03em;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.cp-license-headline-wordmark {
+  font-family: var(--font-serif-en);
+}
+
+.cp-license-section--madoka.cp-license-article--zh .cp-license-levels-intro, .cp-license-section--madoka.cp-license-article--zh .cp-license-level-name, .cp-license-section--madoka.cp-license-article--zh .cp-license-level-desc, .cp-license-section--madoka.cp-license-article--zh .cp-license-closing {
+  font-family: var(--font-serif-zh);
+}
+
+.cp-license-section--madoka.cp-license-article--en .cp-license-levels-intro, .cp-license-section--madoka.cp-license-article--en .cp-license-level-name, .cp-license-section--madoka.cp-license-article--en .cp-license-level-desc, .cp-license-section--madoka.cp-license-article--en .cp-license-closing {
+  font-family: var(--font-serif-en);
+}
+
 .cp-license-bullets {
-  padding-left: 1.15em;
   margin: 0;
+  padding-left: 1.15em;
   color: var(--paper-200);
   letter-spacing: 0.03em;
   font-size: var(--fs-lead);
@@ -4019,6 +4072,14 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 
 .cp-license-bullets li + li {
   margin-top: var(--sp-5);
+}
+
+.cp-license-article.cp-license-article--zh .cp-license-bullets {
+  font-family: var(--font-serif-zh);
+}
+
+.cp-license-article.cp-license-article--en .cp-license-bullets {
+  font-family: var(--font-serif-en);
 }
 
 .cp-license-subhead {
@@ -4033,22 +4094,27 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 }
 
 .cp-license-levels {
+  display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+
+  grid-template-columns: minmax(6.5rem, 12.5rem) minmax(0, 1fr);
+  gap: 0 clamp(var(--sp-5), 2.4vw, var(--sp-8));
 }
 
 .cp-license-levels li {
-  display: grid;
-  grid-template-columns: minmax(4.25em, auto) minmax(0, 1fr);
-  gap: var(--sp-5);
-  padding: var(--sp-5) 0;
-  border-bottom: 1px solid rgba(250, 247, 242, 0.06);
-  font-size: var(--fs-lead);
-  line-height: 1.6;
+  display: contents;
 }
 
-.cp-license-levels li:last-child {
+.cp-license-level-name, .cp-license-level-desc {
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid rgba(250, 247, 242, 0.06);
+}
+
+.cp-license-levels li:last-child .cp-license-level-name, .cp-license-levels li:last-child .cp-license-level-desc {
   border-bottom: none;
 }
 
@@ -4064,15 +4130,32 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   margin: var(--sp-8) 0 0;
   color: var(--paper-400);
   letter-spacing: 0.03em;
-  font-size: var(--fs-body);
   font-style: italic;
+  font-size: var(--fs-body);
   line-height: 1.65;
 }
 
 @media (max-width: 520px) {
+  .cp-license-levels {
+    display: block;
+  }
+
   .cp-license-levels li {
-    grid-template-columns: 1fr;
+    display: grid;
+    padding: var(--sp-5) 0;
+    border-bottom: 1px solid rgba(250, 247, 242, 0.06);
+
     gap: var(--sp-2);
+    grid-template-columns: 1fr;
+  }
+
+  .cp-license-levels li:last-child {
+    border-bottom: none;
+  }
+
+  .cp-license-level-name, .cp-license-level-desc {
+    padding: 0;
+    border-bottom: none;
   }
 }
 
@@ -4183,13 +4266,14 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   overflow: hidden;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 16 / 9;
   min-height: 120px;
   max-height: min(42vw, 220px);
+  width: 100%;
   border-right: none;
   border-bottom: 1px solid rgba(201, 169, 110, 0.12);
   background: var(--ink-700);
+
+  aspect-ratio: 16 / 9;
 }
 
 /* OG 圖多為橫幅或 1:1；cover 會硬裁。contain 顯示完整構圖，留白處用深色底。 */

@@ -156,7 +156,7 @@ const messages = {
       "e.g.\nMay 18 (Sun) 14:00-17:00 Beginner class\nJune 2 (Mon) 19:00-21:30 Evening session",
     courseDateSave: "Save schedule",
     courseJournalSectionTitle: "Courses & certifications",
-    courseJournalTabLicense: "License",
+    courseJournalTabLicense: "Certifications",
     courseBottomTitle: "Contact & Social",
     detailAddAngles: "Add more angles",
     detailUploading: "Uploading…",

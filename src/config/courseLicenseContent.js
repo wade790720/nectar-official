@@ -18,6 +18,7 @@ export const COURSE_LICENSE_COVER_SRC = "";
  *   madokaTitleLine: string,
  *   madokaHeadline: string,
  *   madokaRule?: string,
+ *   levelsIntro?: string,
  *   levels: { label: string, body: string }[],
  *   closing: string,
  * }} LicenseLocale
@@ -37,11 +38,12 @@ export const LICENSE_BY_LOCALE = {
     madokaTitleLine: "日本水晶花證照課",
     madokaHeadline: "Madoka 證書課程",
     madokaRule: "（不可跳級）",
+    levelsIntro: "四級皆須完成 12 項花藝作品。下列為各級建議天數。",
     levels: [
-      { label: "初級", body: "12 項花，約 6–7 天完成" },
-      { label: "中級", body: "12 項花，約 6–7 天完成" },
-      { label: "高級", body: "12 項花，約 8 天完成" },
-      { label: "師資", body: "12 項花，約 8 天完成" },
+      { label: "初級", body: "約 6–7 天" },
+      { label: "中級", body: "約 6–7 天" },
+      { label: "高級", body: "約 8 天" },
+      { label: "師資", body: "約 8 天" },
     ],
     closing: "課程日皆不需連續。完成後可依級別申請日本證書。",
   },
@@ -57,14 +59,16 @@ export const LICENSE_BY_LOCALE = {
     madokaTitleLine: "Japan crystal-flower license track",
     madokaHeadline: "Madoka certificate program",
     madokaRule: "(no skipping levels)",
+    levelsIntro:
+      "Each tier: 12 floral projects. Estimated time to complete:",
     levels: [
-      { label: "Beginner", body: "12 flower projects, ~6–7 days" },
-      { label: "Intermediate", body: "12 flower projects, ~6–7 days" },
-      { label: "Advanced", body: "12 flower projects, ~8 days" },
-      { label: "Instructor", body: "12 flower projects, ~8 days" },
+      { label: "Beginner", body: "~6–7 days" },
+      { label: "Intermediate", body: "~6–7 days" },
+      { label: "Advanced", body: "~8 days" },
+      { label: "Instructor", body: "~8 days" },
     ],
     closing:
-      "Session days need not run back-to-back. After completion you may apply for the corresponding Japanese certificate for each tier.",
+      "Days need not be consecutive. After completion, apply for the Japanese certificate that matches your tier.",
   },
 };
 
