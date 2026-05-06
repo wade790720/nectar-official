@@ -3887,25 +3887,36 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 }
 
 .cp-license-cover-wrap {
+  display: flex;
   overflow: hidden;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-height: min(380px, 52vw);
+  min-height: min(420px, 58vw);
+  padding: var(--sp-3) 0;
   background: var(--ink-800);
 }
 
 .cp-license-cover {
   display: block;
   width: 100%;
-  height: min(380px, 52vw);
-  object-fit: cover;
-  object-position: center;
+  height: auto;
+  max-height: min(680px, 85vw);
+  object-fit: contain;
+  object-position: center center;
 }
 
 .cp-license-cover-upload {
   position: relative;
+  display: flex;
   overflow: hidden;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  min-height: min(380px, 52vw);
+  min-height: min(420px, 58vw);
+  padding: var(--sp-3) 0;
   background: var(--ink-800);
 }
 
@@ -3913,6 +3924,7 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .cp-license-inner {
@@ -3965,21 +3977,35 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
   font-family: var(--font-serif-en);
 }
 
-.cp-license-columns {
-  display: grid;
-  gap: clamp(var(--sp-8), 3vw, var(--sp-12))
-    clamp(var(--sp-8), 3.8vw, 48px);
+.cp-license-section--foliage {
+  margin-bottom: clamp(var(--sp-6), 2vw, var(--sp-10));
 }
 
-@media (min-width: 860px) {
-  .cp-license-columns {
-    grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-.cp-license-col--notes {
+.cp-license-section--madoka {
+  margin-top: clamp(var(--sp-8), 2.8vw, var(--sp-12));
   min-width: 0;
+  padding: clamp(12px, 1.8vw, 22px) clamp(10px, 2vw, 20px)
+    clamp(14px, 2vw, 22px);
+  border-radius: 2px;
+  border: 1px solid rgba(201, 169, 110, 0.14);
+  background: rgba(6, 5, 4, 0.35);
+}
+
+.cp-license-madoka-sub {
+  margin: 0 0 var(--sp-6);
+  color: var(--accent-400);
+  letter-spacing: 0.08em;
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+}
+
+.cp-license-header.cp-license-header--madoka {
+  margin-bottom: clamp(var(--sp-6), 2vw, var(--sp-8));
+}
+
+.cp-license-section--madoka .cp-license-closing {
+  margin-top: var(--sp-8);
+  margin-bottom: 0;
 }
 
 .cp-license-bullets {
@@ -3993,14 +4019,6 @@ html[lang='en'] .cp-course-journal .cp-journal-tab {
 
 .cp-license-bullets li + li {
   margin-top: var(--sp-5);
-}
-
-.cp-license-col--levels {
-  min-width: 0;
-  padding: clamp(12px, 1.8vw, 22px);
-  border-radius: 2px;
-  border: 1px solid rgba(201, 169, 110, 0.14);
-  background: rgba(6, 5, 4, 0.35);
 }
 
 .cp-license-subhead {

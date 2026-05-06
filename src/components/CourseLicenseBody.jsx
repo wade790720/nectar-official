@@ -35,98 +35,114 @@ export function CourseLicenseBody({
   const pickFile = () => fileRef.current?.click();
 
   return (
-    <article
-      className={`cp-license-article ${langClass}`}
-      lang={locale === "zh-TW" ? "zh-TW" : "en"}
-    >
-      {showCoverRegion ? (
-        <div className="cp-license-cover-wrap">
-          {admin ? (
-            <div
-              className={`cp-license-cover-upload gl-cover-upload ${showImg ? "" : "is-empty"}`}
-              role="button"
-              tabIndex={0}
-              onClick={pickFile}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  pickFile();
-                }
-              }}
-            >
-              {showImg ? (
-                <img
-                  className="cp-license-cover"
-                  src={coverSrc}
-                  alt={data.titleLine}
-                  decoding="async"
-                  onError={() => setImgErr(true)}
-                />
-              ) : (
-                <span className="gl-cover-empty">—</span>
-              )}
-              <div className="gl-cover-overlay" aria-hidden="true">
-                <Cam s={22} />
-                <span>
-                  {showImg ? t("galleryCourseReplace") : t("galleryCourseUpload")}
-                </span>
-              </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) onUploadCover?.(f);
-                  e.target.value = "";
+    <>
+      <article
+        className={`cp-license-article ${langClass}`}
+        lang={locale === "zh-TW" ? "zh-TW" : "en"}
+      >
+        {showCoverRegion ? (
+          <div className="cp-license-cover-wrap">
+            {admin ? (
+              <div
+                className={`cp-license-cover-upload gl-cover-upload ${showImg ? "" : "is-empty"}`}
+                role="button"
+                tabIndex={0}
+                onClick={pickFile}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    pickFile();
+                  }
                 }}
+              >
+                {showImg ? (
+                  <img
+                    className="cp-license-cover"
+                    src={coverSrc}
+                    alt={data.titleLine}
+                    decoding="async"
+                    onError={() => setImgErr(true)}
+                  />
+                ) : (
+                  <span className="gl-cover-empty">—</span>
+                )}
+                <div className="gl-cover-overlay" aria-hidden="true">
+                  <Cam s={22} />
+                  <span>
+                    {showImg ? t("galleryCourseReplace") : t("galleryCourseUpload")}
+                  </span>
+                </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) onUploadCover?.(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+            ) : (
+              <img
+                className="cp-license-cover"
+                src={coverSrc}
+                alt={data.titleLine}
+                decoding="async"
+                onError={() => setImgErr(true)}
               />
-            </div>
-          ) : (
-            <img
-              className="cp-license-cover"
-              src={coverSrc}
-              alt={data.titleLine}
-              decoding="async"
-              onError={() => setImgErr(true)}
-            />
-          )}
-        </div>
-      ) : null}
+            )}
+          </div>
+        ) : null}
 
-      <div className="cp-license-inner">
-        <header className="cp-license-header">
-          <p className="cp-license-eyebrow">{data.eyebrow}</p>
-          <p className="cp-license-title-line">{data.titleLine}</p>
-          <h3 className="cp-license-headline">{data.headline}</h3>
-        </header>
+        <div className="cp-license-inner">
+          <section
+            className="cp-license-section cp-license-section--foliage"
+            aria-labelledby="cp-license-foliage-headline"
+          >
+            <header className="cp-license-header">
+              <p className="cp-license-eyebrow">{data.eyebrow}</p>
+              <p className="cp-license-title-line">{data.titleLine}</p>
+              <h3 id="cp-license-foliage-headline" className="cp-license-headline">
+                {data.headline}
+              </h3>
+            </header>
 
-        <div className="cp-license-columns">
-          <div className="cp-license-col cp-license-col--notes">
             <ul className="cp-license-bullets">
               {data.bullets.map((line, i) => (
                 <li key={i}>{line}</li>
               ))}
             </ul>
-            <p className="cp-license-closing">{data.closing}</p>
-          </div>
-
-          <aside className="cp-license-col cp-license-col--levels" aria-labelledby="cp-license-levels-heading">
-            <h4 id="cp-license-levels-heading" className="cp-license-subhead">
-              {data.levelsTitle}
-            </h4>
-            <ul className="cp-license-levels">
-              {data.levels.map((row) => (
-                <li key={row.label}>
-                  <span className="cp-license-level-name">{row.label}</span>
-                  <span className="cp-license-level-desc">{row.body}</span>
-                </li>
-              ))}
-            </ul>
-          </aside>
+          </section>
         </div>
-      </div>
-    </article>
+      </article>
+
+      <section
+        className={`cp-license-section cp-license-section--madoka ${langClass}`}
+        aria-labelledby="cp-license-madoka-headline"
+        lang={locale === "zh-TW" ? "zh-TW" : "en"}
+      >
+        <header className="cp-license-header cp-license-header--madoka">
+          <p className="cp-license-eyebrow">{data.madokaEyebrow}</p>
+          <p className="cp-license-title-line">{data.madokaTitleLine}</p>
+          <h3 id="cp-license-madoka-headline" className="cp-license-headline">
+            {data.madokaHeadline}
+          </h3>
+        </header>
+        {data.madokaRule ? (
+          <p className="cp-license-madoka-sub">{data.madokaRule}</p>
+        ) : null}
+        <ul className="cp-license-levels" aria-label={data.madokaHeadline}>
+          {data.levels.map((row) => (
+            <li key={row.label}>
+              <span className="cp-license-level-name">{row.label}</span>
+              <span className="cp-license-level-desc">{row.body}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="cp-license-closing">{data.closing}</p>
+      </section>
+    </>
   );
 }

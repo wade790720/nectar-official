@@ -8,7 +8,20 @@
  */
 export const COURSE_LICENSE_COVER_SRC = "";
 
-/** @typedef {{ eyebrow: string, titleLine: string, headline: string, bullets: string[], levelsTitle: string, levels: { label: string, body: string }[], closing: string }} LicenseLocale */
+/**
+ * @typedef {{
+ *   eyebrow: string,
+ *   titleLine: string,
+ *   headline: string,
+ *   bullets: string[],
+ *   madokaEyebrow: string,
+ *   madokaTitleLine: string,
+ *   madokaHeadline: string,
+ *   madokaRule?: string,
+ *   levels: { label: string, body: string }[],
+ *   closing: string,
+ * }} LicenseLocale
+ */
 
 /** @type {Record<string, LicenseLocale>} */
 export const LICENSE_BY_LOCALE = {
@@ -20,7 +33,10 @@ export const LICENSE_BY_LOCALE = {
       "課程天數約 6–7 日（不需連續）；作品包含 12 項植物：生態瓶 ×1、植栽盆 ×2、觀葉植物日本證書 ×1。",
       "因浮木為大自然物件，每人製作與擺放皆會有所不同，這非常值得珍惜；也因此能培養更多美感與技巧。",
     ],
-    levelsTitle: "花藝證照班（不可跳級）",
+    madokaEyebrow: "官方課程",
+    madokaTitleLine: "日本水晶花證照課",
+    madokaHeadline: "Madoka 證書課程",
+    madokaRule: "（不可跳級）",
     levels: [
       { label: "初級", body: "12 項花，約 6–7 天完成" },
       { label: "中級", body: "12 項花，約 6–7 天完成" },
@@ -37,7 +53,10 @@ export const LICENSE_BY_LOCALE = {
       "Roughly 6–7 session days (non-consecutive). Includes 12 plant projects: one terrarium, two potted foliage pieces, plus a Japan foliage-plant certification.",
       "Driftwood is natural—every arrangement differs. That variance is intentional: it trains eye and composition with real materials.",
     ],
-    levelsTitle: "Flower-craft certification tracks (no skipping levels)",
+    madokaEyebrow: "Official program",
+    madokaTitleLine: "Japan crystal-flower license track",
+    madokaHeadline: "Madoka certificate program",
+    madokaRule: "(no skipping levels)",
     levels: [
       { label: "Beginner", body: "12 flower projects, ~6–7 days" },
       { label: "Intermediate", body: "12 flower projects, ~6–7 days" },
